@@ -33,7 +33,7 @@ export default function Closing() {
                 <div className="grid md:grid-cols-3 gap-10 lg:gap-8 mt-16 lg:mt-20">
                     {STORIES.map((s, i) => (
                         <Fade key={s.id} delay={i * 0.1}>
-                            <Link to="/insights" className="group block" data-testid={`insight-story-${s.id}`}>
+                            <Link to={`/insights/${s.id}`} className="group block" data-testid={`insight-story-${s.id}`}>
                                 <div className="overflow-hidden h-64 lg:h-96">
                                     <img
                                         src={s.image}

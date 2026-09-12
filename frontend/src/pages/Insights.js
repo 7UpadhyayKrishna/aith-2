@@ -43,14 +43,14 @@ export default function Insights() {
                                     </p>
                                     <h2 className="text-3xl lg:text-5xl font-extrabold tracking-tight leading-[1.02] mt-5">{s.title}</h2>
                                     <p className="text-mute text-sm lg:text-base leading-relaxed mt-6 max-w-md">{s.excerpt}</p>
-                                    <button
-                                        onClick={() => notify('The full story')}
+                                    <Link
+                                        to={`/insights/${s.id}`}
                                         className="group inline-flex items-center gap-2 mt-8 font-mono text-[11px] tracking-[0.22em] uppercase text-graphite border-b border-graphite/40 pb-1 hover:text-copper hover:border-copper transition-colors duration-300"
                                         data-testid={`read-story-${s.id}`}
                                     >
                                         Read Story
                                         <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
-                                    </button>
+                                    </Link>
                                 </div>
                             </div>
                         </Fade>

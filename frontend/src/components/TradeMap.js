@@ -4,7 +4,7 @@ import { feature } from 'topojson-client';
 import { geoNaturalEarth1, geoPath, geoGraticule10 } from 'd3-geo';
 import landTopo from 'world-atlas/land-110m.json';
 import countriesTopo from 'world-atlas/countries-110m.json';
-import { REGIONS } from '../data/content';
+import { PORTS, REGIONS } from '../data/content';
 import { EASE } from './Reveal';
 
 const W = 1200;
@@ -22,6 +22,8 @@ const spherePath = pathGen({ type: 'Sphere' });
 export default function TradeMap() {
     const [active, setActive] = useState(null);
     const pts = useMemo(() => REGIONS.map((r) => ({ ...r, p: projection([r.lon, r.lat]) })), []);
+    const ports = useMemo(() => PORTS.map((p) => ({ ...p, pt: projection([p.lon, p.lat]) })), []);
+    const reduceMotion = useMemo(() => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches, []);
     const asia = pts.find((r) => r.primary);
     const routes = pts.filter((r) => !r.primary);
 
@@ -68,6 +70,22 @@ export default function TradeMap() {
                         transition={{ duration: 1.8, delay: 0.4 + i * 0.3, ease: EASE }}
                     />
                 ))}
+
+                {ports.map((p) => (
+                    <g key={p.code} data-testid={`map-port-${p.code.toLowerCase()}`}>
+                        <rect x={p.pt[0] - 2.5} y={p.pt[1] - 2.5} width="5" height="5" fill="#B65A32" opacity="0.85" />
+                        <text x={p.pt[0] + (p.anchor === 'end' ? -8 : 8)} y={p.pt[1] + 3} textAnchor={p.anchor || 'start'} fill="rgba(243,240,232,0.38)" fontSize="8" fontFamily="'JetBrains Mono', monospace" letterSpacing="1.2">
+                            {p.code}
+                        </text>
+                    </g>
+                ))}
+
+                {!reduceMotion &&
+                    routes.map((r, i) => (
+                        <circle key={`ship-${r.id}`} cx={asia.p[0]} cy={asia.p[1]} r="3.2" fill="#B65A32" stroke="#17231D" strokeWidth="0.8" data-testid={`route-traveler-${r.id}`}>
+                            <animateMotion dur={`${14 + i * 3.5}s`} begin={`${i * 2.8}s`} repeatCount="indefinite" path={arc(r)} />
+                        </circle>
+                    ))}
 
                 {pts.map((r, i) => (
                     <motion.g

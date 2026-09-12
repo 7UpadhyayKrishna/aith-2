@@ -11,6 +11,7 @@ import Products from '@/pages/Products';
 import Markets from '@/pages/Markets';
 import Insights from '@/pages/Insights';
 import RequestQuote from '@/pages/RequestQuote';
+import Article from '@/pages/Article';
 
 const ScrollManager = () => {
     const { pathname, hash } = useLocation();
@@ -75,6 +76,7 @@ function App() {
                     <Route path="/products" element={<Products />} />
                     <Route path="/markets" element={<Markets />} />
                     <Route path="/insights" element={<Insights />} />
+                    <Route path="/insights/:id" element={<Article />} />
                     <Route path="/request-quote" element={<RequestQuote />} />
                     <Route path="*" element={<Home />} />
                 </Routes>

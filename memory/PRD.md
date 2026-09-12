@@ -16,7 +16,8 @@ Design and build a distinctive, premium, award-level multi-page website for ASIA
 
 ## Implemented (2026-09-12)
 - Full visual system per brief; floating nav (transparent over hero → compact ivory blurred bar on scroll); mobile full-screen menu + persistent REQUEST QUOTE bottom CTA.
-- Cartographic REAL world map (Natural Earth 110m land + country borders + graticule via d3-geo/topojson, NaturalEarth1 projection) in engraved ivory-on-forest style, with animated copper trade routes from Asia and hover/click market panels (MARKET/PRODUCTS/OPPORTUNITIES) that flip below the marker near the top edge.
+- Cartographic REAL world map (Natural Earth 110m land + country borders + graticule via d3-geo/topojson, NaturalEarth1 projection) in engraved ivory-on-forest style, with animated copper trade routes from Asia, slow-looping traveler markers along each arc (staggered, reduced-motion aware), 7 tiny port-code markers (INNSA1, INMUN1, SGSIN, AEJEA, NLRTM, USHOU, KEMBA) and hover/click market panels that flip below the marker near the top edge.
+- Full long-form article pages at /insights/:id (3 stories: commodity markets, trade documents, bulk procurement) with drop-cap editorial body, subheads, serif pull-quotes, next-story links and CTA; all story teasers site-wide link to them.
 - Scroll-driven 6-step process line; interactive What-We-Do contents page; category discovery with live search + hover image switching; featured Agriculture showcase with hover image swaps.
 - Multi-step trade request form (01–06, progress line, slide transitions, validation, partner/sourcing variants via query params, confirmation w/ ref code). MOCKED: submissions not stored or emailed (per user choice).
 - All photography individually verified for relevance/palette.

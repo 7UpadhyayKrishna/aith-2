@@ -133,3 +133,13 @@
         transition-duration: 0.01ms !important;
     }
 }
+
+.dropcap::first-letter {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 3.6em;
+    float: left;
+    line-height: 0.82;
+    padding-right: 0.12em;
+    padding-top: 0.05em;
+    color: #B65A32;
+}
