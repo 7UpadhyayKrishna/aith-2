@@ -1,39 +1,59 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import { feature } from 'topojson-client';
+import { geoNaturalEarth1, geoPath, geoGraticule10 } from 'd3-geo';
+import landTopo from 'world-atlas/land-110m.json';
+import countriesTopo from 'world-atlas/countries-110m.json';
 import { REGIONS } from '../data/content';
 import { EASE } from './Reveal';
 
-const IVORY_LINE = 'rgba(243, 240, 232, 0.08)';
-const IVORY_TEXT = 'rgba(243, 240, 232, 0.62)';
-const IVORY_FAINT = 'rgba(243, 240, 232, 0.38)';
+const W = 1200;
+const H = 620;
+const IVORY_TEXT = 'rgba(243, 240, 232, 0.66)';
+const IVORY_FAINT = 'rgba(243, 240, 232, 0.4)';
+
+const projection = geoNaturalEarth1().fitExtent([[26, 26], [W - 26, H - 10]], { type: 'Sphere' });
+const pathGen = geoPath(projection);
+const landPath = pathGen(feature(landTopo, landTopo.objects.land));
+const bordersPath = pathGen(feature(countriesTopo, countriesTopo.objects.countries));
+const graticulePath = pathGen(geoGraticule10());
+const spherePath = pathGen({ type: 'Sphere' });
 
 export default function TradeMap() {
     const [active, setActive] = useState(null);
-    const asia = REGIONS.find((r) => r.primary);
-    const routes = REGIONS.filter((r) => !r.primary);
+    const pts = useMemo(() => REGIONS.map((r) => ({ ...r, p: projection([r.lon, r.lat]) })), []);
+    const asia = pts.find((r) => r.primary);
+    const routes = pts.filter((r) => !r.primary);
 
     const arc = (r) => {
-        const mx = (asia.x + r.x) / 2;
-        const lift = Math.max(Math.abs(asia.x - r.x) * 0.28, 90);
-        const cy = Math.min(asia.y, r.y) - lift;
-        return `M ${asia.x} ${asia.y} Q ${mx} ${cy} ${r.x} ${r.y}`;
+        const [x1, y1] = asia.p;
+        const [x2, y2] = r.p;
+        const mx = (x1 + x2) / 2;
+        const my = (y1 + y2) / 2;
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const len = Math.hypot(dx, dy) || 1;
+        let nx = -dy / len;
+        let ny = dx / len;
+        if (ny > 0) {
+            nx = -nx;
+            ny = -ny;
+        }
+        const lift = Math.min(len * 0.22, 120);
+        return `M ${x1} ${y1} Q ${mx + nx * lift} ${my + ny * lift} ${x2} ${y2}`;
     };
 
     return (
         <div className="relative w-full" onMouseLeave={() => setActive(null)} data-testid="trade-map">
             <svg viewBox="0 0 1200 620" className="w-full h-auto" role="img" aria-label="Cartographic drawing of AITH trade routes from Asia to the Middle East, Africa, Europe and North America">
-                {Array.from({ length: 11 }, (_, i) => (
-                    <line key={`v${i}`} x1={60 + i * 108} y1="30" x2={60 + i * 108} y2="590" stroke={IVORY_LINE} strokeWidth="1" />
-                ))}
-                {Array.from({ length: 6 }, (_, i) => (
-                    <line key={`h${i}`} x1="40" y1={60 + i * 100} x2="1160" y2={60 + i * 100} stroke={IVORY_LINE} strokeWidth="1" />
-                ))}
+                <path d={spherePath} fill="none" stroke="rgba(243,240,232,0.14)" strokeWidth="1" />
+                <path d={graticulePath} fill="none" stroke="rgba(243,240,232,0.06)" strokeWidth="0.6" />
+                <path d={landPath} fill="rgba(243,240,232,0.06)" stroke="rgba(243,240,232,0.3)" strokeWidth="0.8" />
+                <path d={bordersPath} fill="none" stroke="rgba(243,240,232,0.08)" strokeWidth="0.5" />
 
-                {[70, 130, 200].map((r, i) => (
-                    <circle key={i} cx={asia.x} cy={asia.y} r={r} fill="none" stroke="rgba(243,240,232,0.07)" strokeWidth="1" strokeDasharray="2 6" />
+                {[60, 110, 170].map((r) => (
+                    <circle key={r} cx={asia.p[0]} cy={asia.p[1]} r={r} fill="none" stroke="rgba(182,90,50,0.16)" strokeWidth="0.8" strokeDasharray="2 6" />
                 ))}
-                <ellipse cx="330" cy="430" rx="200" ry="110" fill="none" stroke="rgba(243,240,232,0.05)" strokeWidth="1" />
-                <ellipse cx="950" cy="480" rx="160" ry="80" fill="none" stroke="rgba(243,240,232,0.05)" strokeWidth="1" />
 
                 {routes.map((r, i) => (
                     <motion.path
@@ -49,7 +69,7 @@ export default function TradeMap() {
                     />
                 ))}
 
-                {REGIONS.map((r, i) => (
+                {pts.map((r, i) => (
                     <motion.g
                         key={r.id}
                         initial={{ opacity: 0 }}
@@ -61,13 +81,13 @@ export default function TradeMap() {
                         style={{ cursor: 'pointer' }}
                         data-testid={`map-region-${r.id}`}
                     >
-                        <rect x={r.x - 5} y={r.y - 5} width="10" height="10" fill="#B65A32" />
-                        <rect x={r.x - 13} y={r.y - 13} width="26" height="26" fill="none" stroke="rgba(182,90,50,0.4)" strokeWidth="1" />
-                        <circle cx={r.x} cy={r.y} r="34" fill="transparent" />
-                        <text x={r.x + 20} y={r.y + 2} fill={IVORY_TEXT} fontSize="12" fontFamily="'JetBrains Mono', monospace" letterSpacing="2.5">
+                        <rect x={r.p[0] - 4.5} y={r.p[1] - 4.5} width="9" height="9" fill="#B65A32" />
+                        <rect x={r.p[0] - 11} y={r.p[1] - 11} width="22" height="22" fill="none" stroke="rgba(182,90,50,0.45)" strokeWidth="0.8" />
+                        <circle cx={r.p[0]} cy={r.p[1]} r="30" fill="transparent" />
+                        <text x={r.p[0] + r.ldx} y={r.p[1] + r.ldy} textAnchor={r.la} fill={IVORY_TEXT} fontSize="11.5" fontFamily="'JetBrains Mono', monospace" letterSpacing="2.2">
                             {r.name}
                         </text>
-                        <text x={r.x + 20} y={r.y + 20} fill={IVORY_FAINT} fontSize="10" fontFamily="'JetBrains Mono', monospace" letterSpacing="1.5">
+                        <text x={r.p[0] + r.ldx} y={r.p[1] + r.ldy + 16} textAnchor={r.la} fill={IVORY_FAINT} fontSize="9.5" fontFamily="'JetBrains Mono', monospace" letterSpacing="1.4">
                             {r.coord}
                         </text>
                     </motion.g>
@@ -76,7 +96,7 @@ export default function TradeMap() {
                 <text x="44" y="604" fill={IVORY_FAINT} fontSize="10" fontFamily="'JetBrains Mono', monospace" letterSpacing="2.5">
                     28°36'N 77°13'E — SOURCE ORIGIN
                 </text>
-                <text x="980" y="44" fill={IVORY_FAINT} fontSize="10" fontFamily="'JetBrains Mono', monospace" letterSpacing="2.5">
+                <text x="1170" y="34" textAnchor="end" fill={IVORY_FAINT} fontSize="10" fontFamily="'JetBrains Mono', monospace" letterSpacing="2.5">
                     TRADE LANES / 004
                 </text>
             </svg>
@@ -85,9 +105,9 @@ export default function TradeMap() {
                 <div
                     className="absolute z-20 w-72 max-w-[78vw] bg-ivory text-graphite p-5 border border-graphite/10 shadow-[0_20px_60px_rgba(0,0,0,0.35)] pointer-events-none"
                     style={{
-                        left: `${Math.min(Math.max((active.x / 1200) * 100, 12), 78)}%`,
-                        top: `${(active.y / 620) * 100}%`,
-                        transform: 'translateY(-108%)',
+                        left: `${Math.min(Math.max((active.p[0] / W) * 100, 12), 78)}%`,
+                        top: `${(active.p[1] / H) * 100}%`,
+                        transform: active.p[1] / H < 0.38 ? 'translateY(14%)' : 'translateY(-108%)',
                     }}
                     data-testid="map-market-panel"
                 >
