@@ -1,0 +1,70 @@
+{
+  "project_name": "Asian International Trade House (AITH)",
+  "app_type": "Multi-page premium editorial marketing site for an international trading house (Award-level / Awwwards SOTD aesthetic)",
+  "instructions_to_main_agent": [
+    "Follow the exact creative direction strictly: warm, architectural, tactile, editorial visual identity. BANNED: generic corporate blue, SaaS cards, rounded buttons, gradients, glassmorphism, or glow effects.",
+    "Color Palette Execution: Primary BG: Warm Ivory #F3F0E8; Secondary BG: Bone #E7E1D5; Hero/Footer/Dark Chapters: Forest Black #17231D; Deep Olive #29372E; Accent/CTAs: Burnt Copper #B65A32; Terracotta #C98262 (agriculture); Sage #A9B9A5 (sourcing); Dusted Stone #B9B2A4 (minerals); Pale Sand #D8CBB5; Text: Graphite #202522; Muted Text: Olive Grey #69716A.",
+    "Typography: Headlines must be oversized (80px–160px on desktop), tight line-height, left-aligned, asymmetrical. Mix contemporary sans (Manrope or Satoshi/General Sans fallback) with restrained editorial serif (Instrument Serif or Playfair Display / Cormorant Garamond for key quotes/monograms).",
+    "Buttons & Radii: 0-4px border radius only. Use text+arrow or outlined rectangular or solid Burnt Copper buttons. NO rounded pill buttons.",
+    "Navigation: Architectural layout — AITH monogram on left, About/Products/Solutions/Markets/Insights in center, Partner + Request Quote on right. Blends seamlessly into Forest Black hero, then transitions on scroll to compact floating ivory nav with blur and 1px border (#202522 opacity 10%).",
+    "Hero Section: Cinematic Forest Black (#17231D), massive cropped port/commodity imagery, headline 'FROM ASIA. TO EVERYWHERE.' with Burnt Copper accent, technical engraved annotations (coordinates 28°36'N 77°13'E, port codes, trade routes), bottom info strip (GLOBAL SOURCING | IMPORT | EXPORT | PROCUREMENT | BULK TRADING | SUPPLY CHAIN).",
+    "Key Sections Required on Home Page:",
+    "  01/ WHO WE ARE: Massive editorial statement 'WE CONNECT PRODUCTS, PEOPLE AND MARKETS'.",
+    "  02/ Split-screen 'TRADE IS MORE THAN MOVING PRODUCTS' with overlapping imagery and technical captions (TRADE/001, SOURCE—VERIFY—DELIVER).",
+    "  03/ WHAT WE DO: 5 enormous interactive editorial rows (Global Sourcing, Import & Export, International Procurement, Bulk Trading, Supply Chain) with hover image expansion and copper line.",
+    "  04/ PRODUCT DISCOVERY: On Bone (#E7E1D5) background with large search field + category selector (Healthcare, Agriculture, Minerals, Chemicals, Textiles) each with muted material color identity.",
+    "  05/ Featured Agriculture Showcase: Full-bleed imagery + large text-link product list (Rice, Wheat, Pulses, Spices, Fresh Produce, Dry Fruits).",
+    "  06/ GLOBAL TRADE Dark Chapter: 'ONE SOURCE. MANY MARKETS.' with refined cartographic drawing (thin ivory lines, copper trade routes, tiny labels, Asia → Middle East / Africa / Europe / North America) with interactive market hover panels.",
+    "  07/ HOW TRADE MOVES: Scroll-driven continuous copper line process (01 Require → 02 Source → 03 Verify → 04 Quote → 05 Coordinate → 06 Deliver).",
+    "  08/ QUALITY IS A PROCESS: Stone-toned section with vertical typography process (Supplier Verification, Product Inspection, Documentation, Certifications, Regulatory Compliance).",
+    "  09/ INDUSTRIES: Horizontal scroll gallery with full-bleed photography panels.",
+    "  10/ SOURCING FEATURE: Sage (#A9B9A5) background 'CAN'T FIND WHAT YOU NEED? TELL US WHAT YOU'RE LOOKING FOR.' with BUYER → AITH → SUPPLIER typographic flow.",
+    "  11/ PARTNERSHIP: 3 editorial rows (Buyers / Suppliers / Distributors).",
+    "  12/ TRADE INSIGHTS: Magazine-style 3 large stories.",
+    "  13/ RESOURCE CENTER: Document rows with thin dividers (PDF/DOWNLOAD).",
+    "  14/ REQUEST A QUOTE: Full-screen Forest Black 'HAVE A REQUIREMENT? LET'S SOURCE IT.' multi-step trade request form (6 steps: What do you need / How much / Where / When / Your company / Contact details with progress indicator 01/06 and underlined editorial inputs).",
+    "  15/ FINAL CTA: 'FROM ASIA. TO THE WORLD. LET'S TRADE.'",
+    "  16/ FOOTER: Minimalist with huge stacked 'ASIAN INTERNATIONAL TRADE HOUSE' typography.",
+    "Multi-page Routing: Build dedicated page views for Home, Products, Markets, Insights, and Request Quote with React Router or tabbed state fallback.",
+    "Testing Attributes: All interactive elements (buttons, links, form inputs, tabs, search fields) MUST include data-testid attributes (e.g. data-testid='hero-request-quote-button')."
+  ],
+  "colors": {
+    "primary_bg": "#F3F0E8",
+    "secondary_bg": "#E7E1D5",
+    "dark_chapter_bg": "#17231D",
+    "deep_olive": "#29372E",
+    "burnt_copper": "#B65A32",
+    "terracotta": "#C98262",
+    "sage": "#A9B9A5",
+    "dusted_stone": "#B9B2A4",
+    "pale_sand": "#D8CBB5",
+    "text_graphite": "#202522",
+    "text_muted_olive_grey": "#69716A",
+    "border_subtle": "rgba(32, 37, 34, 0.12)",
+    "border_dark": "rgba(243, 240, 232, 0.15)"
+  },
+  "typography": {
+    "headline_sans": "Manrope, Satoshi, sans-serif",
+    "editorial_serif": "Instrument Serif, Playfair Display, serif",
+    "mono_technical": "JetBrains Mono, Roboto Mono, monospace",
+    "desktop_hero_heading_size": "clamp(60px, 9vw, 150px)",
+    "section_heading_size": "clamp(36px, 5vw, 80px)",
+    "tracking": "tracking-tighter",
+    "alignment": "left-aligned, asymmetric grid"
+  },
+  "image_urls": {
+    "hero_port_aerial": "https://images.unsplash.com/photo-1723178617723-a25249feb0fc?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "cargo_vessel_sunset": "https://images.unsplash.com/photo-1763257708531-363d5ca39c22?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "agricultural_warehouse": "https://images.unsplash.com/photo-1771904866827-8850e545f415?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "grain_harvest": "https://images.unsplash.com/photo-1759411364609-aeb30eb034e4?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "industrial_cranes": "https://images.unsplash.com/photo-1760998805232-4c8632d71cc3?crop=entropy&cs=srgb&fm=jpg&q=85",
+    "trade_port_bw": "https://images.unsplash.com/photo-1780245882836-5a0501dc93d7?crop=entropy&cs=srgb&fm=jpg&q=85"
+  },
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
+    "Do NOT use transparent dropdowns or unstyled dialogs.",
+    "Do NOT add rounded SaaS cards or pill buttons.",
+    "Ensure APCA/WCAG AA contrast on all Ivory (#F3F0E8) and Forest Black (#17231D) text backgrounds.",
+    "Add data-testid to every clickable element and form input.",
+    "Use framer-motion for line drawing, clip-path reveals, and page transition effects."
+  ]
+}
