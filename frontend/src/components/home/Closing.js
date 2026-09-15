@@ -86,7 +86,7 @@ export default function Closing() {
                             <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1.5" />
                         </Link>
                         <Link
-                            to="/request-quote?type=partner"
+                            to="/partner"
                             className="inline-flex items-center gap-3 border border-ivory/30 text-ivory px-8 py-4 font-mono text-[11px] tracking-[0.22em] uppercase hover:border-ivory transition-colors duration-300"
                             data-testid="final-cta-partner-button"
                         >

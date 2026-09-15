@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://aithinternational.com/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://aithinternational.com/about</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://aithinternational.com/services</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://aithinternational.com/products</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://aithinternational.com/markets</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://aithinternational.com/insights</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://aithinternational.com/insights/commodity-markets</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://aithinternational.com/insights/trade-documents</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://aithinternational.com/insights/bulk-procurement</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://aithinternational.com/faq</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://aithinternational.com/contact</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://aithinternational.com/partner</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://aithinternational.com/quality-compliance</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://aithinternational.com/request-quote</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://aithinternational.com/privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://aithinternational.com/terms</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+</urlset>

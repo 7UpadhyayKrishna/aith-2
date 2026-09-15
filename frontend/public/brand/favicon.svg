@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="AITH">
+  <rect width="64" height="64" fill="#17231D"/>
+  <path d="M32 8 L54 56 H42 L38 46 H26 L22 56 H10 Z" fill="#B65A32"/>
+  <circle cx="32" cy="34" r="10" fill="none" stroke="#D4A84B" stroke-width="2"/>
+  <path d="M26 34 h12 M32 28 v12" stroke="#D4A84B" stroke-width="1.2" opacity="0.7"/>
+</svg>

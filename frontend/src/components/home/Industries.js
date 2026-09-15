@@ -115,7 +115,7 @@ export default function Industries() {
                     {PARTNERSHIPS.map((p, i) => (
                         <Fade key={p.id} delay={i * 0.06} y={18}>
                             <Link
-                                to={`/request-quote?type=partner&role=${p.id}`}
+                                to="/partner"
                                 className="group relative grid lg:grid-cols-12 gap-3 lg:gap-6 items-center py-9 lg:py-12"
                                 data-testid={`partnership-row-${p.id}`}
                             >
@@ -125,7 +125,7 @@ export default function Industries() {
                                     {p.title}
                                 </span>
                                 <span className="lg:col-span-5 text-sm lg:text-base text-mute">{p.blurb}</span>
-                                <ArrowUpRight size={26} className="lg:col-span-1 justify-self-start lg:justify-self-end text-mute group-hover:text-copper group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-500" />
+                                <ArrowUpRight size={26} className="lg:col-span-1 justify-self-start lg:justify-self-end text-mute group-hover:text-copper group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-500" aria-hidden="true" />
                             </Link>
                         </Fade>
                     ))}
