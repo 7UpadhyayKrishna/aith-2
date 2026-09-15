@@ -1,17 +1,28 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import Seo from '../components/Seo';
 import { Line, Fade, Tag } from '../components/Reveal';
 import TradeMap from '../components/TradeMap';
 import { REGIONS, LANES, IMG } from '../data/content';
 
 export default function Markets() {
     return (
-        <main>
+        <main id="main-content">
+            <Seo
+                title="Markets"
+                description="Asian supply into Middle East, Africa, Europe and North America — trade lanes, ports and market regions coordinated by AITH."
+                path="/markets"
+            />
             <section className="relative bg-forest text-ivory overflow-hidden" data-testid="markets-hero">
-                <img src={IMG.vessel} alt="Cargo vessel at sea during sunset" className="absolute inset-0 w-full h-full object-cover opacity-30" loading="eager" />
+                <img src={IMG.vessel} alt="Cargo vessel at sea during sunset" className="absolute inset-0 w-full h-full object-cover opacity-30" loading="eager" decoding="async" />
                 <div className="absolute inset-0 bg-forest/45" />
                 <div className="relative z-10 px-6 lg:px-12 pt-44 pb-24 lg:pt-56 lg:pb-32">
                     <Fade y={10}>
+                        <nav aria-label="Breadcrumb" className="font-mono text-[10px] tracking-[0.28em] uppercase text-ivory/45 mb-4">
+                            <Link to="/" className="hover:text-copper transition-colors">Home</Link>
+                            <span className="mx-2">/</span>
+                            <span>Markets</span>
+                        </nav>
                         <p className="font-mono text-[11px] tracking-[0.35em] uppercase text-ivory/60">AITH / Markets</p>
                     </Fade>
                     <h1 className="text-[clamp(2.9rem,8vw,8rem)] leading-[0.92] tracking-[-0.03em] font-extrabold mt-8">

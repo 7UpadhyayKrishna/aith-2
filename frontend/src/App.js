@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, Link } from 'react-router-dom';
 import Lenis from 'lenis';
 import { Toaster } from 'sonner';
@@ -7,11 +7,21 @@ import '@/App.css';
 import Nav from '@/components/Nav';
 import Footer from '@/components/Footer';
 import Home from '@/pages/Home';
-import Products from '@/pages/Products';
-import Markets from '@/pages/Markets';
-import Insights from '@/pages/Insights';
-import RequestQuote from '@/pages/RequestQuote';
-import Article from '@/pages/Article';
+
+const Products = lazy(() => import('@/pages/Products'));
+const Markets = lazy(() => import('@/pages/Markets'));
+const Insights = lazy(() => import('@/pages/Insights'));
+const RequestQuote = lazy(() => import('@/pages/RequestQuote'));
+const Article = lazy(() => import('@/pages/Article'));
+const About = lazy(() => import('@/pages/About'));
+const Services = lazy(() => import('@/pages/Services'));
+const Faq = lazy(() => import('@/pages/Faq'));
+const Contact = lazy(() => import('@/pages/Contact'));
+const Partner = lazy(() => import('@/pages/Partner'));
+const QualityCompliance = lazy(() => import('@/pages/QualityCompliance'));
+const Privacy = lazy(() => import('@/pages/Privacy'));
+const Terms = lazy(() => import('@/pages/Terms'));
+const NotFound = lazy(() => import('@/pages/NotFound'));
 
 const ScrollManager = () => {
     const { pathname, hash } = useLocation();
@@ -40,19 +50,43 @@ const MobileCTA = () => {
         <div className="fixed bottom-0 inset-x-0 z-40 lg:hidden" data-testid="mobile-persistent-cta">
             <Link
                 to="/request-quote"
-                className="flex items-center justify-center gap-2 bg-copper text-ivory py-4 font-mono text-[11px] tracking-[0.28em] uppercase"
+                className="flex items-center justify-center gap-2 bg-copper text-ivory py-4 font-mono text-[11px] tracking-[0.28em] uppercase min-h-[52px]"
             >
-                Request Quote <ArrowUpRight size={14} />
+                Request Quote <ArrowUpRight size={14} aria-hidden="true" />
             </Link>
         </div>
     );
 };
 
+const RouteFallback = () => (
+    <div className="min-h-[50vh] bg-ivory flex items-center justify-center" aria-busy="true" aria-live="polite">
+        <p className="font-mono text-[11px] tracking-[0.3em] uppercase text-mute">Loading…</p>
+    </div>
+);
+
 function App() {
     useEffect(() => {
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return undefined;
-        const lenis = new Lenis({ duration: 1.15, smoothWheel: true });
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduce) return undefined;
+
+        // Prefer native touch scrolling on coarse pointers; Lenis for wheel/trackpad
+        const coarse = window.matchMedia('(pointer: coarse)').matches;
+        const lenis = new Lenis({
+            duration: 0.95,
+            smoothWheel: !coarse,
+            lerp: 0.1,
+            wheelMultiplier: 1,
+            touchMultiplier: 1.2,
+            syncTouch: false,
+        });
         window.__lenis = lenis;
+        document.documentElement.classList.add('lenis', 'lenis-smooth');
+
+        // Align Framer Motion scroll drivers with Lenis without React setState
+        lenis.on('scroll', () => {
+            window.dispatchEvent(new Event('scroll'));
+        });
+
         let raf;
         const loop = (t) => {
             lenis.raf(t);
@@ -61,6 +95,7 @@ function App() {
         raf = requestAnimationFrame(loop);
         return () => {
             cancelAnimationFrame(raf);
+            document.documentElement.classList.remove('lenis', 'lenis-smooth');
             lenis.destroy();
             window.__lenis = null;
         };
@@ -71,15 +106,25 @@ function App() {
             <BrowserRouter>
                 <ScrollManager />
                 <Nav />
-                <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/products" element={<Products />} />
-                    <Route path="/markets" element={<Markets />} />
-                    <Route path="/insights" element={<Insights />} />
-                    <Route path="/insights/:id" element={<Article />} />
-                    <Route path="/request-quote" element={<RequestQuote />} />
-                    <Route path="*" element={<Home />} />
-                </Routes>
+                <Suspense fallback={<RouteFallback />}>
+                    <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/about" element={<About />} />
+                        <Route path="/services" element={<Services />} />
+                        <Route path="/products" element={<Products />} />
+                        <Route path="/markets" element={<Markets />} />
+                        <Route path="/insights" element={<Insights />} />
+                        <Route path="/insights/:id" element={<Article />} />
+                        <Route path="/faq" element={<Faq />} />
+                        <Route path="/contact" element={<Contact />} />
+                        <Route path="/partner" element={<Partner />} />
+                        <Route path="/quality-compliance" element={<QualityCompliance />} />
+                        <Route path="/privacy" element={<Privacy />} />
+                        <Route path="/terms" element={<Terms />} />
+                        <Route path="/request-quote" element={<RequestQuote />} />
+                        <Route path="*" element={<NotFound />} />
+                    </Routes>
+                </Suspense>
                 <Footer />
                 <MobileCTA />
                 <Toaster position="bottom-right" />

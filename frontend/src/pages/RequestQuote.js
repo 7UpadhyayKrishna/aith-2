@@ -2,11 +2,15 @@ import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
+import Seo from '../components/Seo';
 import { Line, Fade, EASE } from '../components/Reveal';
 import { CATEGORIES } from '../data/content';
+import { CONTACT } from '../data/contact';
+import { submitQuote } from '../services/forms';
 
 const UNITS = ['MT', 'KG', 'CBM', 'Containers', 'Units'];
 const TIMELINES = ['Immediately', 'Within 30 days', '60–90 days', 'Flexible'];
+const MODES = ['Air', 'Sea', 'Flexible'];
 const ROLES = ['Buyer', 'Supplier', 'Distributor'];
 
 const STEP_TITLES = [
@@ -40,6 +44,8 @@ export default function RequestQuote() {
     const [started, setStarted] = useState(false);
     const [step, setStep] = useState(0);
     const [done, setDone] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
+    const [mailtoNote, setMailtoNote] = useState(false);
     const [refCode] = useState(() => 'AITH-' + Math.random().toString(36).slice(2, 8).toUpperCase());
     const [data, setData] = useState({
         product: params.get('product') || '',
@@ -47,13 +53,18 @@ export default function RequestQuote() {
         quantity: '',
         unit: 'MT',
         destination: '',
+        origin: '',
         timeline: 'Flexible',
+        mode: 'Flexible',
+        incoterm: '',
+        notes: '',
         company: '',
         country: '',
         role: params.get('role') ? params.get('role')[0].toUpperCase() + params.get('role').slice(1) : 'Buyer',
         name: '',
         email: '',
         phone: '',
+        website: '',
     });
 
     const set = (k, v) => setData((d) => ({ ...d, [k]: v }));
@@ -67,13 +78,32 @@ export default function RequestQuote() {
         data.name.trim().length > 1 && emailOk,
     ][step];
 
-    const next = () => (step === 5 ? setDone(true) : setStep((s) => s + 1));
+    const submit = async () => {
+        setSubmitting(true);
+        try {
+            const result = await submitQuote({ ...data, refCode });
+            if (result.mode === 'mailto' && result.mailto) {
+                window.open(result.mailto, '_blank');
+                setMailtoNote(true);
+            }
+            setDone(true);
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const next = () => (step === 5 ? submit() : setStep((s) => s + 1));
 
     const headline =
         type === 'partner' ? ['PARTNER', 'WITH AITH.'] : type === 'sourcing' ? ["CAN'T SOURCE IT?", 'WE CAN.'] : ['HAVE A', 'REQUIREMENT?'];
 
     return (
-        <main className="bg-forest text-ivory min-h-screen relative overflow-hidden" data-testid="request-quote-page">
+        <main id="main-content" className="bg-forest text-ivory min-h-screen relative overflow-hidden" data-testid="request-quote-page">
+            <Seo
+                title="Request a Quote"
+                description="Start a trade requirement with Asian International Trade House — product, volume, destination and timeline."
+                path="/request-quote"
+            />
             <span className="absolute top-28 right-8 font-mono text-[10px] tracking-[0.3em] text-ivory/20 hidden lg:block">SOURCE / VERIFY / MOVE</span>
             <span className="absolute bottom-16 left-8 font-mono text-[10px] tracking-[0.3em] text-ivory/20 hidden lg:block">28°36'N 77°13'E</span>
 
@@ -109,8 +139,8 @@ export default function RequestQuote() {
                                     {type === 'partner' ? 'Start a Partnership Request' : 'Start a Trade Request'}
                                     <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1.5" />
                                 </button>
-                                <a href="mailto:trade@aithinternational.com" className="font-mono text-[11px] tracking-[0.2em] uppercase text-ivory/60 hover:text-ivory border-b border-ivory/30 pb-1 transition-colors duration-300" data-testid="quote-email-link">
-                                    Prefer email — trade@aithinternational.com
+                                <a href={`mailto:${CONTACT.email}`} className="font-mono text-[11px] tracking-[0.2em] uppercase text-ivory/60 hover:text-ivory border-b border-ivory/30 pb-1 transition-colors duration-300" data-testid="quote-email-link">
+                                    Prefer email — {CONTACT.email}
                                 </a>
                             </div>
                         </Fade>
@@ -182,21 +212,40 @@ export default function RequestQuote() {
                                         </>
                                     )}
                                     {step === 2 && (
-                                        <input
-                                            value={data.destination}
-                                            onChange={(e) => set('destination', e.target.value)}
-                                            placeholder="Destination country or port — e.g. Jebel Ali, UAE"
-                                            className={inputCls}
-                                            aria-label="Destination"
-                                            data-testid="quote-input-destination"
-                                        />
+                                        <>
+                                            <input
+                                                value={data.destination}
+                                                onChange={(e) => set('destination', e.target.value)}
+                                                placeholder="Destination country or port — e.g. Jebel Ali, UAE"
+                                                className={inputCls}
+                                                aria-label="Destination"
+                                                data-testid="quote-input-destination"
+                                            />
+                                            <input
+                                                value={data.origin}
+                                                onChange={(e) => set('origin', e.target.value)}
+                                                placeholder="Origin country or port (optional) — e.g. Mundra, India"
+                                                className={inputCls}
+                                                aria-label="Origin"
+                                                data-testid="quote-input-origin"
+                                            />
+                                        </>
                                     )}
                                     {step === 3 && (
-                                        <div className="flex flex-wrap gap-3">
-                                            {TIMELINES.map((t) => (
-                                                <Choice key={t} label={t} selected={data.timeline === t} onClick={() => set('timeline', t)} testid={`quote-timeline-${t.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`} />
-                                            ))}
-                                        </div>
+                                        <>
+                                            <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-ivory/45">Timeline</p>
+                                            <div className="flex flex-wrap gap-3">
+                                                {TIMELINES.map((t) => (
+                                                    <Choice key={t} label={t} selected={data.timeline === t} onClick={() => set('timeline', t)} testid={`quote-timeline-${t.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`} />
+                                                ))}
+                                            </div>
+                                            <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-ivory/45 pt-4">Preferred mode</p>
+                                            <div className="flex flex-wrap gap-3">
+                                                {MODES.map((m) => (
+                                                    <Choice key={m} label={m} selected={data.mode === m} onClick={() => set('mode', m)} testid={`quote-mode-${m.toLowerCase()}`} />
+                                                ))}
+                                            </div>
+                                        </>
                                     )}
                                     {step === 4 && (
                                         <>
@@ -221,6 +270,23 @@ export default function RequestQuote() {
                                                     <Choice key={r} label={r} selected={data.role === r} onClick={() => set('role', r)} testid={`quote-role-${r.toLowerCase()}`} />
                                                 ))}
                                             </div>
+                                            <input
+                                                value={data.incoterm}
+                                                onChange={(e) => set('incoterm', e.target.value)}
+                                                placeholder="Incoterm (optional) — e.g. CIF, FOB"
+                                                className={inputCls}
+                                                aria-label="Incoterm"
+                                                data-testid="quote-input-incoterm"
+                                            />
+                                            <textarea
+                                                value={data.notes}
+                                                onChange={(e) => set('notes', e.target.value)}
+                                                placeholder="Additional notes (optional) — specs, certifications, packaging"
+                                                rows={3}
+                                                className={`${inputCls} text-base lg:text-lg resize-y`}
+                                                aria-label="Additional notes"
+                                                data-testid="quote-input-notes"
+                                            />
                                         </>
                                     )}
                                     {step === 5 && (
@@ -250,6 +316,16 @@ export default function RequestQuote() {
                                                 aria-label="Phone"
                                                 data-testid="quote-input-phone"
                                             />
+                                            <input
+                                                type="text"
+                                                name="website"
+                                                value={data.website}
+                                                onChange={(e) => set('website', e.target.value)}
+                                                tabIndex={-1}
+                                                autoComplete="off"
+                                                aria-hidden="true"
+                                                className="absolute opacity-0 pointer-events-none h-0 w-0 overflow-hidden"
+                                            />
                                         </>
                                     )}
                                 </div>
@@ -268,11 +344,11 @@ export default function RequestQuote() {
                             )}
                             <button
                                 onClick={next}
-                                disabled={!valid}
-                                className={`group inline-flex items-center gap-3 px-8 py-4 font-mono text-[11px] tracking-[0.22em] uppercase transition-colors duration-300 ${valid ? 'bg-copper text-ivory hover:bg-terra' : 'bg-ivory/10 text-ivory/35 cursor-not-allowed'}`}
+                                disabled={!valid || submitting}
+                                className={`group inline-flex items-center gap-3 px-8 py-4 font-mono text-[11px] tracking-[0.22em] uppercase transition-colors duration-300 ${valid && !submitting ? 'bg-copper text-ivory hover:bg-terra' : 'bg-ivory/10 text-ivory/35 cursor-not-allowed'}`}
                                 data-testid={step === 5 ? 'quote-submit-button' : 'quote-next-button'}
                             >
-                                {step === 5 ? 'Submit Request' : 'Continue'}
+                                {step === 5 ? (submitting ? 'Submitting…' : 'Submit Request') : 'Continue'}
                                 <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1.5" />
                             </button>
                         </div>
@@ -293,11 +369,15 @@ export default function RequestQuote() {
                                 <p>PRODUCT — {data.product}</p>
                                 <p>QUANTITY — {data.quantity} {data.unit.toUpperCase()}</p>
                                 <p>DESTINATION — {data.destination}</p>
+                                {data.origin && <p>ORIGIN — {data.origin}</p>}
                                 <p>TIMELINE — {data.timeline.toUpperCase()}</p>
+                                <p>MODE — {data.mode.toUpperCase()}</p>
+                                {data.incoterm && <p>INCOTERM — {data.incoterm.toUpperCase()}</p>}
                             </div>
                         </div>
                         <p className="text-ivory/45 text-xs mt-6 max-w-md">
                             Our team reviews every requirement against the supplier network and responds with sourcing options and next steps.
+                            {mailtoNote && ' Your email client may have opened with a copy of this request.'}
                         </p>
                         <div className="flex flex-wrap gap-4 mt-12">
                             <Link to="/products" className="inline-flex items-center gap-3 border border-ivory/30 text-ivory px-8 py-4 font-mono text-[11px] tracking-[0.22em] uppercase hover:border-ivory transition-colors duration-300" data-testid="confirmation-products-link">

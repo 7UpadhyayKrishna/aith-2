@@ -1,17 +1,30 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import Seo from '../components/Seo';
 import { Line, Fade } from '../components/Reveal';
 import Discovery from '../components/home/Discovery';
+import FaqAccordion from '../components/FaqAccordion';
 import { CATEGORIES, IMG } from '../data/content';
+import { FAQ_BY_CONTEXT, getFaqsByIds } from '../data/faqs';
 
 export default function Products() {
     return (
-        <main>
+        <main id="main-content">
+            <Seo
+                title="Products"
+                description="Healthcare, agriculture, minerals, chemicals and textiles — products, materials and commodities sourced through Asian International Trade House."
+                path="/products"
+            />
             <section className="relative bg-forest text-ivory overflow-hidden" data-testid="products-hero">
-                <img src={IMG.warehouse} alt="Warehouse racking with palletised goods" className="absolute inset-0 w-full h-full object-cover opacity-25" loading="eager" />
+                <img src={IMG.warehouse} alt="Warehouse racking with palletised goods" className="absolute inset-0 w-full h-full object-cover opacity-25" loading="eager" decoding="async" />
                 <div className="absolute inset-0 bg-forest/40" />
                 <div className="relative z-10 px-6 lg:px-12 pt-44 pb-24 lg:pt-56 lg:pb-32">
                     <Fade y={10}>
+                        <nav aria-label="Breadcrumb" className="font-mono text-[10px] tracking-[0.28em] uppercase text-ivory/45 mb-4">
+                            <Link to="/" className="hover:text-copper transition-colors">Home</Link>
+                            <span className="mx-2">/</span>
+                            <span>Products</span>
+                        </nav>
                         <p className="font-mono text-[11px] tracking-[0.35em] uppercase text-ivory/60">AITH / Products</p>
                     </Fade>
                     <h1 className="text-[clamp(2.9rem,7.5vw,7.5rem)] leading-[0.94] tracking-[-0.03em] font-extrabold mt-8 max-w-5xl">
@@ -61,7 +74,7 @@ export default function Products() {
                         </div>
                         <div className="lg:col-span-7">
                             <div className="overflow-hidden h-56 lg:h-72 mb-10">
-                                <img src={c.image} alt={`${c.name} materials`} className="w-full h-full object-cover" loading="lazy" />
+                                <img src={c.image} alt={`${c.name} materials`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                             </div>
                             <div className="divide-y divide-graphite/12 border-y border-graphite/12">
                                 {c.products.map((p) => (
@@ -82,6 +95,15 @@ export default function Products() {
                     </div>
                 </section>
             ))}
+
+            <FaqAccordion
+                items={getFaqsByIds(FAQ_BY_CONTEXT.products)}
+                index="06"
+                label="Products FAQ"
+                title="Sourcing & specification questions"
+                className="bg-bone text-graphite"
+                testId="products-faq"
+            />
 
             <section className="bg-forest text-ivory px-6 lg:px-12 py-24 lg:py-32" data-testid="products-cta">
                 <div className="flex flex-wrap items-end justify-between gap-8">

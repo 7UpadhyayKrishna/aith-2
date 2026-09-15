@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
+import Seo from '../components/Seo';
 import { Line, Fade, Tag } from '../components/Reveal';
 import { STORIES, RESOURCES } from '../data/content';
 
@@ -10,9 +11,19 @@ export default function Insights() {
     });
 
     return (
-        <main>
+        <main id="main-content">
+            <Seo
+                title="Insights"
+                description="Trade insights on commodity markets, documentation and bulk procurement from Asian International Trade House."
+                path="/insights"
+            />
             <section className="bg-forest text-ivory px-6 lg:px-12 pt-44 pb-24 lg:pt-56 lg:pb-32" data-testid="insights-hero">
                 <Fade y={10}>
+                    <nav aria-label="Breadcrumb" className="font-mono text-[10px] tracking-[0.28em] uppercase text-ivory/45 mb-4">
+                        <Link to="/" className="hover:text-copper transition-colors">Home</Link>
+                        <span className="mx-2">/</span>
+                        <span>Insights</span>
+                    </nav>
                     <p className="font-mono text-[11px] tracking-[0.35em] uppercase text-ivory/60">AITH / Insights</p>
                 </Fade>
                 <h1 className="text-[clamp(2.9rem,8vw,8rem)] leading-[0.92] tracking-[-0.03em] font-extrabold mt-8">
@@ -74,13 +85,23 @@ export default function Insights() {
                                 <span className="col-span-1 font-mono text-xs tracking-[0.2em] text-copper hidden sm:block">0{i + 1}</span>
                                 <h3 className="col-span-8 sm:col-span-6 text-xl lg:text-3xl font-extrabold tracking-tight">{r.name}</h3>
                                 <span className="col-span-4 sm:col-span-2 font-mono text-[10px] tracking-[0.25em] uppercase text-mute text-right sm:text-left">{r.meta}</span>
-                                <button
-                                    onClick={() => notify(r.name)}
-                                    className="col-span-12 sm:col-span-3 justify-self-start sm:justify-self-end font-mono text-[11px] tracking-[0.22em] uppercase text-graphite border-b border-graphite/40 pb-1 hover:text-copper hover:border-copper transition-colors duration-300"
-                                    data-testid={`resource-download-${r.id}`}
-                                >
-                                    Download →
-                                </button>
+                                {r.id === 'faq' ? (
+                                    <Link
+                                        to="/faq"
+                                        className="col-span-12 sm:col-span-3 justify-self-start sm:justify-self-end font-mono text-[11px] tracking-[0.22em] uppercase text-graphite border-b border-graphite/40 pb-1 hover:text-copper hover:border-copper transition-colors duration-300"
+                                        data-testid={`resource-download-${r.id}`}
+                                    >
+                                        Open FAQ →
+                                    </Link>
+                                ) : (
+                                    <button
+                                        onClick={() => notify(r.name)}
+                                        className="col-span-12 sm:col-span-3 justify-self-start sm:justify-self-end font-mono text-[11px] tracking-[0.22em] uppercase text-graphite border-b border-graphite/40 pb-1 hover:text-copper hover:border-copper transition-colors duration-300"
+                                        data-testid={`resource-download-${r.id}`}
+                                    >
+                                        Download →
+                                    </button>
+                                )}
                             </div>
                         </Fade>
                     ))}

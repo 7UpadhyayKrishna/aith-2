@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://aithinternational.com/sitemap.xml

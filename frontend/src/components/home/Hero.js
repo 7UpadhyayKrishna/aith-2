@@ -28,6 +28,10 @@ export default function Hero() {
                     alt="Aerial view of shipping containers stacked at a port terminal"
                     className="w-full h-[118%] object-cover opacity-40"
                     loading="eager"
+                    decoding="async"
+                    width={1600}
+                    height={1067}
+                    fetchPriority="high"
                 />
                 <div className="absolute inset-0 bg-forest/45" />
             </motion.div>
