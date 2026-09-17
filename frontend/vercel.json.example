@@ -1,0 +1,26 @@
+{
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "https://REPLACE_WITH_API_HOST/api/$1" },
+    { "source": "/blog-sitemap.xml", "destination": "https://REPLACE_WITH_API_HOST/api/blog-sitemap.xml" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=()"
+        }
+      ]
+    },
+    {
+      "source": "/admin/(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
+      ]
+    }
+  ]
+}

@@ -4,8 +4,7 @@ import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
 import { Line, Fade, Tag } from '../Reveal';
 import { PROCESS_STEPS, QUALITY_STEPS } from '../../data/content';
 
-function ProcessStep({ step, index, progress }) {
-    // progress 0–1 across 6 steps; activate when progress passes this index
+function ProcessStep({ step, index, progress, isLast }) {
     const on = useTransform(progress, (v) => (v * 6.4 > index ? 1 : 0));
     const dotBg = useTransform(on, [0, 1], ['rgba(32,37,34,0.2)', '#B65A32']);
     const numColor = useTransform(on, [0, 1], ['rgba(32,37,34,0.15)', '#202522']);
@@ -14,13 +13,29 @@ function ProcessStep({ step, index, progress }) {
     const titleSize = useTransform(on, [0, 1], [1, 1.08]);
 
     return (
-        <div className="relative pt-0" data-testid={`process-step-${step.title.toLowerCase()}`}>
-            <div className="flex items-center gap-3 h-14">
-                <motion.span className="w-2.5 h-2.5" style={{ backgroundColor: dotBg }} />
-                <motion.span className="text-4xl lg:text-5xl font-extrabold tracking-tight" style={{ color: numColor }}>
+        <div className="relative" data-testid={`process-step-${step.title.toLowerCase()}`}>
+            {/* Mobile vertical connector segment */}
+            {!isLast && (
+                <span
+                    className="sm:hidden absolute left-[5px] top-[22px] bottom-[-2.5rem] w-px bg-graphite/15"
+                    aria-hidden="true"
+                />
+            )}
+
+            <div className="relative flex items-center gap-3 h-14">
+                <motion.span
+                    className="relative z-[2] w-2.5 h-2.5 shrink-0"
+                    style={{ backgroundColor: dotBg }}
+                    aria-hidden="true"
+                />
+                <motion.span
+                    className="relative z-[2] text-4xl lg:text-5xl font-extrabold tracking-tight leading-none bg-ivory pr-1"
+                    style={{ color: numColor }}
+                >
                     {step.index}
                 </motion.span>
             </div>
+
             <motion.h3
                 className="font-extrabold tracking-tight uppercase mt-4 text-lg lg:text-xl origin-left"
                 style={{ color: titleColor, scale: titleSize }}
@@ -50,11 +65,32 @@ export default function Process() {
                 </h2>
 
                 <div className="relative mt-20 lg:mt-28">
-                    <div className="absolute top-7 left-0 right-0 h-px bg-graphite/15" />
-                    <motion.div className="absolute top-7 left-0 right-0 h-px bg-copper origin-left will-change-transform" style={{ scaleX }} />
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-8 gap-y-14">
+                    {/*
+                      Desktop timeline connector:
+                      - sits in the same vertical band as markers + numbers (h-14 → center at 1.75rem)
+                      - inset so the line starts/ends at the first/last marker centers
+                      - single continuous element (not per-column borders)
+                    */}
+                    <div
+                        className="pointer-events-none absolute z-0 hidden lg:block left-[5px] right-[5px] top-[calc(1.75rem-0.5px)] h-px"
+                        aria-hidden="true"
+                    >
+                        <div className="absolute inset-0 bg-graphite/15" />
+                        <motion.div
+                            className="absolute inset-0 bg-copper origin-left will-change-transform"
+                            style={{ scaleX }}
+                        />
+                    </div>
+
+                    <div className="relative z-[1] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-x-8 gap-y-14">
                         {PROCESS_STEPS.map((s, i) => (
-                            <ProcessStep key={s.index} step={s} index={i} progress={smooth} />
+                            <ProcessStep
+                                key={s.index}
+                                step={s}
+                                index={i}
+                                progress={smooth}
+                                isLast={i === PROCESS_STEPS.length - 1}
+                            />
                         ))}
                     </div>
                 </div>

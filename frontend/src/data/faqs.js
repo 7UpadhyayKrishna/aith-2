@@ -26,7 +26,7 @@ export const FAQ_CATEGORIES = [
             {
                 id: 'response-time',
                 q: 'How quickly will you respond to my enquiry?',
-                a: '[TBD — confirm SLA] We aim to acknowledge trade enquiries within one to two business days. Complex or multi-origin sourcing requests may take longer while we verify availability and compliance requirements.',
+                a: 'We aim to acknowledge trade enquiries within one to two business days. Complex or multi-origin sourcing requests may take longer while we verify availability and compliance requirements. Exact response windows are confirmed when your brief is received.',
             },
             {
                 id: 'imports-exports',
@@ -52,7 +52,7 @@ export const FAQ_CATEGORIES = [
             {
                 id: 'moq',
                 q: 'What is your minimum order quantity (MOQ)?',
-                a: '[TBD — confirm MOQ policy] MOQs vary by product, origin and shipping mode. Agricultural and mineral bulk often moves in container or vessel lots; specialty healthcare and chemical lines may support smaller trial volumes after supplier confirmation.',
+                a: 'Minimum order quantities vary by product, supplier and specification. Agricultural and mineral bulk often moves in container or vessel lots; specialty healthcare and chemical lines may support smaller trial volumes after supplier confirmation. Share your requirement and the relevant MOQ can be confirmed during sourcing.',
             },
             {
                 id: 'custom-source',
@@ -98,17 +98,17 @@ export const FAQ_CATEGORIES = [
             {
                 id: 'incoterms',
                 q: 'Which Incoterms do you support?',
-                a: '[TBD — confirm preferred Incoterms] Common structures include FOB, CFR, CIF and occasionally EXW or DAP depending on lane and buyer preference. We recommend the term that matches your risk appetite and destination capabilities.',
+                a: 'Common structures include FOB, CFR, CIF and occasionally EXW or DAP depending on lane and buyer preference. Preferred terms are agreed per commercial path so risk and destination capabilities stay aligned — we recommend the Incoterm that fits your operation rather than forcing a single default.',
             },
             {
                 id: 'price-validity',
                 q: 'How long is a quote valid?',
-                a: '[TBD] Commodity and freight markets move. Validity is stated on each offer — typically a short window for bulk commodities and a clearer window for manufactured goods with locked supplier pricing.',
+                a: 'Commodity and freight markets move. Validity is stated on each offer — typically a short window for bulk commodities and a clearer window for manufactured goods with locked supplier pricing.',
             },
             {
                 id: 'currency',
                 q: 'In which currencies do you quote?',
-                a: '[TBD] Most international offers are prepared in USD. Alternate currencies can be discussed for specific markets and banking corridors.',
+                a: 'Most international offers are prepared in USD. Alternate currencies can be discussed for specific markets and banking corridors when both parties’ banks support the settlement path.',
             },
             {
                 id: 'quote-info',
@@ -158,13 +158,13 @@ export const FAQ_CATEGORIES = [
             },
             {
                 id: 'cargo-insurance',
-                q: 'Can cargo insurance be arranged or coordinated?',
-                a: 'Yes. Marine or air cargo insurance can be arranged or coordinated as part of the commercial path, typically aligned to the agreed Incoterm and insurable interest. Coverage scope and premium are confirmed before shipment.',
+                q: 'Can shipments be insured?',
+                a: 'Cargo insurance may be arranged or coordinated with partners depending on the lane, Incoterm and product. Coverage scope, limits and named insured parties should be confirmed on each commercial path before shipment — we do not assume a single insurance product applies to every file.',
             },
             {
                 id: 'shipment-updates',
                 q: 'How are shipment updates communicated?',
-                a: 'We share milestone updates at key points — booking confirmation, goods ready, export clearance, departure, arrival and delivery handoff where applicable. Frequency and channel follow the shipment size and your preference; [TBD — confirm standard update cadence and portal access].',
+                a: 'We share milestone updates at key points — booking confirmation, goods ready, export clearance, departure, arrival and delivery handoff where applicable. Frequency and channel follow the shipment size and your preference.',
             },
             {
                 id: 'customs',
@@ -211,7 +211,7 @@ export const FAQ_CATEGORIES = [
             {
                 id: 'payment-terms',
                 q: 'What payment terms do you offer?',
-                a: '[TBD — confirm banking terms] Terms depend on relationship stage, order size and destination risk. Options may include advance, letter of credit or other structured settlement after credit assessment.',
+                a: 'Payment terms depend on relationship stage, order size and destination risk. Options may include advance, letter of credit or other structured settlement after commercial assessment. Exact terms are stated on each offer — we do not publish a single company-wide payment schedule.',
             },
             {
                 id: 'become-supplier',
@@ -226,7 +226,7 @@ export const FAQ_CATEGORIES = [
             {
                 id: 'commercial-confidentiality',
                 q: 'How is commercial information handled?',
-                a: 'Trade enquiries, pricing, supplier identities and buyer requirements are treated as confidential commercial information shared only on a need-to-know basis to execute the transaction. Formal NDAs can be discussed for sensitive sourcing programs. [TBD — confirm data retention and privacy policy references].',
+                a: 'Trade enquiries, pricing, supplier identities and buyer requirements are treated as confidential commercial information shared only on a need-to-know basis to execute the transaction. Formal NDAs can be discussed for sensitive sourcing programs. See our Privacy Policy for how personal data submitted through the site is handled.',
             },
         ],
     },
@@ -247,7 +247,28 @@ export const FAQ_CATEGORIES = [
             {
                 id: 'delhi-hub',
                 q: 'Where is AITH based?',
-                a: 'Our head office is at No. 901, Devika Tower, Nehru Place, New Delhi — 110019 (28°36\'N 77°13\'E), with a corporate office in Chennai and international branches in Dubai, Singapore, Jakarta and Thimphu. [TBD — visiting hours]',
+                a: 'Our head office is at No. 901, Devika Tower, Nehru Place, New Delhi — 110019 (28°36\'N 77°13\'E), with a corporate office in Chennai and international branches in Dubai, Singapore, Jakarta and Thimphu. Visiting hours are confirmed by appointment — contact us before travelling to an office.',
+            },
+        ],
+    },
+    {
+        id: 'careers',
+        label: 'Careers',
+        items: [
+            {
+                id: 'careers-openings',
+                q: 'Are you hiring?',
+                a: 'Open roles are listed on the Careers page when positions are active. If none are listed, you may still send a general application for trade operations, sourcing or commercial coordination.',
+            },
+            {
+                id: 'careers-how-apply',
+                q: 'How do I apply?',
+                a: 'Use the application form on the Careers page, or email your interest and CV link to our published contact address. Please include preferred location and role focus.',
+            },
+            {
+                id: 'careers-locations',
+                q: 'Where can I work?',
+                a: 'Primary offices are in New Delhi and Chennai, with international branches in Dubai, Singapore, Jakarta and Thimphu. Location availability depends on the role.',
             },
         ],
     },
@@ -262,6 +283,7 @@ export const FAQ_BY_CONTEXT = {
     contact: ['how-to-start', 'response-time', 'delhi-hub', 'become-supplier', 'payment-terms', 'commercial-confidentiality'],
     partner: ['become-supplier', 'who-we-serve', 'categories', 'quality-process', 'long-term', 'custom-source'],
     quality: ['quality-process', 'third-party-inspection', 'certifications', 'documents', 'customs', 'spec-mismatch'],
+    careers: ['careers-openings', 'careers-how-apply', 'careers-locations', 'delhi-hub'],
 };
 
 export function getFaqsByIds(ids) {

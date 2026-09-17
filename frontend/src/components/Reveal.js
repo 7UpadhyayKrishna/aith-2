@@ -1,19 +1,32 @@
 import { useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, useReducedMotion } from 'framer-motion';
 
+/** Shared editorial ease — matches CSS cubic-bezier(0.16, 1, 0.3, 1) / ease-editorial */
 export const EASE = [0.16, 1, 0.3, 1];
+
+/**
+ * Motion vocabulary (seconds for Framer; CSS uses ms utilities in Tailwind):
+ * MICRO ~0.18–0.26 | STANDARD ~0.28–0.42 | EDITORIAL REVEAL ~0.6–1.2
+ */
+export const MOTION = {
+    micro: 0.22,
+    standard: 0.36,
+    editorial: 0.9,
+    line: 1.05,
+};
 
 export const Line = ({ children, delay = 0, className = '' }) => {
     const ref = useRef(null);
     const inView = useInView(ref, { once: true, margin: '-6% 0px -6% 0px' });
+    const reduce = useReducedMotion();
+    const show = reduce || inView;
     return (
         <span ref={ref} className={`block overflow-hidden ${className}`}>
             <motion.span
-                className="block will-change-transform"
+                className="block"
                 initial={false}
-                animate={{ y: inView ? '0%' : '112%' }}
-                transition={{ duration: 1.05, ease: EASE, delay }}
-                style={{ transform: inView ? undefined : 'translateY(112%)' }}
+                animate={{ y: show ? '0%' : '112%' }}
+                transition={{ duration: reduce ? 0 : 1.05, ease: EASE, delay: reduce ? 0 : delay }}
             >
                 {children}
             </motion.span>
@@ -24,14 +37,15 @@ export const Line = ({ children, delay = 0, className = '' }) => {
 export const Fade = ({ children, delay = 0, y = 28, className = '' }) => {
     const ref = useRef(null);
     const inView = useInView(ref, { once: true, margin: '-8% 0px -8% 0px' });
+    const reduce = useReducedMotion();
+    const show = reduce || inView;
     return (
         <motion.div
             ref={ref}
             className={className}
             initial={false}
-            animate={{ opacity: inView ? 1 : 0, y: inView ? 0 : y }}
-            transition={{ duration: 0.9, ease: EASE, delay }}
-            style={{ opacity: inView ? undefined : 0, transform: inView ? undefined : `translateY(${y}px)` }}
+            animate={{ opacity: show ? 1 : 0, y: show ? 0 : y }}
+            transition={{ duration: reduce ? 0 : 0.9, ease: EASE, delay: reduce ? 0 : delay }}
         >
             {children}
         </motion.div>

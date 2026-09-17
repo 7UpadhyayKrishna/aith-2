@@ -1,448 +1,342 @@
 # AITH Website — Production Readiness & Content Report
 
-**Prepared for:** Stakeholder / experienced developer handoff  
-**Project:** Asian International Trade House (AITH) marketing site  
-**Date:** 15 September 2026  
-**Stack:** React 19 + CRA/CRACO, React Router 7, Tailwind CSS 3, Framer Motion, Lenis  
-**Canonical host (config):** `https://aithinternational.com` — centralised in `frontend/src/config/site.js`
+**Date:** 17 September 2026  
+**Repository:** AITH (React 19 CRA/CRACO + FastAPI/Motor)  
+**Phase:** Code hardening + production ops documentation  
+
+### Update — Security / CMS hardening (local)
+
+Engineering completed production-fail-closed admin security, MFA feature flag, request/audit hardening, blog sitemap/redirect rules, recovery scripts, frontend SafeImage / analytics admin skip, and ops docs (`PRODUCTION_RUNBOOK.md`, `ROLLBACK_PLAN.md`, refreshed `GO_LIVE_REPORT.md`). This does **not** clear production deployment blockers.
 
 ---
 
 ## 1. Executive Summary
 
-This pass refined the **existing** editorial trade site — it did not replace the visual system.
+**CODE HARDENED ≠ PRODUCTION VERIFIED. Launch state: DEPLOYMENT BLOCKED.**
 
-**Primary fix:** Official logo no longer renders as a white square or CSS-inverted mono JPEG. Production assets are transparent WebP/PNG (navy + gold preserved). Navbar uses a larger full-colour lockup with soft environmental contrast on the dark hero (top gradient + radial veil + drop-shadow — not a white box).
+Local codebase now refuses insecure production startup (session secret, secure cookies, explicit CORS), ships admin recovery scripts, optional MFA (`ADMIN_MFA_ENABLED` / pyotp), PII RBAC for editors, and blog SEO safeguards. A public frontend still exists at **https://www.aithworld.com** (Vercel), but prior evidence showed:
 
-**Also delivered:** `/partner`, `/quality-compliance`, `/privacy`, `/terms`; expanded FAQ library; Contact + Request Quote integration boundaries (API + mailto fallback); SEO/schema hardening; Lenis/scroll tuning; deferred analytics; footer/legal IA; accessibility upgrades for mobile menu.
+1. Canonical `https://aithinternational.com` — **DNS NXDOMAIN**  
+2. FastAPI `/api/health` — **not on live host** (SPA HTML fallback)  
+3. Live bundle **stale** vs hardened tree  
+4. Privacy/Terms **draft** — counsel / waiver outstanding  
+5. Production Mongo / CORS / SMTP-or-monitoring owner — **unverified**
 
-**Not done (intentional):** Next.js/SSR migration, final legal counsel copy, inventing phone/WhatsApp/address/SLA/MOQ numbers, self-hosting Unsplash heroes, live email/CRM credentials in frontend.
-
----
-
-## 2. Final Site Map
-
-| Path | Purpose |
-|------|---------|
-| `/` | Home — editorial long-scroll story |
-| `/about` | Company narrative + brand lockup |
-| `/services` | Capabilities |
-| `/products` | Categories & discovery |
-| `/markets` | Regions + TradeMap |
-| `/insights` | Stories + resource stubs |
-| `/insights/:id` | Article + Article schema |
-| `/faq` | Categorised FAQ + FAQPage schema |
-| `/contact` | General / partnership / support enquiries |
-| `/partner` | Supplier/manufacturer partnership page |
-| `/quality-compliance` | Quality & compliance process |
-| `/request-quote` | Structured trade brief wizard |
-| `/privacy` | Privacy shell — `[TBD — LEGAL REVIEW]` |
-| `/terms` | Terms of Trade shell — `[TBD — LEGAL REVIEW]` |
-| `*` | Editorial 404 |
-
-**Primary desktop nav:** About · Products · Services · Markets · Insights · Contact · Partner · Request Quote  
-**Mobile also:** Quality · FAQ  
-**Footer:** full navigate set + legal
-
----
-
-## 3. Architecture Overview
-
-```
-frontend/
-├── public/
-│   ├── brand/          # transparent logos, OG, favicon, source JPG
-│   ├── robots.txt
-│   ├── sitemap.xml
-│   ├── site.webmanifest
-│   └── index.html      # default meta; deferred analytics
-└── src/
-    ├── config/site.js  # SITE_ORIGIN, brand paths, social TBD
-    ├── data/           # content.js, faqs.js, contact.js
-    ├── services/forms.js
-    ├── components/     # BrandLogo, Nav, Footer, Seo, PageHero, …
-    └── pages/          # route screens (lazy except Home)
-backend/
-└── server.py           # FastAPI + /api/contact + /api/quote (+ existing status)
-```
-
-**Content ownership**
-
-| Concern | File |
-|---------|------|
-| Domain / OG defaults | `src/config/site.js` |
-| Marketing copy / categories | `src/data/content.js` |
-| FAQ Q&A | `src/data/faqs.js` |
-| Phone, WhatsApp, hours, SLA | `src/data/contact.js` |
-| Form transport | `src/services/forms.js` |
-| Brand rasters | `public/brand/` |
-
----
-
-## 4. Brand & Logo Implementation
-
-### Assets created
-
-| File | Role |
-|------|------|
-| `logo-transparent.webp` (~86KB) | Primary nav/footer lockup |
-| `logo-transparent.png` (~350KB) | Fallback |
-| `logo-transparent@1.5x.webp` | Retina srcset |
-| `logo-mark-transparent.webp/png` | Icon-only crop (available) |
-| `og-image.jpg` | Ivory-backed square for OG/social |
-| `apple-touch-icon.png` | Touch icon |
-| `logo-source.jpg` | Master reference (white-bg source) |
-
-### Rules applied
-
-- White raster background removed; navy + gold preserved; artwork not redrawn.
-- **No** `brightness-0` / `invert` / grayscale on the official lockup.
-- Site theme remains forest `#17231D` / copper `#B65A32` / ivory `#F3F0E8` — logo navy/gold stays inside the asset only.
-- Nav sizing uses height clamp ~`5.25rem–7.25rem` with `object-contain` and intrinsic width/height to limit CLS.
-- Dark hero contrast: stronger top gradient under nav + soft radial behind logo + light drop-shadow (not a white rectangle).
-
-### Known residual
-
-- Vertical lockup geometry means the tagline remains the smallest line at mobile widths; desktop/scrolled ivory nav is the strongest presentation.
-- Old `logo-full.jpg` / `logo-mono-ivory.jpg` remain on disk but are unused by `BrandLogo`.
-
----
-
-## 5. Navigation System
-
-- Sticky header with transparent → ivory scrolled transition preserved.
-- Partner → `/partner` (was query-only quote flow).
-- Mobile: Escape closes, body scroll lock, Lenis stop/start, route change closes, focus moves to close control, Partner + Quality + FAQ included.
-- Skip link + `main#main-content` retained.
-- Fixed mobile Request Quote bar; footer uses `pb-mobile-cta` clearance.
-
----
-
-## 6. Page-by-Page Content Inventory
-
-| Page | H1 concept | Notes |
-|------|------------|-------|
-| Home | FROM ASIA. TO EVERYWHERE. | WebSite + Organization schema; FAQ strip; quality link to `/quality-compliance` |
-| About | WE CONNECT PRODUCTS… | Larger transparent brand showcase |
-| Services | SOLUTIONS FOR REAL TRADE. | Existing |
-| Products | PRODUCTS, MATERIALS… | Existing |
-| Markets | ONE SOURCE. MANY MARKETS. | TradeMap |
-| Insights / Article | Per story | Article + BreadcrumbList schema; related stories |
-| FAQ | QUESTIONS. ANSWERED. | Expanded library |
-| Contact | LET'S TALK TRADE. | Intent field; TBD channels gated |
-| Partner | BUILD TRADE TOGETHER. | New |
-| Quality | QUALITY IS A PROCESS. | New |
-| Request Quote | Dynamic / confirmation | Enhanced fields; submit service |
-| Privacy / Terms | Legal titles | Shell + LEGAL REVIEW markers |
-| 404 | ROUTE NOT FOUND. | noindex |
-
----
-
-## 7. SEO Implementation
-
-- Per-route `Seo` component: title, description, canonical, robots, OG, Twitter.
-- Domain centralised: `SITE_ORIGIN` in `config/site.js`.
-- `sitemap.xml` includes partner, quality-compliance, privacy, terms.
-- `robots.txt` points at sitemap on `aithinternational.com`.
-- Misleading Home `SearchAction` removed (client-only product search is not a crawlable search endpoint).
-- Default OG image → `/brand/og-image.jpg`.
-- Fonts: dropped unused Manrope weight 300 from Google Fonts URL; `display=swap` retained.
-- **CSR limitation:** meta updates run client-side; prerender/SSR remains a P1 recommendation (not implemented — risk to Lenis/Motion).
-
----
-
-## 8. Structured Data
-
-| Type | Where |
-|------|--------|
-| Organization | Home (+ reusable `orgJsonLd`) |
-| WebSite | Home |
-| FAQPage | `/faq` |
-| Article | Insight articles |
-| BreadcrumbList | Partner, Quality, Privacy, Terms, Articles |
-| Service | Helper exported (`serviceJsonLd`) for future use |
-
-No AggregateRating / fake awards / fabricated metrics.
-
----
-
-## 9. Performance Optimizations
-
-Concrete changes:
-
-1. **Lenis:** slightly tighter feel (`duration` 0.95, `lerp` 0.1); `smoothWheel` disabled on coarse pointers; `lenis` / `lenis-smooth` classes applied; respects `prefers-reduced-motion`.
-2. **Process section:** spring damping increased (less oscillatory work); still motion-value driven (no per-frame React setState).
-3. **Analytics:** PostHog + Emergent scripts deferred via `requestIdleCallback` / post-load timeout — no longer block first paint in `<head>`.
-4. **Logo:** WebP primary (~86KB) vs prior ~108KB JPEG with white plate; preload WebP in HTML.
-5. **Hero:** intrinsic width/height + `fetchPriority="high"`; top gradient for nav contrast without extra image.
-6. Lazy routes retained; `content-visibility` retained on long sections.
-
-**Remaining costs:** Unsplash remote heroes; TradeMap + world-atlas on Home/Markets; continuous marquees; session recording when analytics wake.
-
----
-
-## 10. Animation / Scroll Architecture
-
-- Single Lenis rAF loop; Framer scroll alignment via synthetic `scroll` event (unchanged pattern, tuned params).
-- Reveal `Line` / `Fade` / `Tag` + `EASE` preserved.
-- Nav scrolled flag still threshold-gated (ref guard).
-- Reduced-motion CSS kills marquees and shortens transitions.
-
----
-
-## 11. UI/UX System
-
-- Forest / copper / ivory editorial system preserved.
-- PageHero used for new marketing/legal pages.
-- Copper primary CTA language standardised (Request Quote / Partnership Enquiry / Discuss Specification).
-- Dead footer `#` / `preventDefault` social & legal links removed — social shows `[TBD]` until URLs configured; legal routes to real pages.
-
----
-
-## 12. FAQ Architecture
-
-Categories retained; coverage expanded (imports/exports, quote inputs, MOQ variance, timelines, air vs sea, quote inclusions, document types, packaging, OEM, claims, insurance, updates, confidentiality, etc.).
-
-Company-specific answers still use `[TBD]` where facts are unknown.
-
-Contextual strips: Home, Services, Products, Contact, Partner, Quality.
-
----
-
-## 13. Contact & Quote Workflow
-
-| Flow | Intent |
-|------|--------|
-| `/contact` | General, supplier, partnership, support (+ intent select) |
-| `/request-quote` | Product / qty / destination / timeline / mode / company / contact (+ optional origin, Incoterm, notes) |
-| `/partner` → quote `?type=partner` | Partnership-shaped brief |
-
-Honeypot field `website` on both forms.
-
----
-
-## 14. Forms / Backend Integration Status
-
-| Layer | Status |
+| State | Status |
 |-------|--------|
-| Frontend `services/forms.js` | POST `/api/contact` & `/api/quote`; honeypot; mailto fallback if API unreachable |
-| Backend `server.py` | Persists to MongoDB collections `contact_submissions` / `quote_submissions` |
-| Email/CRM forwarding | **Not wired** — add ops layer; do not put secrets in CRA |
-| `REACT_APP_API_URL` | Optional absolute API base; empty = same-origin `/api` |
+| **CODE HARDENED** | Yes — local engineering |
+| **CODE READY** (features) | Yes — local |
+| **STAGING VERIFIED** | No |
+| **SOFT LAUNCH READY** | No |
+| **PRODUCTION LIVE** | No — **DEPLOYMENT BLOCKED** |
 
-**Recommendation:** reverse-proxy rate limiting; server-side validation already minimal; add transactional email after persist.
+Evidence detail: `docs/GO_LIVE_REPORT.md`. Ops: `docs/PRODUCTION_RUNBOOK.md`, `docs/ROLLBACK_PLAN.md`.
 
 ---
 
-## 15. Accessibility Status
+## 2. Technical Stack
 
-| Item | Status |
+| Layer | Technology |
+|-------|------------|
+| Frontend | React 19, CRA/CRACO, React Router 7, Tailwind 3, Framer Motion, Lenis |
+| Backend | FastAPI, Motor/MongoDB, optional SMTP, Argon2id admin sessions |
+| Analytics | PostHog SPA `$pageview` (session recording off in local HTML; skip `/admin`) |
+| Admin MFA | Optional TOTP via **pyotp** (`ADMIN_MFA_ENABLED`, default off) |
+
+---
+
+## 3. Architecture
+
+CSR SPA with lazy routes, centralized site origin, Mongo-first form persistence, best-effort SMTP, in-memory rate limits, honeypots. Admin CMS on `/admin/*` with HttpOnly session + CSRF. Media: `MEDIA_PROVIDER=url_only` (no ephemeral disk uploads).
+
+**Prerender/SSR:** not implemented (P1 debt).
+
+**Hosting (observed / assumed only where evidenced):** frontend on Vercel; backend host **not deployed** in last verification. No invented PaaS.
+
+---
+
+## 4. Final Route Map
+
+**Core:** `/` `/about` `/services` `/products` `/markets` `/insights` `/insights/:id` `/faq` `/contact` `/request-quote` `/partner` `/quality-compliance` `/careers` `/privacy` `/terms`
+
+**Services:** `/global-sourcing-services` `/import-export-services` `/international-procurement` `/supplier-sourcing` `/trade-documentation` `/freight-coordination`
+
+**Industries:** `/industries` + healthcare, agriculture, minerals-metals, chemicals, textiles
+
+**Blogs:** `/blogs` `/blogs/:slug`
+
+**Admin:** `/admin/*` (lazy, `noindex`)
+
+**404:** `*` + invalid industry/service/article → noindex
+
+---
+
+## 5. Brand System
+
+Forest `#17231D` · Copper `#B65A32` · Ivory `#F3F0E8` · Manrope / Instrument Serif / JetBrains Mono · dual-tone logos. Preserved.
+
+---
+
+## 6. Navigation
+
+Desktop: restrained primary links + Partner + Request Quote. Mobile: grouped Explore/Company, focus trap, Escape, Lenis pause, Quote CTA. SEO/deep routes via content and footer — not dumped into primary nav. Admin has no public Nav/Footer.
+
+---
+
+## 7. Motion System
+
+| Tier | Duration | Use |
+|------|----------|-----|
+| MICRO | ~180–260ms | colour, small shifts |
+| STANDARD | ~280–420ms | arrows, nav hovers |
+| EDITORIAL | ~600–1200ms | Line/Fade reveals, image scale |
+
+Ease: `cubic-bezier(0.16, 1, 0.3, 1)`. Reduced-motion CSS near-zero transitions.
+
+---
+
+## 8. Who We Work With Arrow Polish
+
+Single outward arrow; row hover/focus-visible rotate/translate/scale to copper; reduced-motion shortened. Local CODE READY; production motion **not** re-verified on stale live bundle.
+
+---
+
+## 9. Horizontal Industries
+
+Wheel / trackpad / drag / touch / keyboard / prev-next / Lenis-safe. `SafeImage` with scheme validation on card media.
+
+---
+
+## 10. Process Timeline
+
+Geometry unchanged. Framer reduced-motion edge polish remains P2.
+
+---
+
+## 11. Footer
+
+Social column omitted when URLs null. Local code has no “Profiles forthcoming / TBD”; live stale deploy previously still showed TBD — redeploy required.
+
+---
+
+## 12–15. Content / SEO / Industries / Insights / Blogs
+
+Service intents differentiated; industry copy disclaims licences. Insights = static evergreen; Blogs = CMS Trade Journal (seed topics avoid duplicating Insights). Invalid slugs → real 404. Blog sitemap omits `seo.index=false`. Slug remaps: API **HTTP 301** via `/api/blog-redirects/{slug}`. BlogPost supports SEO canonical override.
+
+---
+
+## 16–18. Metadata / Structured Data / Internal Linking
+
+`Seo` sets title, description, canonical, OG, Twitter, robots, JSON-LD. Sitemap lists indexable marketing routes. **Live locs previously pointed at dead canonical host** — fix before Search Console submit. Internal links from hubs/footer/related blocks.
+
+---
+
+## 19. CSR / Prerender Status
+
+**P1 debt.** Options A (static prerender) / B (Next.js) documented in prior go-live notes — **not** executed this phase.
+
+---
+
+## 20–22. Forms / Mongo / SMTP
+
+Flow: validate → rate limit → honeypot → **Mongo insert** → notify → patch `notificationStatus` (`pending|sent|failed|disabled`). SMTP failure never undoes insert; user still gets success when stored. Frontend in-flight guards; mailto ≠ API persistence.
+
+**Production:** forms not durable until API wired (**FAIL** at last probe).
+
+---
+
+## 23. Analytics
+
+SPA pageviews skip duplicate first load; **skip `/admin`**. `index.html` deferred bootstrap also skips `/admin`. Session recording disabled in local HTML — confirm on **production** bundle after redeploy (prior live **FAIL**).
+
+---
+
+## 24. Security (hardened)
+
+| Control | Code status |
+|---------|-------------|
+| Honeypot + IP rate limit + max lengths | PASS |
+| Production fail-closed: secret ≥32, `ADMIN_COOKIE_SECURE`, explicit CORS | PASS |
+| No ephemeral `ADMIN_SESSION_SECRET` in production | PASS |
+| Argon2id + HttpOnly session + CSRF | PASS |
+| `mustChangePassword` / change-password gate | PASS |
+| Legacy flag script `--apply` | PASS |
+| Editors blocked from enquiry/quote/career PII | PASS |
+| `X-Request-ID` + API security headers | PASS |
+| Session TTL `expiresAtDate` | PASS |
+| MFA flag (off by default) | PASS |
+| `SafeImage` scheme allowlist | PASS |
+| Media `url_only` | PASS |
+| Expanded `tests/test_admin_security.py` + unique test DB per worker | PASS |
+
+Live CORS/secrets on a real API: **BLOCKED** until deploy.
+
+---
+
+## 25. Accessibility
+
+Focus-visible copper outline; skip link; FAQ accordion; TradeMap keyboard; mobile dialog; reduced-motion + Lenis skip. Full production keyboard matrix incomplete (time-boxed after P0 failures).
+
+---
+
+## 26. Performance
+
+Lazy routes; transform/opacity motion. Prior live Lighthouse mobile Perf **35** / LCP ~9s — **P1**. Unsplash remote heroes remain a CWV risk.
+
+---
+
+## 27. Legal Status
+
+Privacy + Terms: **LEGAL_STATUS = draft**. Banner when `REACT_APP_SHOW_LEGAL_DRAFT !== 'false'`.
+
+**P0 / BLOCKED:** counsel approval **or** explicit written soft-launch acceptance before treating as binding. Do not set draft flag false until then.
+
+---
+
+## 28. Business Config
+
+Null socials / WhatsApp / hours / SLA / commercial policies gated via `isConfigured` — not rendered as placeholders (local).
+
+---
+
+## 29. Deployment Configuration
+
+| Doc | Role |
+|-----|------|
+| `backend/.env.example` | Required/optional backend vars |
+| `frontend/.env.example` | `REACT_APP_API_URL`, legal draft |
+| `frontend/vercel.json.example` | `/api/*` + `/blog-sitemap.xml` rewrites + headers |
+| `docs/PRODUCTION_RUNBOOK.md` | Deploy, admin scripts, rotation, incidents |
+| `docs/ROLLBACK_PLAN.md` | FE/BE/env/blog rollback |
+| `docs/PRODUCTION_CHECKLIST.md` | Checkbox go-live list |
+| `docs/GO_LIVE_REPORT.md` | Evidence + **DEPLOYMENT BLOCKED** |
+
+**Last live facts:** Vercel www up; canonical NXDOMAIN; no production API on www `/api`.
+
+---
+
+## 30–31. QA / Build Results
+
+Local: security tests expanded; Contact/Quote → Mongo with notification status; health JSON locally. Production end-to-end: **not cleared**.
+
+---
+
+## 32. Production Checklist
+
+`docs/PRODUCTION_CHECKLIST.md` — treat items unchecked until verified on the **chosen** production stack after redeploy.
+
+---
+
+## 33. Owner Actions
+
+| Action | Before launch? | Status |
+|--------|----------------:|--------|
+| Decide canonical host + DNS | **YES** | **BLOCKED** |
+| Redeploy current frontend | **YES** | **BLOCKED** (stale at probe) |
+| Deploy FastAPI + wire API URL / rewrite | **YES** | **BLOCKED** |
+| Production env: Mongo, CORS, secret ≥32, cookie secure, `APP_ENV=production` | **YES** | **BLOCKED** |
+| SMTP **or** named Mongo-only monitoring owner | **YES** | Outstanding |
+| Name Mongo backup owner | **YES** | Placeholder in runbook |
+| Legal approve **or** soft-launch waiver | **YES** | **BLOCKED** |
+| Analytics / cookie consent decision | YES (jurisdiction) | Outstanding |
+| Proxy `/blog-sitemap.xml` | YES if blogs public | Template only |
+| Search Console + sitemap | After DNS/API | Do not submit dead host |
+| Enable MFA when ops-ready | Optional | Flag off by default |
+| Mobile CWV accept/mitigate | P1 | Measured fail |
+| Prerender / SSR | P1 | Not started |
+
+---
+
+## 34. Technical Debt
+
+- CSR SEO without prerender/SSR  
+- In-memory rate limit (add edge limits if multi-instance)  
+- Remote Unsplash imagery / mobile LCP  
+- Emergent/PostHog bootstrap ownership  
+- Vercel security headers beyond HSTS (example headers in `vercel.json.example`)  
+- Dependency prune post-launch only  
+
+---
+
+## 35. Launch Blockers & Priority Lists
+
+### P0 — DEPLOYMENT BLOCKED until cleared (owner/infra)
+
+1. Canonical DNS + `SITE_ORIGIN` consistency  
+2. Deploy backend; production Mongo + explicit CORS + fail-closed admin env; forms E2E on live API  
+3. SMTP **or** documented Mongo-only monitoring with a **named** owner  
+4. Redeploy current CODE HARDENED frontend (SEO routes, footer, analytics flags)  
+5. Counsel-approved Privacy & Terms **or** explicit documented soft-launch acceptance  
+6. Blog sitemap rewrite live if Trade Journal is in scope  
+
+### P0 — code controls (engineering PASS; live verify still required)
+
+1. Production startup validation (secret / cookie / CORS)  
+2. Admin recovery scripts + `mustChangePassword` path  
+3. Editor PII isolation on enquiries/quotes/careers  
+4. Request ID + API security headers + session TTL  
+
+### P1 — after P0, may accept with written risk
+
+1. CSR prerender/SSR for critical routes  
+2. Mobile CWV remediation / acceptance  
+3. Proxy-level rate limiting if multi-instance  
+4. Confirm session recording disabled on **production** bundle  
+5. Turn on `ADMIN_MFA_ENABLED` with enrollment/runbook when ready  
+
+### P2 — post-launch
+
+1. Social / WhatsApp / hours / SLA when known  
+2. Dependency prune  
+3. Image CDN / self-host heroes  
+4. Process Framer reduced-motion edge polish  
+5. Durable object storage media provider (beyond `url_only`) when credentials exist  
+
+---
+
+## 36. Final Verdict
+
+**CODE HARDENED / DEPLOYMENT BLOCKED.**
+
+Do **not** declare soft launch or **PRODUCTION LIVE** until P0 owner/infra gates in `docs/GO_LIVE_REPORT.md` are evidenced on real hosts. Hardening improved the **ship-safe** baseline; it did not replace DNS, API hosting, legal approval, or production verification.
+
+---
+
+## Readiness Scoring (0–10, after hardening + prior prod probe)
+
+| Dimension | Score | What prevents a 10 |
+|-----------|------:|--------------------|
+| Design | 9 | Residual micro-polish |
+| Brand | 9 | System locked |
+| Content | 7 | Legal draft; live TBD risk until redeploy |
+| Functionality | 6 | Local OK; **production API absent** |
+| SEO | 4 | Dead canonical; CSR; sitemap proxy unverified |
+| Performance | 5 | Mobile Lighthouse weak on last live probe |
+| Accessibility | 8 | Strong patterns; full prod pass incomplete |
+| Security | 7 | **Code hardened**; live API env unproven |
+| Operations | 5 | Runbooks exist; **no verified prod ops stack** |
+| Commercial Launch | 2 | **DEPLOYMENT BLOCKED** |
+
+---
+
+## 37. Admin CMS + Blog Platform
+
+### Hardened / READY (local)
+
+| Area | Status |
 |------|--------|
-| Skip link / landmarks / one H1 | Present |
-| Focus-visible copper ring | Present |
-| Mobile menu Escape + scroll lock | Done |
-| FAQ accordion (Radix) | Keyboard / aria |
-| Decorative vs descriptive images | Pattern retained |
-| TradeMap keyboard | Still mouse-oriented (P2) |
-| Discovery tabs | Incomplete tabpanel pattern (P2) |
+| Auth Argon2id + session + CSRF + change-password gate | READY |
+| Production fail-closed config | READY |
+| Roles admin / editor (+ PII block for editors) | READY |
+| Blog CRUD / revisions / JSON import-export | READY |
+| Public blogs + sitemap rules + 301 redirects | READY (needs API + proxy) |
+| MFA (`ADMIN_MFA_ENABLED`) | READY as **optional flag** (off) |
+| Recovery CLI scripts | READY |
+| Media `url_only` | READY |
+| Security test suite isolation | READY |
 
----
+### Deployment still BLOCKED
 
-## 16. Responsive Behaviour
+Same site P0: no verified production API, canonical DNS, or live sitemap proxy.
 
-Logo + CTA + hamburger validated conceptually at mobile widths; desktop logo larger with ivory scrolled state strongest. Footer padding accounts for sticky mobile CTA. Touch devices prefer native scroll over Lenis wheel smoothing.
-
----
-
-## 17. Analytics / Tracking
-
-PostHog (Emergent host) + `emergent-main.js` still present but **deferred** after idle/load. Session recording config unchanged when loaded. Document for privacy policy cookie section (`[TBD — LEGAL REVIEW]`).
-
----
-
-## 18. Legal / Compliance Pages
-
-`/privacy` and `/terms` exist as professional shells with explicit `[TBD — LEGAL REVIEW]` markers. Not legal advice; counsel must finalise before treating as binding.
-
----
-
-## 19. Business Data Still Marked TBD
-
-| Field | Location |
-|-------|----------|
-| Phone, WhatsApp, street, hours, SLA | `contact.js` |
-| Social profile URLs | `config/site.js` → `SOCIAL` |
-| MOQ, Incoterms preference, quote validity, currency, payment terms | FAQ answers |
-| Full office address / visiting hours | FAQ `delhi-hub` |
-| Legal governing law / processors / cookie table | Privacy & Terms pages |
-| Resource PDF downloads | Insights toasts (placeholder) |
-
-Email live: `trade@aithinternational.com`.
-
----
-
-## 20. Known Technical Debt
-
-1. CRA SPA — crawlers see JS-dependent meta (prerender/Next.js future).
-2. Unsplash CDN dependency for photography.
-3. Large unused shadcn/ui surface + unused npm deps (axios, recharts, etc.).
-4. TradeMap duplicated Home + Markets.
-5. Insights resource “downloads” still toast stubs.
-6. No automated Lighthouse CI in repo.
-7. Contact.js formatting (extra blank lines) from editing pass — functionally fine, tidy later.
-
----
-
-## 21. Lighthouse / Performance Findings
-
-**Environment:** Production `npm run build` succeeded (2026-09-15). Full Lighthouse on production host not run in this session (no public deploy URL).
-
-**Code-level before → after (this pass):**
-
-| Area | Before | After |
-|------|--------|-------|
-| Logo | White JPG + invert filter → white square on dark | Transparent WebP/PNG, full colour |
-| Analytics | Sync in `<head>` | Idle/deferred |
-| Lenis | Always smoothWheel | Coarse pointer → native; tuned lerp |
-| Home schema | Misleading SearchAction | Removed |
-| Forms | Toast-only stubs | API boundary + mailto fallback + backend routes |
-
-**Targets (aim, not measured here):** LCP &lt; 2.5s, CLS &lt; 0.1, INP &lt; 200ms; Lighthouse Perf/A11y/BP/SEO 90–95+ on production CDN.
-
----
-
-## 22. QA Results
-
-| Check | Result |
-|-------|--------|
-| Production build | **Pass** |
-| Routes registered (incl. partner, quality, privacy, terms, 404) | **Pass** |
-| Logo transparent assets present | **Pass** |
-| Nav no longer uses invert filter | **Pass** |
-| Partner page loads | **Pass** (lazy chunk) |
-| Footer legal → real routes | **Pass** |
-| FAQ expansion present | **Pass** |
-| Forms service + backend endpoints | **Pass** (code); live email delivery **not** verified |
-
-**Manual visual note:** Navy lockup on dark hero remains the hardest contrast case; mitigated with gradient/veil/shadow. Strongest logo read is scrolled ivory nav and About/footer.
-
----
-
-## 23. Launch Blockers
-
-1. Fill or hide remaining `[TBD]` commercial/contact facts.  
-2. Legal review of Privacy + Terms.  
-3. Confirm production domain matches `SITE_ORIGIN` / sitemap.  
-4. Wire email/CRM notification from Mongo submissions (or confirmed mailto ops).  
-5. Social URLs or keep `[TBD]` suppressed.  
-6. Optional: prerender for SEO before paid acquisition spend.
-
----
-
-## 24. Post-launch Recommendations
-
-1. Prerender (`react-snap`) or Next.js App Router if organic SEO is critical.  
-2. Self-host hero/category images (WebP/AVIF + `srcset`).  
-3. Lighthouse + Web Vitals on real hosting.  
-4. Keyboard-accessible TradeMap.  
-5. Remove unused UI kit / deps to shrink install surface.  
-6. Partner success stories only when verified (no fake metrics).
-
----
-
-## 25. Developer Handoff Notes
-
-- Change domain in **one place:** `frontend/src/config/site.js` → `SITE_ORIGIN`, then sync `public/sitemap.xml`, `robots.txt`, `index.html` defaults if needed.  
-- Replace contact TBDs in `src/data/contact.js`.  
-- Set `SOCIAL.*` URLs or leave null.  
-- Set `REACT_APP_API_URL` if API is on another origin; ensure CORS.  
-- Logo: replace `public/brand/logo-source.jpg` and re-run the transparency export script (or re-export manually); update `BrandLogo` / `BRAND` dimensions if crop size changes.  
-- Do **not** reintroduce CSS invert on the official lockup.
-
----
-
-## 26. Final Readiness Verdict
-
-| Dimension | Rating | Why |
-|-----------|--------|-----|
-| **DESIGN READINESS** | **HIGH** | Identity preserved; logo implementation corrected; editorial system intact |
-| **CONTENT READINESS** | **MEDIUM** | Strong structure + FAQ; commercial/legal TBDs remain |
-| **FUNCTIONAL READINESS** | **MEDIUM** | Forms have API/mailto path; email ops + TBD contact channels incomplete |
-| **SEO READINESS** | **MEDIUM–HIGH** | Meta/schema/sitemap solid; CSR crawl gap remains |
-| **PERFORMANCE READINESS** | **MEDIUM** | Meaningful mitigations; Unsplash + map + analytics still weigh |
-| **ACCESSIBILITY READINESS** | **MEDIUM–HIGH** | Menu/FAQ/skip strong; map/tabs P2 |
-| **COMMERCIAL LAUNCH READINESS** | **MEDIUM** | Presentable for design/stakeholder review; blocked on TBD facts, legal, and inbound email ops for full public launch |
-
-**Bottom line:** Ready for professional presentation and continued content/ops completion. Not fully “flip the switch” commercial-live until TBD fields, legal review, and enquiry delivery are confirmed.
-
----
-
-## Changelog
-
-### Files created
-- `frontend/src/config/site.js`
-- `frontend/src/services/forms.js`
-- `frontend/src/pages/Partner.js`
-- `frontend/src/pages/QualityCompliance.js`
-- `frontend/src/pages/Privacy.js`
-- `frontend/src/pages/Terms.js`
-- `frontend/public/brand/logo-transparent.png`
-- `frontend/public/brand/logo-transparent.webp`
-- `frontend/public/brand/logo-transparent@1.5x.webp`
-- `frontend/public/brand/logo-mark-transparent.png`
-- `frontend/public/brand/logo-mark-transparent.webp`
-- `frontend/public/brand/og-image.jpg`
-- `frontend/public/brand/apple-touch-icon.png` (regenerated)
-- `docs/AITH Website — Production Readiness & Content Report.md` (this file)
-
-### Files modified
-- `frontend/src/components/BrandLogo.js`
-- `frontend/src/components/Nav.js`
-- `frontend/src/components/Footer.js`
-- `frontend/src/components/Seo.js`
-- `frontend/src/components/home/Hero.js`
-- `frontend/src/components/home/Process.js`
-- `frontend/src/components/home/Industries.js`
-- `frontend/src/components/home/Closing.js`
-- `frontend/src/App.js`
-- `frontend/src/pages/Home.js`
-- `frontend/src/pages/About.js`
-- `frontend/src/pages/Contact.js`
-- `frontend/src/pages/RequestQuote.js`
-- `frontend/src/pages/Article.js`
-- `frontend/src/data/faqs.js`
-- `frontend/src/data/contact.js`
-- `frontend/src/index.css`
-- `frontend/public/index.html`
-- `frontend/public/sitemap.xml`
-- `frontend/public/site.webmanifest`
-- `frontend/public/brand/logo-source.jpg` (master copy)
-- `backend/server.py`
-
-### Files deleted
-- None (obsolete JPGs retained unused for safety)
-
-### Dependencies added
-- None (npm); backend already listed `email-validator`
-
-### Dependencies removed
-- None
-
-### Routes added
-- `/partner`
-- `/quality-compliance`
-- `/privacy`
-- `/terms`
-- Backend: `POST /api/contact`, `POST /api/quote`
-
-### SEO changes
-- Central site config; OG image; sitemap expansion; SearchAction removed; Article + Breadcrumb schemas
-
-### Performance changes
-- Deferred analytics; Lenis touch/wheel tuning; logo WebP; Process spring tune; hero image hints
-
-### Content changes
-- Expanded FAQs; Partner + Quality pages; legal shells; form intent/fields; internal links to partner/quality
-
-### Remaining TBDs
-- Phone, WhatsApp, street, hours, SLA, social URLs, legal counsel text, MOQ/Incoterms/currency/payment FAQ specifics, resource PDFs, production domain confirmation if different from `aithinternational.com`
+Docs: `ADMIN_CMS_GUIDE.md`, `BLOG_JSON_SCHEMA.md`, `BLOG_SEO_PLAYBOOK.md`, `PRODUCTION_RUNBOOK.md`.

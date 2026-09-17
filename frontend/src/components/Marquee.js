@@ -10,7 +10,7 @@ export default function Marquee({ items, dark = true }) {
                     <div key={dup} className="flex items-center">
                         {items.map((item, i) => (
                             <span key={i} className="flex items-center">
-                                <span className={`px-10 font-mono text-xs lg:text-sm tracking-[0.35em] uppercase whitespace-nowrap ${item === 'TRADE IS CONNECTION' ? 'text-copper' : dark ? 'text-ivory/60' : 'text-graphite/60'}`}>
+                                <span className={`px-10 font-mono text-xs lg:text-sm tracking-[0.35em] uppercase whitespace-nowrap ${item.toUpperCase() === 'TRADE IS CONNECTION' ? 'text-copper' : dark ? 'text-ivory/60' : 'text-graphite/60'}`}>
                                     {item}
                                 </span>
                                 <span className="w-1.5 h-1.5 bg-copper/70 shrink-0" />

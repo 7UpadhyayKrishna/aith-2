@@ -6,12 +6,13 @@ import Discovery from '../components/home/Discovery';
 import FaqAccordion from '../components/FaqAccordion';
 import { CATEGORIES, IMG } from '../data/content';
 import { FAQ_BY_CONTEXT, getFaqsByIds } from '../data/faqs';
+import { categoryToIndustrySlug } from '../data/industries';
 
 export default function Products() {
     return (
         <main id="main-content">
             <Seo
-                title="Products"
+                title="Products Sourced from India | Healthcare to Textiles"
                 description="Healthcare, agriculture, minerals, chemicals and textiles — products, materials and commodities sourced through Asian International Trade House."
                 path="/products"
             />
@@ -62,14 +63,24 @@ export default function Products() {
                                     {c.name}
                                 </h2>
                                 <p className="text-mute text-sm lg:text-base leading-relaxed mt-6 max-w-md">{c.blurb}</p>
-                                <Link
-                                    to={`/request-quote?category=${c.id}`}
-                                    className="group inline-flex items-center gap-2 mt-9 font-mono text-[11px] tracking-[0.22em] uppercase text-graphite border-b border-graphite/40 pb-1 hover:text-copper hover:border-copper transition-colors duration-300"
-                                    data-testid={`chapter-quote-${c.id}`}
-                                >
-                                    Request this category
-                                    <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
-                                </Link>
+                                <div className="flex flex-wrap gap-4 mt-9">
+                                    <Link
+                                        to={`/industries/${categoryToIndustrySlug(c.id)}`}
+                                        className="group inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.22em] uppercase text-copper border-b border-copper/40 pb-1 hover:border-copper transition-colors duration-300"
+                                        data-testid={`chapter-industry-${c.id}`}
+                                    >
+                                        View {c.name.toLowerCase()} sourcing
+                                        <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
+                                    </Link>
+                                    <Link
+                                        to={`/request-quote?category=${c.id}`}
+                                        className="group inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.22em] uppercase text-graphite border-b border-graphite/40 pb-1 hover:text-copper hover:border-copper transition-colors duration-300"
+                                        data-testid={`chapter-quote-${c.id}`}
+                                    >
+                                        Request this category
+                                        <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
+                                    </Link>
+                                </div>
                             </Fade>
                         </div>
                         <div className="lg:col-span-7">

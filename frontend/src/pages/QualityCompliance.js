@@ -47,7 +47,7 @@ const SECTIONS = [
 
 export default function QualityCompliance() {
     return (
-        <main id="main-content">
+        <main id="main-content" className="overflow-x-clip">
             <Seo
                 title="Quality & Compliance"
                 description="How Asian International Trade House approaches supplier due diligence, inspection, documentation, packaging and trade compliance — without invented certifications."

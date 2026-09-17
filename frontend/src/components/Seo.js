@@ -5,8 +5,10 @@ import {
     SITE_ORIGIN,
     SITE_EMAIL,
     BRAND,
+    SOCIAL,
     absoluteUrl,
 } from '@/config/site';
+import { COMPANY } from '@/data/company';
 
 function upsertMeta(attr, key, content) {
     if (!content) return;
@@ -54,10 +56,14 @@ export default function Seo({
     type = 'website',
     jsonLd,
     noIndex = false,
+    canonical,
 }) {
     useEffect(() => {
-        const fullTitle = title ? `${title} — ${SITE_NAME}` : `${SITE_NAME} — Global Sourcing, Import & Export`;
-        const url = absoluteUrl(path);
+        // Prefer natural "Intent | AITH" titles; avoid double-branding when title already includes AITH
+        const fullTitle = title
+            ? (/\bAITH\b/i.test(title) ? title : `${title} | AITH`)
+            : `${SITE_NAME} — Global Sourcing, Import & Export`;
+        const url = canonical || absoluteUrl(path);
         const absImage = image.startsWith('http') ? image : `${SITE_ORIGIN}${image}`;
 
         document.title = fullTitle;
@@ -82,7 +88,7 @@ export default function Seo({
         return () => {
             upsertJsonLd('aith-jsonld', null);
         };
-    }, [title, description, path, image, type, jsonLd, noIndex]);
+    }, [title, description, path, image, type, jsonLd, noIndex, canonical]);
 
     return null;
 }
@@ -95,14 +101,15 @@ export const orgJsonLd = {
     url: SITE_ORIGIN,
     logo: `${SITE_ORIGIN}${BRAND.logoPng}`,
     email: SITE_EMAIL,
+    telephone: COMPANY.phoneTel || undefined,
     address: {
         '@type': 'PostalAddress',
-        streetAddress: 'No. 901, Devika Tower, Nehru Place',
+        streetAddress: COMPANY.addressLine1,
         addressLocality: 'New Delhi',
         postalCode: '110019',
         addressCountry: 'IN',
     },
-    sameAs: [],
+    sameAs: [SOCIAL.linkedin, SOCIAL.x, SOCIAL.instagram].filter(Boolean),
     description: DEFAULT_DESCRIPTION,
 };
 
@@ -154,6 +161,44 @@ export function articleJsonLd({ title, description, path, image, datePublished, 
             },
         },
         mainEntityOfPage: absoluteUrl(path),
+        datePublished: datePublished || undefined,
+        dateModified: dateModified || datePublished || undefined,
+    };
+}
+
+export function blogPostingJsonLd({
+    title,
+    description,
+    path,
+    image,
+    datePublished,
+    dateModified,
+    authorName,
+    authorType = 'Organization',
+}) {
+    const img = image?.startsWith('http') ? image : `${SITE_ORIGIN}${image || BRAND.ogImage}`;
+    return {
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: title,
+        description,
+        image: img,
+        author: {
+            '@type': authorType === 'Person' ? 'Person' : 'Organization',
+            name: authorName || SITE_NAME,
+        },
+        publisher: {
+            '@type': 'Organization',
+            name: SITE_NAME,
+            logo: {
+                '@type': 'ImageObject',
+                url: `${SITE_ORIGIN}${BRAND.logoPng}`,
+            },
+        },
+        mainEntityOfPage: {
+            '@type': 'WebPage',
+            '@id': absoluteUrl(path),
+        },
         datePublished: datePublished || undefined,
         dateModified: dateModified || datePublished || undefined,
     };
