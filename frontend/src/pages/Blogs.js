@@ -19,16 +19,28 @@ function fmt(iso) {
     }
 }
 
+const EMPTY_LIST = { items: [], total: 0, pages: 1, page: 1, limit: 12 };
+
+function parsePage(raw) {
+    const n = Number(raw || 1);
+    return Number.isFinite(n) && n >= 1 ? Math.floor(n) : 1;
+}
+
+function isListItem(b) {
+    return b && typeof b === 'object' && b.id && b.slug;
+}
+
 export default function Blogs() {
     const [params, setParams] = useSearchParams();
     const category = params.get('category') || '';
     const search = params.get('q') || '';
-    const page = Number(params.get('page') || 1);
+    const page = parsePage(params.get('page'));
 
-    const [data, setData] = useState({ items: [], total: 0, pages: 1 });
+    const [data, setData] = useState(EMPTY_LIST);
     const [featured, setFeatured] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [retryKey, setRetryKey] = useState(0);
 
     useEffect(() => {
         let cancelled = false;
@@ -36,19 +48,40 @@ export default function Blogs() {
             setLoading(true);
             setError('');
             try {
-                const [list, feat] = await Promise.all([
-                    listBlogs({ page, limit: 12, category: category || undefined, search: search || undefined }),
-                    page === 1 && !category && !search
-                        ? listBlogs({ featured: true, limit: 1 })
-                        : Promise.resolve(null),
-                ]);
+                const wantFeatured = page === 1 && !category && !search;
+                const listPromise = listBlogs({
+                    page,
+                    limit: 12,
+                    category: category || undefined,
+                    search: search || undefined,
+                });
+                // Featured is best-effort — never fail the archive if it errors.
+                const featPromise = wantFeatured
+                    ? listBlogs({ featured: true, limit: 1 }).catch(() => EMPTY_LIST)
+                    : Promise.resolve(null);
+
+                const [list, feat] = await Promise.all([listPromise, featPromise]);
                 if (cancelled) return;
-                setData(list);
-                if (feat?.items?.[0]) setFeatured(feat.items[0]);
-                else if (page === 1 && !category && !search && list.items?.[0]) setFeatured(list.items[0]);
-                else if (category || search) setFeatured(null);
+
+                const items = (Array.isArray(list?.items) ? list.items : []).filter(isListItem);
+                setData({
+                    items,
+                    total: Number(list?.total) || 0,
+                    pages: Number(list?.pages) > 0 ? Number(list.pages) : 1,
+                    page: Number(list?.page) > 0 ? Number(list.page) : page,
+                    limit: Number(list?.limit) > 0 ? Number(list.limit) : 12,
+                });
+
+                const featItems = (Array.isArray(feat?.items) ? feat.items : []).filter(isListItem);
+                if (featItems[0]) setFeatured(featItems[0]);
+                else if (wantFeatured && items[0]) setFeatured(items[0]);
+                else if (!wantFeatured) setFeatured(null);
             } catch (err) {
-                if (!cancelled) setError(err.message || 'Unable to load journal');
+                if (!cancelled) {
+                    setData(EMPTY_LIST);
+                    setFeatured(null);
+                    setError(err.message || 'Unable to load journal');
+                }
             } finally {
                 if (!cancelled) setLoading(false);
             }
@@ -56,12 +89,13 @@ export default function Blogs() {
         return () => {
             cancelled = true;
         };
-    }, [page, category, search]);
+    }, [page, category, search, retryKey]);
 
+    const items = Array.isArray(data.items) ? data.items.filter(isListItem) : [];
     const gridItems =
         featured && page === 1 && !category && !search
-            ? data.items.filter((b) => b.id !== featured.id)
-            : data.items;
+            ? items.filter((b) => b.id !== featured.id)
+            : items;
 
     function setFilter(key, value) {
         const next = new URLSearchParams(params);
@@ -78,7 +112,6 @@ export default function Blogs() {
                 title={filtered ? 'Trade Journal — Filtered' : 'Trade Journal'}
                 description="Sourcing, procurement, documentation and trade operations notes from Asian International Trade House."
                 path="/blogs"
-                noIndex={filtered}
                 noIndex={filtered}
             />
 
@@ -149,9 +182,34 @@ export default function Blogs() {
             </section>
 
             {error && (
-                <p className="px-5 lg:px-12 py-16 text-copper text-sm" role="alert">
-                    {error}
-                </p>
+                <section
+                    className="bg-ivory text-graphite px-5 sm:px-6 lg:px-12 py-20 lg:py-28"
+                    role="alert"
+                    data-testid="blogs-unavailable"
+                >
+                    <p className="font-mono text-[11px] tracking-[0.28em] uppercase text-copper">Journal</p>
+                    <h2 className="mt-4 text-2xl lg:text-4xl font-extrabold tracking-tight">
+                        Articles are temporarily unavailable.
+                    </h2>
+                    <p className="mt-4 text-mute text-sm max-w-md leading-relaxed">
+                        We could not load the trade journal right now. Please try again, or return home.
+                    </p>
+                    <div className="mt-8 flex flex-wrap gap-4">
+                        <button
+                            type="button"
+                            onClick={() => setRetryKey((k) => k + 1)}
+                            className="inline-flex items-center bg-forest text-ivory px-5 py-3 font-mono text-[11px] tracking-[0.22em] uppercase hover:bg-copper transition-colors"
+                        >
+                            Retry
+                        </button>
+                        <Link
+                            to="/"
+                            className="inline-flex items-center font-mono text-[11px] tracking-[0.22em] uppercase border-b border-graphite/35 pb-1 hover:text-copper hover:border-copper"
+                        >
+                            Return Home
+                        </Link>
+                    </div>
+                </section>
             )}
 
             {loading && (
