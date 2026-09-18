@@ -38,7 +38,7 @@ export default function Closing() {
                                     <img
                                         src={s.image}
                                         alt={s.title}
-                                        className="w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-105"
+                                        className="w-full h-full object-cover transition-transform duration-editorial ease-editorial group-hover:scale-105"
                                         loading="lazy"
                                     />
                                 </div>

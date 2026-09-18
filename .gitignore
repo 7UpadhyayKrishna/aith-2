@@ -31,9 +31,24 @@ dist/
 dist
 
 # Environment files (comprehensive coverage)
-
+.env
+.env.*
+*.env
+!.env.example
+!**/.env.example
 *token.json*
 *credentials.json*
+credentials.json
+*.key
+.credentials
+
+# Accidental Windows device-name artifacts
+**/nul
+**/nul.*
+nul.css
+
+# Pytest
+.pytest_cache/
 
 # Logs and debug files
 npm-debug.log*
@@ -83,9 +98,3 @@ android-sdk/
 
 # overlay black-box crash/user-report dumps — session data, never history
 **/.emergent/recordings/
-.env
-.env.*
-*.env
-credentials.json
-*.key
-.credentials

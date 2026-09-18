@@ -27,8 +27,9 @@
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link rel="preconnect" href="https://images.unsplash.com" />
+        <link rel="preload" as="image" href="/brand/logo-white-transparent.webp?v=9" type="image/webp" />
+        <link rel="preload" as="image" href="/brand/logo-white-transparent@2x.webp?v=9" type="image/webp" media="(min-resolution: 1.5dppx)" />
         <link rel="preload" as="image" href="/brand/logo-transparent.webp?v=8" type="image/webp" />
-        <link rel="preload" as="image" href="/brand/logo-transparent@2x.webp?v=8" type="image/webp" media="(min-resolution: 1.5dppx)" />
         <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
         <title>Asian International Trade House — Global Sourcing, Import &amp; Export</title>
@@ -41,6 +42,9 @@
         <script>
             (function () {
                 function loadDeferred() {
+                    // Do not load marketing analytics on admin routes
+                    if (window.location.pathname.indexOf('/admin') === 0) return;
+
                     var em = document.createElement('script');
                     em.src = 'https://assets.emergent.sh/scripts/emergent-main.js';
                     em.async = true;
@@ -93,10 +97,7 @@
                     posthog.init('phc_DbsPb39SRc8z3EiQ6Dhj6ikv4H4rTKcht9d4sZSesceP', {
                         api_host: 'https://ap.emergent.sh',
                         person_profiles: 'identified_only',
-                        session_recording: {
-                            recordCrossOriginIframes: true,
-                            capturePerformance: false,
-                        },
+                        disable_session_recording: true,
                         loaded: function () {},
                     });
                 }

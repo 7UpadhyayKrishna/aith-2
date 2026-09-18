@@ -1,23 +1,18 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
-import { toast } from 'sonner';
 import Seo from '../components/Seo';
 import { Line, Fade, Tag } from '../components/Reveal';
 import { STORIES, RESOURCES } from '../data/content';
 
 export default function Insights() {
-    const notify = (name) => toast(`${name} will be shared once you start a trade request.`, {
-        style: { background: '#17231D', color: '#F3F0E8', border: '1px solid rgba(243,240,232,0.15)', borderRadius: '2px' },
-    });
-
     return (
-        <main id="main-content">
+        <main id="main-content" className="overflow-x-clip">
             <Seo
                 title="Insights"
                 description="Trade insights on commodity markets, documentation and bulk procurement from Asian International Trade House."
                 path="/insights"
             />
-            <section className="bg-forest text-ivory px-6 lg:px-12 pt-44 pb-24 lg:pt-56 lg:pb-32" data-testid="insights-hero">
+            <section className="bg-forest text-ivory px-5 sm:px-6 lg:px-12 pt-40 sm:pt-44 pb-20 sm:pb-24 lg:pt-56 lg:pb-32" data-testid="insights-hero">
                 <Fade y={10}>
                     <nav aria-label="Breadcrumb" className="font-mono text-[10px] tracking-[0.28em] uppercase text-ivory/45 mb-4">
                         <Link to="/" className="hover:text-copper transition-colors">Home</Link>
@@ -26,7 +21,7 @@ export default function Insights() {
                     </nav>
                     <p className="font-mono text-[11px] tracking-[0.35em] uppercase text-ivory/60">AITH / Insights</p>
                 </Fade>
-                <h1 className="text-[clamp(2.9rem,8vw,8rem)] leading-[0.92] tracking-[-0.03em] font-extrabold mt-8">
+                <h1 className="text-[clamp(2.4rem,8vw,8rem)] leading-[0.92] tracking-[-0.03em] font-extrabold mt-8">
                     <Line delay={0.15}>TRADE</Line>
                     <Line delay={0.3}>
                         <span className="font-serif italic font-normal">INSIGHTS.</span>
@@ -39,16 +34,16 @@ export default function Insights() {
                 </Fade>
             </section>
 
-            <section className="bg-ivory text-graphite px-6 lg:px-12 py-28 lg:py-36" data-testid="insights-stories-section">
+            <section className="bg-ivory text-graphite px-5 sm:px-6 lg:px-12 py-24 sm:py-28 lg:py-36" data-testid="insights-stories-section">
                 <Tag index="01" label="Stories" />
                 <div className="mt-14 lg:mt-20 space-y-20 lg:space-y-28">
                     {STORIES.map((s, i) => (
                         <Fade key={s.id} y={24}>
                             <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center" data-testid={`insight-article-${s.id}`}>
                                 <div className={`lg:col-span-7 overflow-hidden h-[40vh] lg:h-[62vh] ${i % 2 ? 'lg:order-2' : ''}`}>
-                                    <img src={s.image} alt={s.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-[1400ms] ease-out" loading="lazy" />
+                                    <img src={s.image} alt={s.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-editorial-slow ease-editorial" loading="lazy" decoding="async" />
                                 </div>
-                                <div className="lg:col-span-5">
+                                <div className="lg:col-span-5 min-w-0">
                                     <p className="font-mono text-[10px] tracking-[0.25em] uppercase text-copper">
                                         {s.tag} — {s.read}
                                     </p>
@@ -69,14 +64,17 @@ export default function Insights() {
                 </div>
             </section>
 
-            <section id="resources" className="bg-bone text-graphite px-6 lg:px-12 py-28 lg:py-36 scroll-mt-24" data-testid="resources-section">
+            <section id="resources" className="bg-bone text-graphite px-5 sm:px-6 lg:px-12 py-24 sm:py-28 lg:py-36 scroll-mt-24" data-testid="resources-section">
                 <Tag index="02" label="Resource Center" />
-                <h2 className="text-[clamp(2.6rem,6vw,6rem)] leading-[0.95] tracking-[-0.03em] font-extrabold mt-10">
+                <h2 className="text-[clamp(2.2rem,6vw,6rem)] leading-[0.95] tracking-[-0.03em] font-extrabold mt-10">
                     <Line>KNOWLEDGE FOR</Line>
                     <Line delay={0.12}>
                         <span className="font-serif italic font-normal">BETTER TRADE.</span>
                     </Line>
                 </h2>
+                <p className="text-mute text-sm max-w-xl mt-6 leading-relaxed">
+                    Guides and checklists are shared as part of an active trade conversation — start a request or open the FAQ for immediate answers.
+                </p>
 
                 <div className="mt-14 lg:mt-20 divide-y divide-graphite/15 border-y border-graphite/15">
                     {RESOURCES.map((r, i) => (
@@ -94,13 +92,13 @@ export default function Insights() {
                                         Open FAQ →
                                     </Link>
                                 ) : (
-                                    <button
-                                        onClick={() => notify(r.name)}
+                                    <Link
+                                        to="/request-quote"
                                         className="col-span-12 sm:col-span-3 justify-self-start sm:justify-self-end font-mono text-[11px] tracking-[0.22em] uppercase text-graphite border-b border-graphite/40 pb-1 hover:text-copper hover:border-copper transition-colors duration-300"
                                         data-testid={`resource-download-${r.id}`}
                                     >
-                                        Download →
-                                    </button>
+                                        Request access →
+                                    </Link>
                                 )}
                             </div>
                         </Fade>
@@ -108,9 +106,9 @@ export default function Insights() {
                 </div>
             </section>
 
-            <section className="bg-forest text-ivory px-6 lg:px-12 py-24 lg:py-32" data-testid="insights-cta">
+            <section className="bg-forest text-ivory px-5 sm:px-6 lg:px-12 py-24 lg:py-32" data-testid="insights-cta">
                 <div className="flex flex-wrap items-end justify-between gap-8">
-                    <h2 className="text-[clamp(2.4rem,5vw,5rem)] leading-[0.95] tracking-[-0.03em] font-extrabold">
+                    <h2 className="text-[clamp(2.2rem,5vw,5rem)] leading-[0.95] tracking-[-0.03em] font-extrabold">
                         <Line>READY WHEN</Line>
                         <Line delay={0.12}>
                             <span className="font-serif italic font-normal">YOU ARE.</span>

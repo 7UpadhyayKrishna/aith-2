@@ -64,6 +64,16 @@ module.exports = {
                 serif: ['"Instrument Serif"', 'Georgia', 'serif'],
                 mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace']
             },
+            /* Motion vocabulary — keep visual timing; avoid ambiguous duration-[Nms] utilities */
+            transitionTimingFunction: {
+                editorial: 'cubic-bezier(0.16, 1, 0.3, 1)',
+            },
+            transitionDuration: {
+                micro: '220ms',
+                standard: '360ms',
+                editorial: '1200ms',
+                'editorial-slow': '1400ms',
+            },
             keyframes: {
                 'accordion-down': {
                     from: { height: '0' },

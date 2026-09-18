@@ -6,28 +6,46 @@ import FaqAccordion from '../components/FaqAccordion';
 import { Line, Fade, Tag } from '../components/Reveal';
 import { CAPABILITIES, IMG } from '../data/content';
 import { FAQ_BY_CONTEXT, getFaqsByIds } from '../data/faqs';
+import { SERVICE_SEO_SLUGS } from '../data/seoPages';
+import { getServicePage } from '../data/servicePages';
+
+const SERVICE_LINKS = {
+    'Global Sourcing': '/global-sourcing-services',
+    'Import & Export': '/import-export-services',
+    'International Procurement': '/international-procurement',
+    'Bulk Trading': '/international-procurement',
+    'Supply Chain': '/freight-coordination',
+};
 
 const EXTRA = [
     {
         title: 'Sea freight coordination',
         blurb: 'Container and bulk vessel planning with origin stuffing, documentation and destination handoff.',
+        to: '/freight-coordination',
+        linkLabel: 'Understand freight coordination',
     },
     {
         title: 'Air freight for urgency',
         blurb: 'Time-sensitive parcels and high-value lines when sea schedules cannot meet the window.',
+        to: '/freight-coordination',
+        linkLabel: 'Compare air and sea paths',
     },
     {
-        title: 'Multimodal last miles',
-        blurb: 'Land and partner legs where inland destinations require more than a port gate delivery.',
+        title: 'Trade documentation',
+        blurb: 'Commercial invoice, packing list, certificates of origin and transport documents aligned to the lane.',
+        to: '/trade-documentation',
+        linkLabel: 'Understand trade documentation',
     },
 ];
+
+const DEEP_SERVICES = SERVICE_SEO_SLUGS.map((slug) => getServicePage(slug)).filter(Boolean);
 
 export default function Services() {
     return (
         <main id="main-content">
             <Seo
-                title="Services"
-                description="Global sourcing, import & export, procurement, bulk trading and supply chain coordination — with sea, air and multimodal freight aligned to your Incoterms."
+                title="Import Export & Sourcing Services in India"
+                description="Global sourcing, import & export, procurement, documentation and freight coordination — structured trade services from Asian International Trade House."
                 path="/services"
             />
             <PageHero
@@ -72,6 +90,15 @@ export default function Services() {
                                 <span className="lg:col-span-1 font-mono text-xs tracking-[0.25em] text-copper">{c.index}</span>
                                 <div className="lg:col-span-4">
                                     <h3 className="text-2xl lg:text-4xl font-extrabold tracking-tight uppercase">{c.title}</h3>
+                                    {SERVICE_LINKS[c.title] && (
+                                        <Link
+                                            to={SERVICE_LINKS[c.title]}
+                                            className="group inline-flex items-center gap-2 mt-4 font-mono text-[11px] tracking-[0.2em] uppercase text-copper"
+                                        >
+                                            Explore in depth
+                                            <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
+                                        </Link>
+                                    )}
                                 </div>
                                 <p className="lg:col-span-4 text-sm lg:text-base text-mute leading-relaxed">{c.blurb}</p>
                                 <div className="lg:col-span-3 overflow-hidden h-36 lg:h-40">
@@ -90,11 +117,40 @@ export default function Services() {
                 </div>
             </section>
 
+            <section className="bg-forest text-ivory px-6 lg:px-12 py-24 lg:py-32" data-testid="services-deep-index">
+                <Tag index="02" label="Service Guides" dark />
+                <h2 className="text-[clamp(2.2rem,5vw,4rem)] leading-[0.95] tracking-[-0.03em] font-extrabold mt-10 max-w-3xl">
+                    <Line>Guides for buyers</Line>
+                    <Line delay={0.1}>
+                        <span className="font-serif italic font-normal">and procurement teams.</span>
+                    </Line>
+                </h2>
+                <ul className="mt-14 grid md:grid-cols-2 gap-x-10 gap-y-8">
+                    {DEEP_SERVICES.map((s) => (
+                        <li key={s.slug}>
+                            <Link
+                                to={s.path}
+                                className="group block border-t border-ivory/15 pt-6"
+                            >
+                                <h3 className="text-xl lg:text-2xl font-extrabold tracking-tight uppercase group-hover:text-copper transition-colors">
+                                    {s.titleLines[0].replace(/,$/, '')}
+                                </h3>
+                                <p className="text-sm text-ivory/60 leading-relaxed mt-3 max-w-md">{s.lead}</p>
+                                <span className="inline-flex items-center gap-2 mt-4 font-mono text-[10px] tracking-[0.22em] uppercase text-copper">
+                                    Read guide
+                                    <ArrowRight size={12} className="transition-transform group-hover:translate-x-1" />
+                                </span>
+                            </Link>
+                        </li>
+                    ))}
+                </ul>
+            </section>
+
             <section className="bg-bone text-graphite px-6 lg:px-12 py-28 lg:py-36" data-testid="services-freight">
-                <Tag index="02" label="Freight Modes" />
+                <Tag index="03" label="Freight & Documents" />
                 <h2 className="text-[clamp(2.4rem,5vw,4.5rem)] leading-[0.95] tracking-[-0.03em] font-extrabold mt-10 max-w-3xl">
                     <Line>SEA. AIR.</Line>
-                    <Line delay={0.1}>LAND WHEN NEEDED.</Line>
+                    <Line delay={0.1}>PAPER WHEN NEEDED.</Line>
                 </h2>
                 <div className="grid md:grid-cols-3 gap-10 mt-16">
                     {EXTRA.map((e, i) => (
@@ -102,6 +158,13 @@ export default function Services() {
                             <p className="font-mono text-[11px] tracking-[0.3em] text-copper">0{i + 1}</p>
                             <h3 className="text-xl lg:text-2xl font-extrabold tracking-tight mt-4">{e.title}</h3>
                             <p className="text-mute text-sm leading-relaxed mt-4">{e.blurb}</p>
+                            <Link
+                                to={e.to}
+                                className="group inline-flex items-center gap-2 mt-5 font-mono text-[10px] tracking-[0.22em] uppercase text-copper"
+                            >
+                                {e.linkLabel}
+                                <ArrowRight size={12} className="transition-transform group-hover:translate-x-1" />
+                            </Link>
                         </Fade>
                     ))}
                 </div>
@@ -119,7 +182,7 @@ export default function Services() {
 
             <FaqAccordion
                 items={getFaqsByIds(FAQ_BY_CONTEXT.services)}
-                index="03"
+                index="04"
                 label="Services FAQ"
                 title="Logistics & commercial questions"
                 testId="services-faq"

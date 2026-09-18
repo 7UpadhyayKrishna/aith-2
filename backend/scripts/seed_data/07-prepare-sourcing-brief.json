@@ -1,0 +1,57 @@
+{
+  "title": "How to Prepare a Sourcing Brief That Suppliers Can Quote Accurately",
+  "slug": "prepare-sourcing-brief",
+  "excerpt": "A practical structure for buyer sourcing briefs—product definition, volumes, quality gates, commercial terms, and document expectations—so supplier quotes are comparable and production-ready.",
+  "category": "Procurement",
+  "tags": [
+    "sourcing brief",
+    "RFQ",
+    "specifications",
+    "supplier quotes",
+    "procurement"
+  ],
+  "author": {
+    "type": "Organization",
+    "name": "AITH Editorial Team"
+  },
+  "featuredImage": {
+    "url": "/brand/blog/sourcing-brief.jpg",
+    "alt": "Buyer preparing a structured sourcing brief with samples and notes",
+    "caption": null
+  },
+  "status": "published",
+  "featured": false,
+  "seo": {
+    "metaTitle": "How to Prepare a Sourcing Brief | Accurate Quotes",
+    "metaDescription": "Build a sourcing brief suppliers can quote accurately: specs, volumes, quality gates, Incoterms, documents and timelines—so RFQs compare like-for-like.",
+    "ogImage": "/brand/blog/sourcing-brief.jpg"
+  },
+  "relatedSlugs": [
+    "moq-international-sourcing",
+    "how-to-source-products-from-india",
+    "supplier-verification-india",
+    "pre-shipment-quality-inspection"
+  ],
+  "sources": [
+    {
+      "label": "ISO — Guidance on specifications and quality management concepts",
+      "url": "https://www.iso.org/standards.html"
+    },
+    {
+      "label": "ICC — IncotermsÂ® rules (cite edition in briefs)",
+      "url": "https://iccwbo.org/business-solutions/incoterms-rules/"
+    }
+  ],
+  "contentMarkdown": "## Bad briefs create optimistic quotes; good briefs create usable ones\n\nMost painful supplier relationships begin with a friendly email: “Please quote your best price for…” followed by a photo and a target quantity. Suppliers fill gaps with assumptions. Those assumptions survive until sampling—or until the container is packed. A sourcing brief exists to **replace assumptions with decisions** so that quotations are comparable, production plans are realistic, and quality disputes have a written reference.\n\nThis guide gives international buyers a structure that works for manufactured goods, packaged foods, and many industrial inputs. Use it whether you run the RFQ yourself or through [global sourcing services](/global-sourcing-services) / [supplier sourcing](/supplier-sourcing). The brief is the artefact; the service model is optional.\n\n## What a sourcing brief is (and is not)\n\nA sourcing brief is a buyer-authored packet that defines the product, commercial frame, and process gates for quotation. It is not a full legal contract, though it should align with the PO you intend to issue. It is not a marketing one-pager. If a competent plant engineer cannot quote from it without a call, it is still a wish list.\n\n## Section A — Context in one page\n\nOpen with information that prevents wrong-factory matching:\n\n- End use and customer channel (OEM, retail private label, food service, industrial MRO, etc.)\n- Destination market(s) and any known regulatory schemes\n- Whether this is a trial, seasonal programme, or ongoing replenishment\n- Target first shipment window (month, not “ASAP”)\n- Constraints suppliers must know early (budget band, exclusivity expectations, sustainability claims that require evidence)\n\nKeep this short. Context steers capability matching; it should not bury the specification.\n\n## Section B — Product definition that can be manufactured\n\nInclude, as applicable:\n\n- Technical drawing or construction sheet\n- Bill of materials or ingredient list with grades\n- Tolerances and test methods (name the standard where you can)\n- Colour references (Pantone/physical swatch policy)\n- Sensory or organoleptic targets for foods\n- Packaging structure, languages, label claims, barcode requirements\n- Shelf-life and storage conditions\n- Prohibited substances or customer-restricted lists\n- Reference samples: who holds the master, how revisions are numbered\n\n**Rule:** If two factories could honestly interpret a line differently, rewrite it. Ambiguity is not “flexibility”; it is a future credit note.\n\n## Section C — Quantity logic, not a single magic number\n\nState:\n\n- Trial quantity and timing\n- First bulk PO estimate\n- 6–12 month volume band (low/base/high)\n- Assortment mix (sizes, flavours, SKUs)\n- Forecast sharing willingness\n\nThen ask for MOQ and price breaks against that logic. Buyers who hide demand get either inflated MOQs or prices that assume volumes you will never ship. Read [MOQ in International Sourcing](/blogs/moq-international-sourcing) before you freeze Section C.\n\n## Section D — Quality gates and evidence\n\nDefine how “acceptable” will be decided:\n\n- Sample approval stages (proto, pre-production, golden sample)\n- Laboratory tests required and who pays\n- In-process controls you expect to see\n- Final inspection standard (AQL or other), including who may reject\n- Traceability requirements (lot coding format)\n- Non-conformance disposition (rework, sort, scrap, replace)\n\nIf you will use third-party pre-shipment inspection, say so in the brief so timing and cost are quoted honestly. See [Pre-Shipment Quality Inspection](/blogs/pre-shipment-quality-inspection) and [quality and compliance](/quality-compliance).\n\n## Section E — Commercial frame for like-for-like quotes\n\nSpecify:\n\n- Currency\n- Required Incoterm + named place + IncotermsÂ® edition year\n- Whether alternative terms are allowed for information only\n- Payment term preferences and any LC constraints\n- Quote validity period required\n- Price breakdown requested (unit, packing, tooling, testing, freight if seller-arranged)\n- Tooling ownership and amortisation rules\n\nWithout Section E, you will compare EXW apples to CIF oranges. Use [Incoterms for International Buyers](/blogs/incoterms-for-international-buyers) to choose the frame before you send the RFQ.\n\n## Section F — Documents and logistics assumptions\n\nTell suppliers what the shipment file must support:\n\n- Commercial invoice description language preferences\n- Packing list detail level (per SKU per carton)\n- Marks and numbers standards\n- Certificates routinely required for your market (origin, test, phytosanitary, etc.—category dependent)\n- Preferred mode for the trial vs bulk (air/sea) and whether split shipments are allowed\n\nDocument expectations belong in the brief because they affect packing labour and lead time. Align with [trade documentation](/trade-documentation) and the three-document consistency model in [Commercial Invoice, Packing List and Bill of Lading](/blogs/commercial-invoice-packing-list-bol). Mode assumptions should reference your [air vs sea](/blogs/air-freight-vs-sea-freight) policy where relevant. If you need schedule coordination support later, that sits under [freight coordination](/freight-coordination)—distinct from freight-forwarder services.\n\n## Section G — Timeline and communication protocol\n\nList milestone dates:\n\n1. Quote due date\n2. Sample dispatch target\n3. Approval window\n4. PO issue target\n5. Production window\n6. Inspection window\n7. Cargo readiness date\n\nName the single commercial contact and the technical contact. Require suppliers to list exceptions explicitly (“Assumptions and exclusions”) rather than burying them in footnotes.\n\n## Section H — Information you ask suppliers to return\n\nA brief should demand a structured response template:\n\n- Unit prices at specified tiers\n- MOQ and drivers\n- Lead time from material readiness\n- Site of manufacture\n- Subcontracted processes, if any\n- Relevant certificates with scope and site\n- Sample cost and refund rules\n- Production capacity reserved for your volume band\n- Clarifying questions\n\nStructured returns make scoring possible. Free-form sales essays do not.\n\n## A short example outline (condensed)\n\n> **Product:** Stainless prep table, Model X, drawing Rev C  \n> **Market:** EU foodservice; food-contact declaration required  \n> **Volumes:** Trial 40 units; base 300/year; high 500/year  \n> **Quality:** Dimensional report per first article; AQL II on final; reject rights on critical welds  \n> **Commercial:** USD; FCA [named place]; IncotermsÂ® 2020; quote validity 30 days  \n> **Packing:** Export crates, ISPM-15 if wood; packing list per serial number  \n> **Response due:** [date]\n\nEven this condensed form outperforms a photo and a hope.\n\n## Review cycle: treat the brief as controlled information\n\nVersion the brief (v1.0, v1.1). When a sample approval changes a tolerance, update the brief and re-issue to all shortlisted suppliers still in play. Mid-stream silent changes are how you get one factory building Rev B and another quoting Rev A.\n\nDuring supplier verification, use the brief as the agenda for capability questions ([Supplier Verification in India](/blogs/supplier-verification-india)). If they cannot engage with the brief’s technical content, they are unlikely to protect it in production.\n\n## Common brief failures\n\n- Target price stated without specification depth (invites corner-cutting)\n- “Same as last year” with no attached prior spec revision\n- Assortment omitted, then blamed on supplier MOQ\n- Inspection rights mentioned only after a dispute\n- No named Incoterm place\n- Regulatory claims required without naming the evidence type\n\n## From brief to RFQ execution\n\nWhen Sections A–H are complete, send the packet to a filtered shortlist—not to an entire directory. Score returns against the response template. Only then negotiate. For India-origin programmes, sequence this inside [How to Source Products from India](/blogs/how-to-source-products-from-india).\n\nIf you want help turning a category need into a brief and comparable supplier returns, start with a [request for quote](/request-quote) or [international procurement](/international-procurement) discussion. The competitive advantage is not secrecy; it is clarity that lets serious suppliers price the real job on the first pass.",
+  "cover": {
+    "eyebrow": "TRADE JOURNAL",
+    "headline": "How to Prepare a Sourcing Brief That Suppliers Can Quote Accurately",
+    "deck": "A practical structure for buyer sourcing briefs—product definition, volumes, quality gates, commercial terms, and document expectations—so supplier quotes are comparable and production-ready.",
+    "image": {
+      "url": "/brand/blog/sourcing-brief.jpg",
+      "alt": "Buyer preparing a structured sourcing brief with samples and notes",
+      "caption": "",
+      "credit": ""
+    }
+  }
+}

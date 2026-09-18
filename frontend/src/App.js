@@ -1,4 +1,4 @@
-import { useEffect, lazy, Suspense } from 'react';
+import { useEffect, useRef, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, Link } from 'react-router-dom';
 import Lenis from 'lenis';
 import { Toaster } from 'sonner';
@@ -6,6 +6,7 @@ import { ArrowUpRight } from 'lucide-react';
 import '@/App.css';
 import Nav from '@/components/Nav';
 import Footer from '@/components/Footer';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import Home from '@/pages/Home';
 
 const Products = lazy(() => import('@/pages/Products'));
@@ -21,11 +22,28 @@ const Partner = lazy(() => import('@/pages/Partner'));
 const QualityCompliance = lazy(() => import('@/pages/QualityCompliance'));
 const Privacy = lazy(() => import('@/pages/Privacy'));
 const Terms = lazy(() => import('@/pages/Terms'));
+const Careers = lazy(() => import('@/pages/Careers'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
+const ServiceSeoPage = lazy(() => import('@/pages/ServiceSeoPage'));
+const IndustriesIndex = lazy(() => import('@/pages/IndustriesIndex'));
+const IndustryPage = lazy(() => import('@/pages/IndustryPage'));
+const Blogs = lazy(() => import('@/pages/Blogs'));
+const BlogPost = lazy(() => import('@/pages/BlogPost'));
+const AdminApp = lazy(() => import('@/admin/AdminApp'));
+
+const SERVICE_SEO_ROUTES = [
+    'global-sourcing-services',
+    'import-export-services',
+    'international-procurement',
+    'supplier-sourcing',
+    'trade-documentation',
+    'freight-coordination',
+];
 
 const ScrollManager = () => {
     const { pathname, hash } = useLocation();
     useEffect(() => {
+        if (pathname.startsWith('/admin')) return undefined;
         const lenis = window.__lenis;
         if (hash) {
             const t = setTimeout(() => {
@@ -43,9 +61,31 @@ const ScrollManager = () => {
     return null;
 };
 
+/** SPA route pageviews for PostHog — skip duplicate of first auto pageview */
+const AnalyticsPageviews = () => {
+    const { pathname, search } = useLocation();
+    const first = useRef(true);
+    useEffect(() => {
+        if (pathname.startsWith('/admin')) return;
+        if (first.current) {
+            first.current = false;
+            return;
+        }
+        try {
+            window.posthog?.capture?.('$pageview', {
+                $current_url: window.location.href,
+                path: pathname + search,
+            });
+        } catch {
+            /* analytics must never block navigation */
+        }
+    }, [pathname, search]);
+    return null;
+};
+
 const MobileCTA = () => {
     const { pathname } = useLocation();
-    if (pathname === '/request-quote') return null;
+    if (pathname === '/request-quote' || pathname.startsWith('/admin')) return null;
     return (
         <div className="fixed bottom-0 inset-x-0 z-40 lg:hidden" data-testid="mobile-persistent-cta">
             <Link
@@ -64,12 +104,35 @@ const RouteFallback = () => (
     </div>
 );
 
-function App() {
+function PublicChrome({ children }) {
+    return (
+        <>
+            <Nav />
+            {children}
+            <Footer />
+            <MobileCTA />
+        </>
+    );
+}
+
+function AppLayout() {
+    const { pathname } = useLocation();
+    const isAdmin = pathname.startsWith('/admin');
+
     useEffect(() => {
+        if (isAdmin) {
+            if (window.__lenis) {
+                window.__lenis.destroy();
+                window.__lenis = null;
+                document.documentElement.classList.remove('lenis', 'lenis-smooth');
+            }
+            return undefined;
+        }
+
         const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         if (reduce) return undefined;
+        if (window.__lenis) return undefined;
 
-        // Prefer native touch scrolling on coarse pointers; Lenis for wheel/trackpad
         const coarse = window.matchMedia('(pointer: coarse)').matches;
         const lenis = new Lenis({
             duration: 0.95,
@@ -82,7 +145,6 @@ function App() {
         window.__lenis = lenis;
         document.documentElement.classList.add('lenis', 'lenis-smooth');
 
-        // Align Framer Motion scroll drivers with Lenis without React setState
         lenis.on('scroll', () => {
             window.dispatchEvent(new Event('scroll'));
         });
@@ -99,35 +161,65 @@ function App() {
             lenis.destroy();
             window.__lenis = null;
         };
-    }, []);
+    }, [isAdmin]);
 
+    if (isAdmin) {
+        return (
+            <Suspense fallback={<RouteFallback />}>
+                <Routes>
+                    <Route path="/admin/*" element={<AdminApp />} />
+                </Routes>
+            </Suspense>
+        );
+    }
+
+    return (
+        <PublicChrome>
+            <Suspense fallback={<RouteFallback />}>
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/services" element={<Services />} />
+                    {SERVICE_SEO_ROUTES.map((slug) => (
+                        <Route
+                            key={slug}
+                            path={`/${slug}`}
+                            element={<ServiceSeoPage slug={slug} />}
+                        />
+                    ))}
+                    <Route path="/products" element={<Products />} />
+                    <Route path="/industries" element={<IndustriesIndex />} />
+                    <Route path="/industries/:slug" element={<IndustryPage />} />
+                    <Route path="/markets" element={<Markets />} />
+                    <Route path="/insights" element={<Insights />} />
+                    <Route path="/insights/:id" element={<Article />} />
+                    <Route path="/blogs" element={<Blogs />} />
+                    <Route path="/blogs/:slug" element={<BlogPost />} />
+                    <Route path="/faq" element={<Faq />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/partner" element={<Partner />} />
+                    <Route path="/quality-compliance" element={<QualityCompliance />} />
+                    <Route path="/privacy" element={<Privacy />} />
+                    <Route path="/terms" element={<Terms />} />
+                    <Route path="/careers" element={<Careers />} />
+                    <Route path="/request-quote" element={<RequestQuote />} />
+                    <Route path="*" element={<NotFound />} />
+                </Routes>
+            </Suspense>
+        </PublicChrome>
+    );
+}
+
+function App() {
     return (
         <div className="App">
             <BrowserRouter>
-                <ScrollManager />
-                <Nav />
-                <Suspense fallback={<RouteFallback />}>
-                    <Routes>
-                        <Route path="/" element={<Home />} />
-                        <Route path="/about" element={<About />} />
-                        <Route path="/services" element={<Services />} />
-                        <Route path="/products" element={<Products />} />
-                        <Route path="/markets" element={<Markets />} />
-                        <Route path="/insights" element={<Insights />} />
-                        <Route path="/insights/:id" element={<Article />} />
-                        <Route path="/faq" element={<Faq />} />
-                        <Route path="/contact" element={<Contact />} />
-                        <Route path="/partner" element={<Partner />} />
-                        <Route path="/quality-compliance" element={<QualityCompliance />} />
-                        <Route path="/privacy" element={<Privacy />} />
-                        <Route path="/terms" element={<Terms />} />
-                        <Route path="/request-quote" element={<RequestQuote />} />
-                        <Route path="*" element={<NotFound />} />
-                    </Routes>
-                </Suspense>
-                <Footer />
-                <MobileCTA />
-                <Toaster position="bottom-right" />
+                <ErrorBoundary>
+                    <ScrollManager />
+                    <AnalyticsPageviews />
+                    <AppLayout />
+                    <Toaster position="bottom-right" />
+                </ErrorBoundary>
             </BrowserRouter>
         </div>
     );

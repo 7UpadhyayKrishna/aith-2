@@ -33,12 +33,20 @@
     }
     html {
         scroll-behavior: auto;
+        overflow-x: clip;
     }
     body {
         @apply bg-ivory text-graphite font-sans;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         text-rendering: optimizeLegibility;
+        overflow-x: clip;
+        max-width: 100vw;
+    }
+    #root,
+    .App {
+        overflow-x: clip;
+        max-width: 100%;
     }
     ::selection {
         background: #B65A32;
@@ -122,13 +130,37 @@
     scroll-behavior: auto !important;
 }
 
+/*
+  Motion vocabulary (aligned with Reveal EASE [0.16, 1, 0.3, 1]):
+  MICRO ~180–260ms | STANDARD ~280–420ms | EDITORIAL REVEAL ~600–1200ms
+*/
+.ease-editorial {
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Who We Work With / premium outward arrow — transform travels through rotation */
+.arrow-outward {
+    transform-origin: center;
+    will-change: transform;
+    transition-property: transform, color;
+    transition-duration: 360ms;
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 @media (prefers-reduced-motion: reduce) {
     .animate-marquee {
         animation: none;
     }
+    .arrow-outward {
+        transition-duration: 80ms;
+        transition-timing-function: ease;
+    }
     *, *::before, *::after {
         animation-duration: 0.01ms !important;
         transition-duration: 0.01ms !important;
+    }
+    .arrow-outward {
+        transition-duration: 80ms !important;
     }
 }
 

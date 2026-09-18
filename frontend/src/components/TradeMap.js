@@ -48,6 +48,8 @@ export default function TradeMap() {
     return (
         <div className="relative w-full" onMouseLeave={() => setActive(null)} data-testid="trade-map">
             <svg viewBox="0 0 1200 620" className="w-full h-auto" role="img" aria-label="Cartographic drawing of AITH trade routes from Asia to the Middle East, Africa, Europe and North America">
+                <title>AITH international trade routes map</title>
+                <desc>Interactive illustration of trade lanes. For a text list of regions and ports, see the Markets page content below the map.</desc>
                 <path d={spherePath} fill="none" stroke="rgba(243,240,232,0.14)" strokeWidth="1" />
                 <path d={graticulePath} fill="none" stroke="rgba(243,240,232,0.06)" strokeWidth="0.6" />
                 <path d={landPath} fill="rgba(243,240,232,0.06)" stroke="rgba(243,240,232,0.3)" strokeWidth="0.8" />
@@ -95,8 +97,20 @@ export default function TradeMap() {
                         viewport={{ once: true }}
                         transition={{ delay: 0.6 + i * 0.15, duration: 0.8 }}
                         onMouseEnter={() => setActive(r)}
+                        onFocus={() => setActive(r)}
+                        onBlur={() => setActive(null)}
                         onClick={() => setActive(active?.id === r.id ? null : r)}
-                        style={{ cursor: 'pointer' }}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                setActive(active?.id === r.id ? null : r);
+                            }
+                        }}
+                        tabIndex={0}
+                        role="button"
+                        aria-pressed={active?.id === r.id}
+                        aria-label={`${r.name}: ${r.products}. ${r.opp}`}
+                        style={{ cursor: 'pointer', outline: 'none' }}
                         data-testid={`map-region-${r.id}`}
                     >
                         <rect x={r.p[0] - 4.5} y={r.p[1] - 4.5} width="9" height="9" fill="#B65A32" />

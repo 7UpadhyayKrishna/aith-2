@@ -11,14 +11,32 @@ const LINKS = [
     { label: 'Services', to: '/services' },
     { label: 'Markets', to: '/markets' },
     { label: 'Insights', to: '/insights' },
+    { label: 'Blogs', to: '/blogs' },
 ];
 
-const MOBILE_LINKS = [
-    ...LINKS,
-    { label: 'Partner', to: '/partner' },
-    { label: 'Quality', to: '/quality-compliance' },
-    { label: 'FAQ', to: '/faq' },
-    { label: 'Contact', to: '/contact' },
+const MOBILE_GROUPS = [
+    {
+        label: 'Explore',
+        links: [
+            { label: 'About', to: '/about' },
+            { label: 'Products', to: '/products' },
+            { label: 'Services', to: '/services' },
+            { label: 'Industries', to: '/industries' },
+            { label: 'Markets', to: '/markets' },
+            { label: 'Insights', to: '/insights' },
+            { label: 'Blogs', to: '/blogs' },
+        ],
+    },
+    {
+        label: 'Company',
+        links: [
+            { label: 'Partner', to: '/partner' },
+            { label: 'Quality', to: '/quality-compliance' },
+            { label: 'Careers', to: '/careers' },
+            { label: 'FAQ', to: '/faq' },
+            { label: 'Contact', to: '/contact' },
+        ],
+    },
 ];
 
 const LIGHT_HERO_PATHS = new Set(['/privacy', '/terms']);
@@ -28,10 +46,14 @@ export default function Nav() {
     const [open, setOpen] = useState(false);
     const scrolledRef = useRef(false);
     const closeRef = useRef(null);
+    const menuButtonRef = useRef(null);
+    const menuPanelRef = useRef(null);
     const { pathname } = useLocation();
     const { scrollY } = useScroll();
     const lightHero = LIGHT_HERO_PATHS.has(pathname);
     const logoTone = scrolled || lightHero ? 'color' : 'light';
+    const reduceMotion =
+        typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     useMotionValueEvent(scrollY, 'change', (v) => {
         const next = v > 64;
@@ -48,8 +70,23 @@ export default function Nav() {
         if (!open) return undefined;
         const onKey = (e) => {
             if (e.key === 'Escape') setOpen(false);
+            if (e.key !== 'Tab' || !menuPanelRef.current) return;
+            const focusables = menuPanelRef.current.querySelectorAll(
+                'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+            );
+            if (!focusables.length) return;
+            const first = focusables[0];
+            const last = focusables[focusables.length - 1];
+            if (e.shiftKey && document.activeElement === first) {
+                e.preventDefault();
+                last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+            }
         };
         const prev = document.body.style.overflow;
+        const menuButton = menuButtonRef.current;
         document.body.style.overflow = 'hidden';
         window.__lenis?.stop?.();
         window.addEventListener('keydown', onKey);
@@ -58,6 +95,7 @@ export default function Nav() {
             document.body.style.overflow = prev;
             window.__lenis?.start?.();
             window.removeEventListener('keydown', onKey);
+            menuButton?.focus?.();
         };
     }, [open]);
 
@@ -73,6 +111,10 @@ export default function Nav() {
         ? 'text-graphite/70 hover:text-copper'
         : 'text-ivory/75 hover:text-ivory';
 
+    const logoClass = scrolled
+        ? 'relative h-[clamp(2.25rem,4.2vw,2.85rem)] w-auto max-w-[min(48vw,15rem)] sm:max-w-[16rem] lg:max-w-[18rem] min-w-0'
+        : 'relative h-[clamp(2.75rem,5vw,3.5rem)] w-auto max-w-[min(52vw,17rem)] sm:max-w-[20rem] lg:max-w-[22rem] min-w-0';
+
     return (
         <>
             <a
@@ -82,51 +124,65 @@ export default function Nav() {
                 Skip to content
             </a>
             <motion.header
-                initial={{ y: -40, opacity: 0 }}
+                initial={reduceMotion ? false : { y: -40, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.9, ease: EASE, delay: 0.2 }}
+                transition={{ duration: reduceMotion ? 0 : 0.9, ease: EASE, delay: reduceMotion ? 0 : 0.2 }}
                 className="fixed inset-x-0 top-0 z-50"
                 data-testid="main-navigation"
             >
                 <div
                     className={`relative transition-all duration-500 ${
                         scrolled
-                            ? 'mx-3 lg:mx-auto lg:max-w-7xl xl:max-w-[90rem] mt-2 bg-ivory border border-graphite/10 shadow-[0_8px_28px_rgba(23,35,29,0.12)] overflow-hidden'
+                            ? 'mx-2 sm:mx-3 lg:mx-auto lg:max-w-7xl xl:max-w-[90rem] mt-2 bg-ivory border border-graphite/10 shadow-[0_8px_28px_rgba(23,35,29,0.12)]'
                             : 'bg-transparent border border-transparent'
                     }`}
                 >
                     <div
-                        className={`flex items-center justify-between gap-5 transition-all duration-500 ${
+                        className={`flex items-center justify-between gap-2 sm:gap-4 lg:gap-5 min-w-0 transition-all duration-500 ${
                             scrolled
-                                ? 'pl-3 sm:pl-4 lg:pl-5 pr-3 sm:pr-4 lg:pr-5 py-1 sm:py-1.5'
-                                : 'pl-3 sm:pl-5 lg:pl-7 pr-3 sm:pr-5 lg:pr-8 py-2 sm:py-2.5'
+                                ? 'pl-2.5 sm:pl-4 lg:pl-5 pr-2 sm:pr-4 lg:pr-5 py-1.5 sm:py-2'
+                                : 'pl-3 sm:pl-5 lg:pl-7 pr-2.5 sm:pr-5 lg:pr-8 py-2.5 sm:py-3'
                         }`}
                     >
                         <Link
                             to="/"
-                            className="relative flex items-center shrink-0"
+                            className="relative flex items-center shrink min-w-0"
                             data-testid="nav-logo"
                             aria-label="Asian International Trade House — home"
                         >
-                            <BrandLogo
-                                variant="full"
-                                tone={logoTone}
-                                priority
-                                className={
-                                    scrolled
-                                        ? 'relative h-6 sm:h-7 lg:h-7 w-auto max-w-[min(50vw,12.5rem)] sm:max-w-[14.5rem] lg:max-w-[16rem]'
-                                        : 'relative h-9 sm:h-11 lg:h-12 w-auto max-w-[min(60vw,16rem)] sm:max-w-[19rem] lg:max-w-[21rem]'
-                                }
-                            />
+                            {/* Dual-tone stack: crossfade without flash; aspect box reserves CLS space */}
+                            <span
+                                className={`relative block ${logoClass}`}
+                                style={{ aspectRatio: '1100 / 222' }}
+                            >
+                                <BrandLogo
+                                    variant="full"
+                                    tone="light"
+                                    priority
+                                    className={`absolute inset-y-0 left-0 h-full w-auto max-w-full transition-opacity duration-300 ${
+                                        logoTone === 'light' ? 'opacity-100' : 'opacity-0'
+                                    }`}
+                                />
+                                <BrandLogo
+                                    variant="full"
+                                    tone="color"
+                                    priority
+                                    className={`absolute inset-y-0 left-0 h-full w-auto max-w-full transition-opacity duration-300 ${
+                                        logoTone === 'color' ? 'opacity-100' : 'opacity-0'
+                                    }`}
+                                />
+                            </span>
                         </Link>
 
-                        <div className="flex items-center justify-end gap-5 xl:gap-8 min-w-0 shrink-0">
-                            <nav className="hidden lg:flex items-center gap-7 xl:gap-9" aria-label="Primary">
+                        <div className="flex items-center justify-end gap-2 sm:gap-3 xl:gap-8 min-w-0 shrink-0">
+                            <nav className="hidden lg:flex items-center gap-5 xl:gap-8" aria-label="Primary">
                                 {LINKS.map((l) => (
                                     <NavLink
                                         key={l.label}
                                         to={l.to}
-                                        className={({ isActive }) => linkCls(isActive)}
+                                        className={({ isActive }) =>
+                                            `${linkCls(isActive)}${l.label === 'Blogs' ? ' hidden xl:inline' : ''}`
+                                        }
                                         data-testid={`nav-link-${l.label.toLowerCase()}`}
                                     >
                                         {l.label}
@@ -134,7 +190,7 @@ export default function Nav() {
                                 ))}
                             </nav>
 
-                            <div className="flex items-center gap-3 sm:gap-4 xl:gap-5 shrink-0">
+                            <div className="flex items-center gap-1.5 sm:gap-3 xl:gap-5 shrink-0">
                                 <Link
                                     to="/contact"
                                     className={`hidden md:block font-mono text-[11px] tracking-[0.22em] uppercase transition-colors duration-300 ${actionMuted}`}
@@ -151,13 +207,15 @@ export default function Nav() {
                                 </Link>
                                 <Link
                                     to="/request-quote"
-                                    className="hidden sm:inline-flex items-center gap-2 bg-copper text-ivory px-4 sm:px-5 py-2 font-mono text-[10px] sm:text-[11px] tracking-[0.18em] sm:tracking-[0.22em] uppercase hover:bg-terra transition-colors duration-300 min-h-[40px]"
+                                    className="inline-flex items-center gap-1 sm:gap-2 bg-copper text-ivory px-2.5 xs:px-3 sm:px-5 py-2 font-mono text-[9px] sm:text-[11px] tracking-[0.12em] sm:tracking-[0.22em] uppercase hover:bg-terra transition-colors duration-300 min-h-[40px] shrink-0"
                                     data-testid="nav-request-quote-button"
                                 >
-                                    Request Quote
-                                    <ArrowUpRight size={13} aria-hidden="true" />
+                                    <span className="sm:hidden">Quote</span>
+                                    <span className="hidden sm:inline">Request Quote</span>
+                                    <ArrowUpRight size={13} aria-hidden="true" className="hidden sm:block" />
                                 </Link>
                                 <button
+                                    ref={menuButtonRef}
                                     type="button"
                                     onClick={() => setOpen(true)}
                                     className={`lg:hidden p-2 min-w-[40px] min-h-[40px] inline-flex items-center justify-center transition-colors ${
@@ -179,62 +237,76 @@ export default function Nav() {
             <AnimatePresence>
                 {open && (
                     <motion.div
-                        id="mobile-navigation"
-                        role="dialog"
-                        aria-modal="true"
-                        aria-label="Site menu"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.4, ease: EASE }}
-                        className="fixed inset-0 z-[60] bg-forest text-ivory flex flex-col"
+                        className="fixed inset-0 z-[60] bg-forest text-ivory flex flex-col overflow-x-hidden"
                         data-testid="mobile-menu"
                     >
-                        <div className="flex items-center justify-between gap-4 px-5 sm:px-6 py-4">
+                        <div
+                            ref={menuPanelRef}
+                            id="mobile-navigation"
+                            role="dialog"
+                            aria-modal="true"
+                            aria-label="Site menu"
+                            className="flex flex-col flex-1 min-h-0"
+                        >
+                        <div className="flex items-center justify-between gap-3 px-4 sm:px-6 py-4 min-w-0">
                             <Link
                                 to="/"
-                                className="relative inline-flex items-center overflow-hidden"
+                                className="relative inline-flex items-center min-w-0"
                                 onClick={() => setOpen(false)}
                                 aria-label="Asian International Trade House — home"
                             >
-                                <BrandLogo variant="full" tone="light" className="relative h-10 w-auto max-w-[13rem]" priority />
+                                <BrandLogo
+                                    variant="full"
+                                    tone="light"
+                                    className="relative h-10 sm:h-11 w-auto max-w-[min(70vw,14rem)]"
+                                    priority
+                                />
                             </Link>
                             <button
                                 ref={closeRef}
                                 type="button"
                                 onClick={() => setOpen(false)}
-                                className="p-2.5 min-w-[44px] min-h-[44px] inline-flex items-center justify-center"
+                                className="p-2.5 min-w-[44px] min-h-[44px] inline-flex items-center justify-center shrink-0"
                                 aria-label="Close menu"
                                 data-testid="mobile-menu-close"
                             >
                                 <X size={24} aria-hidden="true" />
                             </button>
                         </div>
-                        <nav className="flex-1 flex flex-col justify-center px-7 sm:px-8 gap-1 overflow-y-auto pb-8" aria-label="Mobile">
-                            {MOBILE_LINKS.map((l, i) => (
-                                <motion.div
-                                    key={l.label}
-                                    initial={{ opacity: 0, y: 24 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.05 * i + 0.08, duration: 0.55, ease: EASE }}
-                                >
-                                    <Link
-                                        to={l.to}
-                                        onClick={() => setOpen(false)}
-                                        className="flex items-baseline gap-4 py-3 border-b border-ivory/10 group min-h-[48px]"
-                                        data-testid={`mobile-nav-link-${l.label.toLowerCase()}`}
-                                    >
-                                        <span className="font-mono text-[10px] tracking-[0.3em] text-copper">
-                                            {String(i + 1).padStart(2, '0')}
-                                        </span>
-                                        <span className="text-3xl sm:text-4xl font-extrabold tracking-tight group-hover:text-copper transition-colors duration-300">
-                                            {l.label}
-                                        </span>
-                                    </Link>
-                                </motion.div>
+                        <nav className="flex-1 flex flex-col justify-center px-5 sm:px-8 gap-8 overflow-y-auto overflow-x-hidden pb-8" aria-label="Mobile">
+                            {MOBILE_GROUPS.map((group) => (
+                                <div key={group.label}>
+                                    <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-copper/80 mb-2">{group.label}</p>
+                                    {group.links.map((l, i) => (
+                                        <motion.div
+                                            key={l.label}
+                                            initial={reduceMotion ? false : { opacity: 0, y: 24 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: reduceMotion ? 0 : 0.04 * i + 0.08, duration: reduceMotion ? 0 : 0.55, ease: EASE }}
+                                        >
+                                            <Link
+                                                to={l.to}
+                                                onClick={() => setOpen(false)}
+                                                className="flex items-baseline gap-3 sm:gap-4 py-3 border-b border-ivory/10 group min-h-[48px]"
+                                                data-testid={`mobile-nav-link-${l.label.toLowerCase()}`}
+                                            >
+                                                <span className="font-mono text-[10px] tracking-[0.3em] text-copper shrink-0">
+                                                    {String(i + 1).padStart(2, '0')}
+                                                </span>
+                                                <span className="text-2xl sm:text-4xl font-extrabold tracking-tight group-hover:text-copper transition-colors duration-300 break-words">
+                                                    {l.label}
+                                                </span>
+                                            </Link>
+                                        </motion.div>
+                                    ))}
+                                </div>
                             ))}
                         </nav>
-                        <div className="px-7 sm:px-8 pb-10">
+                        <div className="px-5 sm:px-8 pb-10">
                             <Link
                                 to="/request-quote"
                                 onClick={() => setOpen(false)}
@@ -243,6 +315,7 @@ export default function Nav() {
                             >
                                 Request Quote <ArrowUpRight size={14} aria-hidden="true" />
                             </Link>
+                        </div>
                         </div>
                     </motion.div>
                 )}

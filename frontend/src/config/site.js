@@ -20,7 +20,7 @@ export const BRAND = {
     logoWhiteWebp2x: '/brand/logo-white-transparent@2x.webp?v=9',
     logoMarkWhiteWebp: '/brand/logo-white-transparent.webp?v=9',
     logoMarkWhitePng: '/brand/logo-white-transparent.png?v=9',
-    ogImage: '/brand/og-image.jpg',
+    ogImage: '/brand/og-image.jpg?v=10',
     /** Intrinsic dimensions of logo-transparent.* (horizontal lockup) */
     logoWidth: 1100,
     logoHeight: 222,
@@ -33,6 +33,12 @@ export const SOCIAL = {
     x: null, // [TBD]
     instagram: null, // [TBD]
 };
+
+/**
+ * Show "Draft — for review" on Privacy / Terms.
+ * Set REACT_APP_SHOW_LEGAL_DRAFT=false in production once counsel has approved.
+ */
+export const SHOW_LEGAL_DRAFT_BANNER = process.env.REACT_APP_SHOW_LEGAL_DRAFT !== 'false';
 
 export function absoluteUrl(path = '/') {
     const p = path.startsWith('/') ? path : `/${path}`;

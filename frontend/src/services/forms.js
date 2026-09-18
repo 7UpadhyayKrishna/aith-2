@@ -1,16 +1,22 @@
-import { SITE_EMAIL } from '../config/site';
-
 /**
  * Form submission boundary.
- * Wire REACT_APP_API_URL (or same-origin /api) when backend is ready.
+ *
+ * Modes:
+ * - api    → durable Mongo persistence confirmed by backend
+ * - mailto → client email fallback only (NOT equivalent to server store)
+ * - stub   → honeypot filtered
+ *
+ * Wire REACT_APP_API_URL (or same-origin /api) for production.
  * Never put secrets in the frontend.
  */
+
+import { SITE_EMAIL } from '../config/site';
 
 const API_BASE = (process.env.REACT_APP_API_URL || '').replace(/\/$/, '');
 
 function endpoint(path) {
     if (API_BASE) return `${API_BASE}${path}`;
-    return path; // same-origin /api proxied in production
+    return path;
 }
 
 async function postJson(path, body) {
@@ -40,8 +46,7 @@ async function postJson(path, body) {
 export async function submitContact(payload) {
     const body = {
         ...payload,
-        kind: 'contact',
-        // Honeypot — bots fill this; server should reject if non-empty
+        kind: payload.kind || (payload.intent === 'careers' ? 'careers' : 'contact'),
         website: payload.website || '',
         submittedAt: new Date().toISOString(),
     };
@@ -54,19 +59,41 @@ export async function submitContact(payload) {
         const data = await postJson('/api/contact', body);
         return { ok: true, mode: 'api', reference: data?.id || data?.reference };
     } catch {
-        // Graceful fallback: open mailto with structured body (no silent data loss)
-        const subject = encodeURIComponent(`AITH Contact — ${payload.name || 'Enquiry'}`);
+        const subject = encodeURIComponent(
+            payload.subject
+                ? `AITH — ${payload.subject}`
+                : `AITH Contact — ${payload.intent || 'Enquiry'} — ${payload.name || ''}`
+        );
         const text = [
             `Name: ${payload.name || ''}`,
             `Email: ${payload.email || ''}`,
             `Company: ${payload.company || ''}`,
+            `Phone: ${payload.phone || ''}`,
+            `Country: ${payload.country || ''}`,
             `Intent: ${payload.intent || 'general'}`,
+            `Subject: ${payload.subject || ''}`,
+            payload.roleInterest ? `Role interest: ${payload.roleInterest}` : '',
+            payload.locationPreference ? `Location: ${payload.locationPreference}` : '',
+            payload.linkedinOrCv ? `LinkedIn/CV: ${payload.linkedinOrCv}` : '',
             '',
             payload.message || '',
-        ].join('\n');
+        ]
+            .filter(Boolean)
+            .join('\n');
         const mailto = `mailto:${SITE_EMAIL}?subject=${subject}&body=${encodeURIComponent(text)}`;
         return { ok: true, mode: 'mailto', mailto };
     }
+}
+
+/** Thin wrapper for careers applications. */
+export async function submitCareerApplication(payload) {
+    return submitContact({
+        ...payload,
+        intent: 'careers',
+        kind: 'careers',
+        company: payload.company || 'Career applicant',
+        subject: payload.subject || `Careers — ${payload.roleInterest || 'General interest'}`,
+    });
 }
 
 /**
@@ -91,14 +118,24 @@ export async function submitQuote(payload) {
         const subject = encodeURIComponent(`AITH Quote ${payload.refCode || ''} — ${payload.product || 'Requirement'}`);
         const text = [
             `Reference: ${payload.refCode || ''}`,
+            `Requirement type: ${payload.requirementType || ''}`,
             `Product: ${payload.product || ''}`,
             `Category: ${payload.category || ''}`,
+            `Specification: ${payload.specification || ''}`,
             `Quantity: ${payload.quantity || ''} ${payload.unit || ''}`,
             `Destination: ${payload.destination || ''}`,
             `Origin: ${payload.origin || ''}`,
+            `Supplier known: ${payload.supplierKnown || ''}`,
             `Timeline: ${payload.timeline || ''}`,
             `Mode: ${payload.mode || ''}`,
             `Incoterm: ${payload.incoterm || ''}`,
+            `Budget: ${payload.budget || ''}`,
+            `Packaging: ${payload.packaging || ''}`,
+            `OEM / private label: ${payload.oem || ''}`,
+            `Quality: ${payload.qualityRequirements || ''}`,
+            `Certifications: ${payload.certifications || ''}`,
+            `Inspection: ${payload.inspection || ''}`,
+            `Documentation: ${payload.documentation || ''}`,
             `Company: ${payload.company || ''}`,
             `Country: ${payload.country || ''}`,
             `Role: ${payload.role || ''}`,

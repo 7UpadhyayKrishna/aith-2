@@ -24,7 +24,7 @@ export default function PageHero({
     return (
         <section className={`relative overflow-hidden ${shell}`} data-testid={testId}>
             {children}
-            <div className="relative z-10 px-6 lg:px-12 pt-44 pb-24 lg:pt-56 lg:pb-32">
+            <div className="relative z-10 px-5 sm:px-6 lg:px-12 pt-40 sm:pt-44 pb-20 sm:pb-24 lg:pt-56 lg:pb-32">
                 <Fade y={10}>
                     <p className={`font-mono text-[11px] tracking-[0.35em] uppercase ${dark ? 'text-ivory/60' : 'text-mute'}`}>
                         {kicker}

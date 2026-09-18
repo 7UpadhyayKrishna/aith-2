@@ -39,7 +39,7 @@ const WORKFLOW = [
 
 export default function Partner() {
     return (
-        <main id="main-content">
+        <main id="main-content" className="overflow-x-clip">
             <Seo
                 title="Partner With AITH"
                 description="Become a supplier, manufacturer or distribution partner with Asian International Trade House — market access, quality expectations and partnership workflow."
