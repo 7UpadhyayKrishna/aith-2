@@ -21,7 +21,10 @@ export default function HomeJournal() {
         let cancelled = false;
         listBlogs({ limit: 3 })
             .then((data) => {
-                if (!cancelled) setItems(data.items || []);
+                if (!cancelled) {
+                    const next = Array.isArray(data?.items) ? data.items : [];
+                    setItems(next.filter((b) => b && b.id && b.slug));
+                }
             })
             .catch(() => {
                 if (!cancelled) setItems([]);

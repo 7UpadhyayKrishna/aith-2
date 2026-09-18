@@ -43,7 +43,9 @@ export default function BlogArticleView({ blog, showMeta = true }) {
         updated &&
         new Date(updated).getTime() - new Date(published).getTime() > 24 * 60 * 60 * 1000;
     const subtitle = blog.subtitle || cover.deck || blog.excerpt;
-    const md = resolveMarkdownImages(blog.contentMarkdown || '', blog.contentImages);
+    const contentImages = Array.isArray(blog.contentImages) ? blog.contentImages : [];
+    const sources = Array.isArray(blog.sources) ? blog.sources : [];
+    const md = resolveMarkdownImages(blog.contentMarkdown || '', contentImages);
 
     return (
         <article className="text-graphite" data-testid="blog-article-view">
@@ -163,7 +165,7 @@ export default function BlogArticleView({ blog, showMeta = true }) {
                             ),
                         hr: () => <hr className="border-graphite/15 my-10" />,
                         img: ({ src, alt }) => {
-                            const meta = (blog.contentImages || []).find((i) => i.url === src);
+                            const meta = contentImages.find((i) => i.url === src);
                             return (
                                 <figure className="my-8">
                                     <div className="aspect-[16/10] overflow-hidden bg-bone">
@@ -204,11 +206,11 @@ export default function BlogArticleView({ blog, showMeta = true }) {
                 </ReactMarkdown>
             </div>
 
-            {Array.isArray(blog.sources) && blog.sources.some((s) => (s.label || s.url || '').trim()) && (
+            {sources.some((s) => (s.label || s.url || '').trim()) && (
                 <aside className="mt-14 pt-8 border-t border-graphite/15 max-w-[72ch] mx-auto">
                     <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-copper mb-4">References</p>
                     <ul className="space-y-2">
-                        {blog.sources
+                        {sources
                             .filter((s) => (s.label || s.url || '').trim())
                             .map((s, i) => (
                                 <li key={`${s.url || s.label}-${i}`} className="text-sm">

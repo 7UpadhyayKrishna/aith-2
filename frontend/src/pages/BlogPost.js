@@ -7,6 +7,10 @@ import { Fade } from '@/components/Reveal';
 import { getBlogBySlug, listBlogs } from '@/services/blogApi';
 import { BRAND } from '@/config/site';
 
+function isListItem(b) {
+    return b && typeof b === 'object' && b.id && b.slug;
+}
+
 export default function BlogPost() {
     const { slug } = useParams();
     const [blog, setBlog] = useState(null);
@@ -14,6 +18,7 @@ export default function BlogPost() {
     const [redirect, setRedirect] = useState(null);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
+    const [retryKey, setRetryKey] = useState(0);
 
     useEffect(() => {
         let cancelled = false;
@@ -21,6 +26,8 @@ export default function BlogPost() {
             setLoading(true);
             setError('');
             setRedirect(null);
+            setBlog(null);
+            setRelated([]);
             try {
                 const data = await getBlogBySlug(slug);
                 if (cancelled) return;
@@ -30,10 +37,12 @@ export default function BlogPost() {
                 }
                 setBlog(data);
                 const cat = data.category;
+                if (!cat) return;
                 try {
                     const more = await listBlogs({ category: cat, limit: 4 });
                     if (!cancelled) {
-                        setRelated((more.items || []).filter((b) => b.slug !== data.slug).slice(0, 3));
+                        const moreItems = (Array.isArray(more?.items) ? more.items : []).filter(isListItem);
+                        setRelated(moreItems.filter((b) => b.slug !== data.slug).slice(0, 3));
                     }
                 } catch {
                     if (!cancelled) setRelated([]);
@@ -41,7 +50,7 @@ export default function BlogPost() {
             } catch (err) {
                 if (!cancelled) {
                     setBlog(null);
-                    setError(err.status === 404 ? 'notfound' : err.message || 'Failed to load');
+                    setError(err.status === 404 ? 'notfound' : 'unavailable');
                 }
             } finally {
                 if (!cancelled) setLoading(false);
@@ -50,7 +59,7 @@ export default function BlogPost() {
         return () => {
             cancelled = true;
         };
-    }, [slug]);
+    }, [slug, retryKey]);
 
     if (redirect) return <Navigate to={redirect} replace />;
 
@@ -58,6 +67,46 @@ export default function BlogPost() {
         return (
             <main id="main-content" className="bg-ivory min-h-[50vh] flex items-center justify-center">
                 <p className="font-mono text-[11px] tracking-[0.3em] uppercase text-mute">Loading…</p>
+            </main>
+        );
+    }
+
+    if (error === 'unavailable') {
+        return (
+            <main
+                id="main-content"
+                className="bg-ivory text-graphite min-h-screen px-6 lg:px-12 pt-44 pb-24"
+                data-testid="blog-unavailable"
+            >
+                <Seo title="Article unavailable" path={`/blogs/${slug || ''}`} noIndex />
+                <p className="font-mono text-[11px] tracking-[0.35em] uppercase text-copper">AITH / Journal</p>
+                <h1 className="text-[clamp(2rem,5vw,3.5rem)] font-extrabold tracking-tight mt-8">
+                    Articles are temporarily unavailable.
+                </h1>
+                <p className="mt-4 text-mute text-sm max-w-md leading-relaxed">
+                    We could not load this article right now. Please try again, or return home.
+                </p>
+                <div className="mt-10 flex flex-wrap gap-4">
+                    <button
+                        type="button"
+                        onClick={() => setRetryKey((k) => k + 1)}
+                        className="inline-flex items-center bg-forest text-ivory px-5 py-3 font-mono text-[11px] tracking-[0.22em] uppercase hover:bg-copper transition-colors"
+                    >
+                        Retry
+                    </button>
+                    <Link
+                        to="/"
+                        className="inline-flex items-center font-mono text-[11px] tracking-[0.22em] uppercase border-b border-graphite/35 pb-1 hover:text-copper hover:border-copper"
+                    >
+                        Return Home
+                    </Link>
+                    <Link
+                        to="/blogs"
+                        className="inline-flex items-center font-mono text-[11px] tracking-[0.22em] uppercase border-b border-graphite/35 pb-1 hover:text-copper hover:border-copper"
+                    >
+                        All journal posts
+                    </Link>
+                </div>
             </main>
         );
     }
@@ -85,6 +134,7 @@ export default function BlogPost() {
     const description = blog.seo?.metaDescription || blog.excerpt || blog.subtitle || blog.title;
     const title = blog.seo?.metaTitle || blog.title;
     const customCanonical = blog.seo?.canonicalUrl || null;
+    const relatedItems = Array.isArray(related) ? related.filter(isListItem) : [];
 
     return (
         <main id="main-content" data-testid="blog-post-page">
@@ -148,11 +198,11 @@ export default function BlogPost() {
                 <BlogArticleView blog={blog} />
             </section>
 
-            {related.length > 0 && (
+            {relatedItems.length > 0 && (
                 <section className="bg-bone px-5 sm:px-6 lg:px-12 py-16 lg:py-24">
                     <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-copper">Related</p>
                     <div className="mt-8 grid sm:grid-cols-3 gap-8">
-                        {related.map((b) => (
+                        {relatedItems.map((b) => (
                             <Link key={b.id} to={`/blogs/${b.slug}`} className="group block">
                                 <p className="font-mono text-[10px] tracking-[0.2em] uppercase text-mute">{b.category}</p>
                                 <h2 className="mt-2 text-lg font-extrabold tracking-tight group-hover:text-copper transition-colors">
