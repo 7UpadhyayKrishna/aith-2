@@ -27,9 +27,14 @@
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link rel="preconnect" href="https://images.unsplash.com" />
-        <!-- Nav starts light-tone on most routes; color tone loads via BrandLogo priority without a second preload -->
-        <link rel="preload" as="image" href="/brand/logo-white-transparent.webp?v=9" type="image/webp" media="(max-resolution: 1.49dppx)" />
-        <link rel="preload" as="image" href="/brand/logo-white-transparent@2x.webp?v=9" type="image/webp" media="(min-resolution: 1.5dppx)" />
+        <!-- Match BrandLogo white srcSet densities so preload is actually consumed -->
+        <link
+            rel="preload"
+            as="image"
+            type="image/webp"
+            href="/brand/logo-white-transparent.webp?v=9"
+            imagesrcset="/brand/logo-white-transparent.webp?v=9 1x, /brand/logo-white-transparent@1.5x.webp?v=9 1.5x, /brand/logo-white-transparent@2x.webp?v=9 2x"
+        />
         <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
         <title>Asian International Trade House — Global Sourcing, Import &amp; Export</title>

@@ -23,6 +23,17 @@ function errorMessage(data, fallback) {
 
 async function parseBody(res) {
     const contentType = res.headers.get('content-type') || '';
+
+    // Production misconfig: Vercel serves the SPA for /api/* when no rewrite exists.
+    if (contentType.includes('text/html')) {
+        try {
+            await res.text();
+        } catch {
+            /* ignore */
+        }
+        return { __htmlFallback: true };
+    }
+
     const canJson =
         contentType.includes('application/json') ||
         contentType.includes('+json') ||
@@ -61,6 +72,13 @@ async function getJson(path) {
     }
 
     const data = await parseBody(res);
+
+    if (data && data.__htmlFallback) {
+        const err = new Error('Blog API unavailable');
+        err.status = 503;
+        err.code = 'API_HTML_FALLBACK';
+        throw err;
+    }
 
     if (!res.ok) {
         const err = new Error(errorMessage(data, 'Request failed'));
