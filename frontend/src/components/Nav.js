@@ -160,7 +160,7 @@ export default function Nav() {
                             to="/"
                             className="relative flex items-center shrink-0 min-w-0 justify-self-start"
                             data-testid="nav-logo"
-                            aria-label="Asian International Trade House — home"
+                            aria-label="Asian International Trade House - home"
                         >
                             <span
                                 className={`relative block ${logoClass}`}
@@ -274,7 +274,7 @@ export default function Nav() {
                                     to="/"
                                     className="relative inline-flex items-center min-w-0"
                                     onClick={() => setOpen(false)}
-                                    aria-label="Asian International Trade House — home"
+                                    aria-label="Asian International Trade House - home"
                                 >
                                     <BrandLogo
                                         variant="full"

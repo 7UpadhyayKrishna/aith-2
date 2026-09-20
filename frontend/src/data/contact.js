@@ -1,5 +1,5 @@
 /**
- * Contact details — thin re-export from company.js for existing imports.
+ * Contact details - thin re-export from company.js for existing imports.
  */
 import { COMPANY, isConfigured } from './company';
 

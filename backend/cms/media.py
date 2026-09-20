@@ -2,7 +2,7 @@
 Media provider abstraction.
 
 Soft launch uses URL references only (no ephemeral disk uploads).
-Future adapters: S3, Cloudinary, Supabase Storage — configure via MEDIA_PROVIDER.
+Future adapters: S3, Cloudinary, Supabase Storage - configure via MEDIA_PROVIDER.
 """
 from __future__ import annotations
 

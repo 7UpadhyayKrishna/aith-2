@@ -1,5 +1,5 @@
 /**
- * 17 rare earth elements — catalog for /minerals.
+ * 17 rare earth elements - catalog for /minerals.
  * Images: local copies from images-of-elements.com (CC BY 3.0).
  */
 
@@ -62,7 +62,7 @@ export const RARE_EARTH_ELEMENTS = [
             'Glass polishing powders',
             'Self-cleaning ovens and UV filters',
         ],
-        blurb: 'The most abundant rare earth — essential for polishing, catalysts and glass.',
+        blurb: 'The most abundant rare earth - essential for polishing, catalysts and glass.',
     },
     {
         id: 'praseodymium',
@@ -108,7 +108,7 @@ export const RARE_EARTH_ELEMENTS = [
             'Specialised luminous paints',
             'Research and thickness gauges',
         ],
-        blurb: 'The only radioactive rare earth — used in niche nuclear and research applications.',
+        blurb: 'The only radioactive rare earth - used in niche nuclear and research applications.',
     },
     {
         id: 'samarium',
@@ -183,7 +183,7 @@ export const RARE_EARTH_ELEMENTS = [
             'EV traction motors',
             'Nuclear control rods',
         ],
-        blurb: 'Raises magnet coercivity at heat — critical for EV and industrial motors.',
+        blurb: 'Raises magnet coercivity at heat - critical for EV and industrial motors.',
     },
     {
         id: 'holmium',
@@ -198,7 +198,7 @@ export const RARE_EARTH_ELEMENTS = [
             'High-field electromagnet poles',
             'Nuclear reactor absorbers',
         ],
-        blurb: 'Strongest magnetic moment among elements — used in lasers and magnetics.',
+        blurb: 'Strongest magnetic moment among elements - used in lasers and magnetics.',
     },
     {
         id: 'erbium',
@@ -268,7 +268,7 @@ export const MINERALS_INTRO = {
     kicker: 'AITH / Minerals',
     titleLines: ['RARE EARTH', 'ELEMENTS.'],
     lead:
-        'Seventeen rare earth elements that power magnets, displays, catalysts and medical systems — presented with core industrial uses for buyers coordinating specialty mineral programmes.',
+        'Seventeen rare earth elements that power magnets, displays, catalysts and medical systems - presented with core industrial uses for buyers coordinating specialty mineral programmes.',
 };
 
 export function getRareEarthById(id) {

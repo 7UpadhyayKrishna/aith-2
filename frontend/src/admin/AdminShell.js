@@ -154,7 +154,7 @@ export default function AdminShell() {
 
     return (
         <div className="min-h-screen bg-ivory text-graphite flex" data-testid="admin-shell">
-            <Seo title={`${pageTitle} — Admin`} path={location.pathname} noIndex />
+            <Seo title={`${pageTitle} - Admin`} path={location.pathname} noIndex />
 
             {/* Desktop sidebar */}
             <div className="hidden md:block sticky top-0 self-start h-screen">{sidebar}</div>

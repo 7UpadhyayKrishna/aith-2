@@ -109,7 +109,7 @@ export default function Process() {
                         <Fade delay={0.25}>
                             <p className="font-serif italic text-2xl lg:text-3xl text-graphite/80">Not a marketing claim.</p>
                             <p className="text-mute text-sm leading-relaxed mt-5 max-w-xs">
-                                Every shipment moves through the same sequence — regardless of size, product or destination.
+                                Every shipment moves through the same sequence - regardless of size, product or destination.
                             </p>
                             <Link
                                 to="/quality-compliance"

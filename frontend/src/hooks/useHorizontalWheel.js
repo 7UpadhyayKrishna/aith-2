@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 /**
  * Translate vertical wheel into horizontal scroll while the pointer is over
- * a horizontal track — only when the track can still scroll in that direction.
+ * a horizontal track - only when the track can still scroll in that direction.
  * Releases the page to normal vertical scrolling at the ends (no scroll trap).
  * Compatible with Lenis: preventDefault only when consuming the gesture.
  */

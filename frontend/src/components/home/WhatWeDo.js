@@ -18,7 +18,7 @@ export default function WhatWeDo() {
                 </div>
                 <Fade delay={0.2}>
                     <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-mute pb-3">
-                        Contents — Select a chapter
+                        Contents - Select a chapter
                     </p>
                 </Fade>
             </div>

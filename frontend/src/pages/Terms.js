@@ -69,7 +69,7 @@ export default function Terms() {
                     { label: 'Terms of Trade' },
                 ]}
                 titleLines={['TERMS OF', 'TRADE.']}
-                lead="Commercial framework for website use and trade discussions. Binding sale, purchase and Incoterm terms are confirmed in written offers and contracts — not solely by this page."
+                lead="Commercial framework for website use and trade discussions. Binding sale, purchase and Incoterm terms are confirmed in written offers and contracts - not solely by this page."
                 dark={false}
                 testId="terms-hero"
             />
@@ -78,7 +78,7 @@ export default function Terms() {
                 <div className="max-w-3xl print:max-w-none">
                     {SHOW_LEGAL_DRAFT_BANNER && LEGAL_STATUS === 'draft' && (
                         <p className="font-mono text-[10px] tracking-[0.22em] uppercase text-mute mb-4" data-legal-status="draft">
-                            Draft — for review
+                            Draft - for review
                         </p>
                     )}
                     <Tag index="01" label="Framework" />
@@ -98,7 +98,7 @@ export default function Terms() {
                                         href={`#${s.id}`}
                                         className="text-sm text-graphite/80 hover:text-copper transition-colors duration-300 ease-editorial"
                                     >
-                                        {String(i + 1).padStart(2, '0')} — {s.h}
+                                        {String(i + 1).padStart(2, '0')} - {s.h}
                                     </a>
                                 </li>
                             ))}

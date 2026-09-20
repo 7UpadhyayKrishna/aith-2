@@ -21,7 +21,7 @@ EditorRead = Depends(require_role_read(config.ROLE_ADMIN, config.ROLE_EDITOR))
 AdminRead = Depends(require_role_read(config.ROLE_ADMIN))
 AdminWrite = Depends(require_role(config.ROLE_ADMIN))
 EditorWrite = Depends(require_role(config.ROLE_ADMIN, config.ROLE_EDITOR))
-# PII / operations — ADMIN only (editors do not see enquiry/quote/career contact data)
+# PII / operations - ADMIN only (editors do not see enquiry/quote/career contact data)
 OpsRead = Depends(require_role_read(config.ROLE_ADMIN))
 OpsWrite = Depends(require_role(config.ROLE_ADMIN))
 
@@ -537,8 +537,8 @@ async def seo_overview(user: dict = EditorRead, db=Depends(get_db)):
         },
         'postPublishChecklist': [
             'Day 0: verify live URL, canonical, BlogPosting schema, images, sitemap, internal links',
-            'Day 14–30: review indexing / impressions in Search Console',
-            'Day 30–90: review queries/clicks; improve title or intro only if data supports it',
+            'Day 14-30: review indexing / impressions in Search Console',
+            'Day 30-90: review queries/clicks; improve title or intro only if data supports it',
             '6 months: content review (lastReviewedAt / nextReviewAt)',
         ],
     }

@@ -126,7 +126,7 @@ export default function TradeMap() {
                 ))}
 
                 <text x="44" y="604" fill={IVORY_FAINT} fontSize="10" fontFamily="'JetBrains Mono', monospace" letterSpacing="2.5">
-                    28°36'N 77°13'E — SOURCE ORIGIN
+                    28°36'N 77°13'E - SOURCE ORIGIN
                 </text>
                 <text x="1170" y="34" textAnchor="end" fill={IVORY_FAINT} fontSize="10" fontFamily="'JetBrains Mono', monospace" letterSpacing="2.5">
                     TRADE LANES / 004

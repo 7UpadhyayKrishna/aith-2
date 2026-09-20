@@ -1,4 +1,4 @@
-"""Shared request helpers (IP, search escaping) — no secrets."""
+"""Shared request helpers (IP, search escaping) - no secrets."""
 from __future__ import annotations
 
 import os
@@ -28,7 +28,7 @@ def client_ip(request: Request) -> str:
 
 
 def escape_regex(term: str, max_len: int = 100) -> str:
-    """Literal substring match for Mongo $regex — prevents ReDoS via user patterns."""
+    """Literal substring match for Mongo $regex - prevents ReDoS via user patterns."""
     cleaned = (term or '').strip()[:max_len]
     return re.escape(cleaned)
 

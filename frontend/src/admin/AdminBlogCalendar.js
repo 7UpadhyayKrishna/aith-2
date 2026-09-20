@@ -4,7 +4,7 @@ import { listBlogs } from '@/services/adminApi';
 import { panel, sectionTitle, statusTone, fmtDate } from './adminUi';
 
 /**
- * Lightweight editorial calendar — not a full PM suite.
+ * Lightweight editorial calendar - not a full PM suite.
  * Cadence guidance: ~3 new articles / month + 1 refresh.
  */
 export default function AdminBlogCalendar() {
@@ -68,7 +68,7 @@ export default function AdminBlogCalendar() {
             <div>
                 <h2 className="font-serif text-2xl text-forest tracking-tight">Publishing calendar</h2>
                 <p className="mt-1 text-sm text-mute max-w-2xl">
-                    Recommended cadence: 3 substantial new articles per month + 1 meaningful refresh. Adjust to quality capacity —
+                    Recommended cadence: 3 substantial new articles per month + 1 meaningful refresh. Adjust to quality capacity -
                     frequency alone is not an SEO strategy.
                 </p>
                 <p className="mt-2 font-mono text-[10px] tracking-[0.14em] uppercase text-mute">

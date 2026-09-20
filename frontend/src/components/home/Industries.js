@@ -61,7 +61,7 @@ export default function Industries() {
                         ref={trackRef}
                         tabIndex={0}
                         role="region"
-                        aria-label="Essential industries gallery — scroll horizontally"
+                        aria-label="Essential industries gallery - scroll horizontally"
                         className="flex gap-4 lg:gap-5 overflow-x-auto overscroll-x-contain snap-x snap-proximity no-scrollbar px-6 lg:px-12 pb-4 cursor-grab select-none outline-none focus-visible:ring-2 focus-visible:ring-copper focus-visible:ring-offset-2 focus-visible:ring-offset-forest"
                         data-testid="industries-gallery"
                         onKeyDown={(e) => {

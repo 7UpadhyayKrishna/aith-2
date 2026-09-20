@@ -1,4 +1,4 @@
-/** Shared blog categories — keep in sync with backend cms.config.BLOG_CATEGORIES */
+/** Shared blog categories - keep in sync with backend cms.config.BLOG_CATEGORIES */
 export const BLOG_CATEGORIES = [
     'Global Sourcing',
     'Supplier Sourcing',

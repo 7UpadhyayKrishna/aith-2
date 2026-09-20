@@ -19,7 +19,7 @@ export default function GlobalTrade() {
                 <div className="lg:col-span-4 self-end">
                     <Fade delay={0.3}>
                         <p className="text-ivory/60 text-sm lg:text-base leading-relaxed max-w-sm">
-                            From origin networks across Asia, we move products into the Middle East, Africa, Europe and North America — with documentation and quality managed at every step.
+                            From origin networks across Asia, we move products into the Middle East, Africa, Europe and North America - with documentation and quality managed at every step.
                         </p>
                         <Link
                             to="/markets"
@@ -39,7 +39,7 @@ export default function GlobalTrade() {
 
             <Fade delay={0.1}>
                 <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-ivory/35 mt-8">
-                    Hover a market to view products and opportunities — Asia is the source origin.
+                    Hover a market to view products and opportunities - Asia is the source origin.
                 </p>
             </Fade>
         </section>

@@ -11,7 +11,7 @@ export default function About() {
         <main id="main-content">
             <Seo
                 title="About"
-                description="Asian International Trade House connects products, people and markets — sourcing from Asia into global demand with verified, compliant trade processes."
+                description="Asian International Trade House connects products, people and markets - sourcing from Asia into global demand with verified, compliant trade processes."
                 path="/about"
                 jsonLd={orgJsonLd}
             />
@@ -23,7 +23,7 @@ export default function About() {
                 ]}
                 titleLines={['WE CONNECT', 'PRODUCTS, PEOPLE', 'AND MARKETS.']}
                 italicLast
-                lead="Trade is more than moving products. It is the disciplined connection of origin supply, verified quality and destination demand — coordinated from our New Delhi hub."
+                lead="Trade is more than moving products. It is the disciplined connection of origin supply, verified quality and destination demand - coordinated from our New Delhi hub."
                 primaryCta={{ to: '/request-quote', label: 'Request a Quote', testId: 'about-quote-cta' }}
                 secondaryCta={{ to: '/contact', label: 'Contact us', testId: 'about-contact-cta' }}
                 testId="about-hero"
@@ -62,12 +62,12 @@ export default function About() {
                         </Fade>
                         <Fade delay={0.08}>
                             <p className="text-mute text-sm lg:text-base leading-relaxed">
-                                We operate as the commercial bridge between buyers who need reliable specification and suppliers who need disciplined international demand — with documentation, inspection and logistics treated as part of the product, not an afterthought.
+                                We operate as the commercial bridge between buyers who need reliable specification and suppliers who need disciplined international demand - with documentation, inspection and logistics treated as part of the product, not an afterthought.
                             </p>
                         </Fade>
                         <Fade delay={0.16}>
                             <p className="font-mono text-[11px] tracking-[0.28em] uppercase text-copper mt-8">
-                                28°36&apos;N 77°13&apos;E — New Delhi, India
+                                28°36&apos;N 77°13&apos;E - New Delhi, India
                             </p>
                         </Fade>
                     </div>
@@ -77,7 +77,7 @@ export default function About() {
             <section className="bg-bone text-graphite px-6 lg:px-12 py-28 lg:py-36" data-testid="about-approach">
                 <Tag index="02" label="Our Approach" />
                 <h2 className="text-[clamp(2.4rem,5vw,4.8rem)] leading-[0.95] tracking-[-0.03em] font-extrabold mt-10 max-w-4xl">
-                    <Line>SOURCE — VERIFY —</Line>
+                    <Line>SOURCE - VERIFY -</Line>
                     <Line delay={0.1}>DELIVER.</Line>
                 </h2>
                 <div className="grid md:grid-cols-3 gap-10 mt-16 lg:mt-20">

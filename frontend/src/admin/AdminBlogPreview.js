@@ -43,7 +43,7 @@ export default function AdminBlogPreview() {
 
     return (
         <div data-testid="admin-blog-preview">
-            <Seo title="Blog Preview — Admin" path={`/admin/blogs/${id}/preview`} noIndex />
+            <Seo title="Blog Preview - Admin" path={`/admin/blogs/${id}/preview`} noIndex />
             <p className="mb-6 font-mono text-[10px] tracking-[0.2em] uppercase text-copper">
                 Admin preview · not public
             </p>

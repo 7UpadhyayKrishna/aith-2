@@ -12,11 +12,11 @@ export const INDUSTRIES = {
         titleLines: ['HEALTHCARE', 'SUPPLY,', 'SPECIFIED.'],
         italicLast: true,
         lead:
-            'Medical consumables, hospital supplies and process inputs sourced against written specifications — with documentation and quality checks matched to the destination market.',
+            'Medical consumables, hospital supplies and process inputs sourced against written specifications - with documentation and quality checks matched to the destination market.',
         overview: [
             'Healthcare trade is specification-led. A “glove” or “syringe” without grade, sterility status, material and packing is not a buyable brief. We work from detailed product descriptions and destination expectations before approaching manufacturers.',
             'Our focus is commercial sourcing and export coordination for consumables, protective equipment, hospital supplies and related process inputs. We do not claim pharmaceutical marketing authorisations, device registrations or regulatory approvals on behalf of buyers or suppliers.',
-            'Where destination markets require health certificates, registration numbers or importer licences, those obligations sit with the responsible party. We coordinate supplier documents that support your compliance file — we do not replace your regulatory counsel or local authorised representative.',
+            'Where destination markets require health certificates, registration numbers or importer licences, those obligations sit with the responsible party. We coordinate supplier documents that support your compliance file - we do not replace your regulatory counsel or local authorised representative.',
         ],
         productAreas: [
             {
@@ -25,7 +25,7 @@ export const INDUSTRIES = {
             },
             {
                 title: 'Medical consumables',
-                body: 'High-turnover disposable items — from dressings to procedural consumables — packed for export with lot traceability where required.',
+                body: 'High-turnover disposable items - from dressings to procedural consumables - packed for export with lot traceability where required.',
             },
             {
                 title: 'Pharmaceutical ingredients (process inputs)',
@@ -37,12 +37,12 @@ export const INDUSTRIES = {
             },
             {
                 title: 'Protective equipment',
-                body: 'Gloves, masks and related PPE lines evaluated against stated standards and test reports — not generic “medical grade” labels without evidence.',
+                body: 'Gloves, masks and related PPE lines evaluated against stated standards and test reports - not generic “medical grade” labels without evidence.',
             },
         ],
         buyerConsiderations: [
             'Provide destination country, intended use context and any importer licence constraints before quoting.',
-            'Name required standards, test methods or certificate types explicitly — “CE-like” is not a specification.',
+            'Name required standards, test methods or certificate types explicitly - “CE-like” is not a specification.',
             'Confirm whether sterility, single-use labelling and language of IFU/labels are part of the brief.',
             'Decide early if third-party inspection or batch sampling is mandatory before shipment.',
             'Separate regulatory registration work from commercial sourcing so timelines stay realistic.',
@@ -79,10 +79,10 @@ export const INDUSTRIES = {
         processNote:
             'Healthcare sourcing starts with a written specification and destination constraint list. We will not invent regulatory status or accelerate registration timelines that belong to licensed local parties.',
         markets: [
-            'Africa — public and private hospital supply programmes',
-            'Middle East — distributor and institutional procurement',
-            'Europe — compliance-led importer programmes',
-            'North America — where importer pathways are already established by the buyer',
+            'Africa - public and private hospital supply programmes',
+            'Middle East - distributor and institutional procurement',
+            'Europe - compliance-led importer programmes',
+            'North America - where importer pathways are already established by the buyer',
         ],
         relatedProducts: [
             'Surgical Instruments',
@@ -120,16 +120,16 @@ export const INDUSTRIES = {
         titleLines: ['GRAIN.', 'SPICE.', 'ORIGIN.'],
         italicLast: true,
         lead:
-            'Rice, wheat, pulses, spices and related agri lines from Asian origin — graded, packed and documented for destination food-import rules.',
+            'Rice, wheat, pulses, spices and related agri lines from Asian origin - graded, packed and documented for destination food-import rules.',
         overview: [
             'Agricultural trade is seasonal and grade-sensitive. Crop calendars, moisture, broken percentages and packing formats change the commercial conversation more than a glossy product photo.',
             'We source food grains, pulses, spices, dry fruits and selected fresh or semi-processed lines when cold-chain and phytosanitary paths are workable. Volume often moves in container lots; vessel-scale is discussed only when the brief and origin can support it.',
-            'Phytosanitary certificates, fumigation evidence and destination residue or contaminant limits are treated as part of the path — not optional extras discovered at stuffing.',
+            'Phytosanitary certificates, fumigation evidence and destination residue or contaminant limits are treated as part of the path - not optional extras discovered at stuffing.',
         ],
         productAreas: [
             {
                 title: 'Rice',
-                body: 'Varieties and grades matched to buyer specs — broken limits, moisture, milling degree and packing in bags or bulk-in-container as agreed.',
+                body: 'Varieties and grades matched to buyer specs - broken limits, moisture, milling degree and packing in bags or bulk-in-container as agreed.',
             },
             {
                 title: 'Wheat',
@@ -153,7 +153,7 @@ export const INDUSTRIES = {
             'Confirm destination phytosanitary and food-safety certificate list early.',
             'Share preferred origin harvest windows if timing is critical for price or availability.',
             'Clarify whether inspection (SGS or nominated agency) is required before loading.',
-            'Agree Incoterm and discharge port capabilities — not every inland point suits bulk grain.',
+            'Agree Incoterm and discharge port capabilities - not every inland point suits bulk grain.',
         ],
         supplierConsiderations: [
             'Consistent grading and moisture control beat opportunistic mixing.',
@@ -187,10 +187,10 @@ export const INDUSTRIES = {
         processNote:
             'Agri quotes move with crop and freight markets. Validity windows are short by design; we reconfirm availability and price before you commit capital.',
         markets: [
-            'Middle East — food-security and distributor programmes',
-            'Africa — grain and pulse import corridors',
-            'Europe — compliance-led spice and specialty agri',
-            'North America — selected containerised food ingredients',
+            'Middle East - food-security and distributor programmes',
+            'Africa - grain and pulse import corridors',
+            'Europe - compliance-led spice and specialty agri',
+            'North America - selected containerised food ingredients',
         ],
         relatedProducts: ['Rice', 'Wheat', 'Pulses', 'Spices', 'Fresh Produce', 'Dry Fruits'],
         relatedLinks: [
@@ -220,7 +220,7 @@ export const INDUSTRIES = {
         titleLines: ['MINERALS.', 'ASSAYED.', 'SHIPPED.'],
         italicLast: true,
         lead:
-            'Industrial minerals and related materials traded against assay and commercial specs — coordination from origin to destination, without mining ownership claims.',
+            'Industrial minerals and related materials traded against assay and commercial specs - coordination from origin to destination, without mining ownership claims.',
         overview: [
             'Mineral trade lives on numbers: assay, moisture, size distribution and impurity limits. We treat those figures as contractual, not decorative.',
             'AITH coordinates sourcing and export of industrial minerals such as iron ore, limestone, bauxite, industrial salt, quartz and related lines when suppliers can evidence quality. We do not claim to own mines, operate extraction sites or control pit production.',
@@ -245,11 +245,11 @@ export const INDUSTRIES = {
             },
             {
                 title: 'Rare earth elements',
-                body: 'Seventeen REEs (Sc–Lu) for magnets, phosphors, catalysts and specialty alloys — see the dedicated /minerals catalogue.',
+                body: 'Seventeen REEs (Sc-Lu) for magnets, phosphors, catalysts and specialty alloys - see the dedicated /minerals catalogue.',
             },
         ],
         buyerConsiderations: [
-            'Provide assay targets and rejection limits — not only a commodity name.',
+            'Provide assay targets and rejection limits - not only a commodity name.',
             'Confirm load port, discharge port and any draft or gear restrictions early.',
             'State whether independent surveyor attendance is required at load and/or discharge.',
             'Clarify Incoterm carefully; bulk mineral risk allocation is unforgiving.',
@@ -287,10 +287,10 @@ export const INDUSTRIES = {
         processNote:
             'Mineral offers without recent assay context are incomplete. We will ask for numbers before chasing freight.',
         markets: [
-            'Europe — industrial feedstock and specialty minerals',
-            'Middle East — construction and process minerals',
-            'Africa — selected industrial import programmes',
-            'Asia intra-trade — origin and regional redistribution where relevant',
+            'Europe - industrial feedstock and specialty minerals',
+            'Middle East - construction and process minerals',
+            'Africa - selected industrial import programmes',
+            'Asia intra-trade - origin and regional redistribution where relevant',
         ],
         relatedProducts: [
             'Iron Ore',
@@ -357,7 +357,7 @@ export const INDUSTRIES = {
             },
         ],
         buyerConsiderations: [
-            'Share intended use context only as needed for classification — not for marketing claims.',
+            'Share intended use context only as needed for classification - not for marketing claims.',
             'Require current SDS and CoA templates before approving a supplier.',
             'Confirm whether the destination importer holds any required chemical import licences.',
             'State packing preference (drums, IBCs, isotanks) and whether returns or rinsing apply.',
@@ -385,7 +385,7 @@ export const INDUSTRIES = {
             'Commercial invoice with accurate chemical identity and HS context.',
             'SDS and CoA accompanying the commercial set.',
             'Certificate of origin where required.',
-            'Dangerous goods declarations coordinated with logistics partners when applicable — partners execute DG formalities they are licensed for.',
+            'Dangerous goods declarations coordinated with logistics partners when applicable - partners execute DG formalities they are licensed for.',
         ],
         shipment: [
             'Mode and carrier acceptance depend on classification; not every chemical flies or sails on the first preference.',
@@ -395,10 +395,10 @@ export const INDUSTRIES = {
         processNote:
             'If SDS, packing group or import licence status is unclear, we pause commercial work until those facts exist. Speed without classification is not a service.',
         markets: [
-            'Middle East — industrial and specialty demand',
-            'Africa — fertilizer and process chemical imports',
-            'Europe — compliance-led specialty and polymer programmes',
-            'North America — selected lines where importer pathways exist',
+            'Middle East - industrial and specialty demand',
+            'Africa - fertilizer and process chemical imports',
+            'Europe - compliance-led specialty and polymer programmes',
+            'North America - selected lines where importer pathways exist',
         ],
         relatedProducts: [
             'Industrial Solvents',
@@ -436,9 +436,9 @@ export const INDUSTRIES = {
         lead:
             'Cotton yarn, woven fabrics, technical and home textiles, denim and garments from established Asian spinning, weaving and garment clusters.',
         overview: [
-            'Textile sourcing fails on vague hand-feel descriptions and succeeds on measurable specs — count, construction, GSM, width, colour fastness and shrinkage. We push briefs toward numbers and approved references.',
+            'Textile sourcing fails on vague hand-feel descriptions and succeeds on measurable specs - count, construction, GSM, width, colour fastness and shrinkage. We push briefs toward numbers and approved references.',
             'India and wider Asia offer deep spinning, weaving and garment capacity. We match buyer programmes to manufacturers who can hold quality across bulk, not only on a showroom metre.',
-            'Private label and OEM paths are possible where suppliers support branding, packaging and MOQs. Regulatory or sustainability claims (e.g. specific eco labels) are only pursued when evidence exists — we do not invent certifications.',
+            'Private label and OEM paths are possible where suppliers support branding, packaging and MOQs. Regulatory or sustainability claims (e.g. specific eco labels) are only pursued when evidence exists - we do not invent certifications.',
         ],
         productAreas: [
             {
@@ -459,7 +459,7 @@ export const INDUSTRIES = {
             },
         ],
         buyerConsiderations: [
-            'Provide tech packs, approved samples or measurable fabric specs — not only mood boards.',
+            'Provide tech packs, approved samples or measurable fabric specs - not only mood boards.',
             'State testing standards (colour fastness, pilling, shrinkage) required at destination.',
             'Confirm labelling language, fibre composition rules and care-label formats.',
             'Plan MOQs honestly; garment and fabric minimums differ by mill and style.',
@@ -467,7 +467,7 @@ export const INDUSTRIES = {
         ],
         supplierConsiderations: [
             'Shade continuity and lot management for bulk fabric programmes.',
-            'Capacity planning against delivery calendars — overbooking creates missed vessels.',
+            'Capacity planning against delivery calendars - overbooking creates missed vessels.',
             'Willingness to accept buyer QC protocols and AQL levels.',
             'Transparent lead times including dyeing, finishing and packing.',
         ],
@@ -497,10 +497,10 @@ export const INDUSTRIES = {
         processNote:
             'Textile calendars are unforgiving around fashion drops and retail windows. Share hard in-store or warehouse dates early so mode and production buffers are honest.',
         markets: [
-            'Europe — compliance and private-label fabric/garment programmes',
-            'North America — distribution and retail supply',
-            'Middle East — garments, home textiles and fabric demand',
-            'Africa — selected apparel and textile import programmes',
+            'Europe - compliance and private-label fabric/garment programmes',
+            'North America - distribution and retail supply',
+            'Middle East - garments, home textiles and fabric demand',
+            'Africa - selected apparel and textile import programmes',
         ],
         relatedProducts: [
             'Cotton Yarn',

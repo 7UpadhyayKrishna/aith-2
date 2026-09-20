@@ -53,7 +53,7 @@ def main() -> int:
         return 1
     if len(password) < config.MIN_PASSWORD_LENGTH or len(password) > config.MAX_PASSWORD_LENGTH:
         print(
-            f'Password must be {config.MIN_PASSWORD_LENGTH}–{config.MAX_PASSWORD_LENGTH} characters.',
+            f'Password must be {config.MIN_PASSWORD_LENGTH}-{config.MAX_PASSWORD_LENGTH} characters.',
             file=sys.stderr,
         )
         return 1

@@ -35,7 +35,7 @@ _ACCOUNT_RATE: Dict[str, list] = {}
 
 
 def reset_login_rate_limits() -> None:
-    """Test helper — clear in-process login rate buckets."""
+    """Test helper - clear in-process login rate buckets."""
     _LOGIN_RATE.clear()
     _ACCOUNT_RATE.clear()
 
@@ -66,7 +66,7 @@ def _login_rate_limit(request: Request, email: str) -> None:
         config.LOGIN_RATE_MAX,
         detail='Too many login attempts. Please try again shortly.',
     )
-    # Account-scoped soft limit (email hash — avoid storing raw email in rate map keys in logs)
+    # Account-scoped soft limit (email hash - avoid storing raw email in rate map keys in logs)
     account_key = hashlib.sha256(email.encode('utf-8')).hexdigest()[:24]
     _rate_bucket(
         _ACCOUNT_RATE,
@@ -259,7 +259,7 @@ async def mfa_confirm(
     if not pending or not _verify_totp(pending, body.code):
         raise HTTPException(status_code=400, detail='Invalid authenticator code')
 
-    # Generate recovery codes once — store hashes only
+    # Generate recovery codes once - store hashes only
     raw_codes = [secrets.token_hex(4).upper() for _ in range(8)]
     hashes = [_hash_recovery_code(c) for c in raw_codes]
     await db.admin_users.update_one(

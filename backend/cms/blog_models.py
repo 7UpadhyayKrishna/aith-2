@@ -60,7 +60,7 @@ class ImageAssetIn(BaseModel):
 
 
 class FeaturedImageIn(BaseModel):
-    """Legacy cover image mirror — prefer cover.image."""
+    """Legacy cover image mirror - prefer cover.image."""
 
     model_config = ConfigDict(extra='ignore')
 
@@ -132,7 +132,7 @@ class SourceIn(BaseModel):
 
 
 class EditorialIn(BaseModel):
-    """Internal editorial metadata — never public."""
+    """Internal editorial metadata - never public."""
 
     model_config = ConfigDict(extra='ignore')
 
@@ -150,7 +150,7 @@ class EditorialIn(BaseModel):
 
 
 class BriefIn(BaseModel):
-    """Content brief — internal planning only."""
+    """Content brief - internal planning only."""
 
     model_config = ConfigDict(extra='ignore')
 
@@ -166,7 +166,7 @@ class BriefIn(BaseModel):
 
 
 class SearchPerformanceIn(BaseModel):
-    """Manual Search Console opportunity notes — no API integration required."""
+    """Manual Search Console opportunity notes - no API integration required."""
 
     model_config = ConfigDict(extra='ignore')
 
@@ -365,7 +365,7 @@ def validate_blog_payload(data: dict[str, Any], *, for_publish: bool = False) ->
     if H1_RE.search(md):
         errors.append({
             'path': 'contentMarkdown',
-            'message': 'Article body contains an H1 (# ); page template already supplies H1 — prefer H2 (##)',
+            'message': 'Article body contains an H1 (# ); page template already supplies H1 - prefer H2 (##)',
             'level': 'warning',
         })
 
@@ -374,7 +374,7 @@ def validate_blog_payload(data: dict[str, Any], *, for_publish: bool = False) ->
     if word_count and word_count < 250:
         errors.append({
             'path': 'contentMarkdown',
-            'message': 'Article is very short — consider adding practical depth',
+            'message': 'Article is very short - consider adding practical depth',
             'level': 'warning',
         })
     if re.search(r'(?i)(##\s+.+\n(?:.*\n){0,3})\1', md):
@@ -487,7 +487,7 @@ def is_refresh_due(doc: dict, *, days: int = 180) -> bool:
     if doc.get('status') == 'published' and last:
         return last <= utcnow() - timedelta(days=days)
     if doc.get('status') == 'published' and not editorial.get('lastReviewedAt'):
-        # Never reviewed after publish — due if older than threshold via publishedAt
+        # Never reviewed after publish - due if older than threshold via publishedAt
         pub = parse_iso(doc.get('publishedAt'))
         if pub and pub <= utcnow() - timedelta(days=days):
             return True
@@ -539,7 +539,7 @@ def link_suggestions_for(doc: dict) -> list[str]:
 
 
 def seo_health_checks(doc: dict) -> list[dict]:
-    """PASS / WARNING / ERROR checks — no fake numerical score."""
+    """PASS / WARNING / ERROR checks - no fake numerical score."""
     checks = []
     seo = doc.get('seo') or {}
     cover = doc.get('cover') or {}
@@ -685,7 +685,7 @@ def seo_health_checks(doc: dict) -> list[dict]:
     if doc.get('status') == 'published' and seo.get('index', True):
         add('sitemap', 'PASS', 'Sitemap eligible')
     elif doc.get('status') == 'published':
-        add('sitemap', 'WARNING', 'Published but noindex — excluded from useful discovery')
+        add('sitemap', 'WARNING', 'Published but noindex - excluded from useful discovery')
     else:
         add('sitemap', 'PASS', 'Not yet published (correctly excluded from sitemap)')
 

@@ -45,7 +45,7 @@ export function createBlogTemplate() {
                 credit: '',
             },
         },
-        // Legacy mirror of cover.image — kept for API compatibility
+        // Legacy mirror of cover.image - kept for API compatibility
         featuredImage: {
             url: '',
             alt: '',

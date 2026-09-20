@@ -82,7 +82,7 @@ export default function Article() {
                 </h1>
                 <Fade delay={0.35}>
                     <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-copper mt-8">
-                        {article.tag} — {article.date} — {article.read}
+                        {article.tag} - {article.date} - {article.read}
                     </p>
                 </Fade>
             </section>
@@ -137,7 +137,7 @@ export default function Article() {
                     <div className="grid md:grid-cols-2 gap-10 mt-10">
                         {related.map((s) => (
                             <Link key={s.id} to={`/insights/${s.id}`} className="group block" data-testid={`article-related-${s.id}`}>
-                                <p className="font-mono text-[10px] tracking-[0.25em] uppercase text-copper">{s.tag} — {s.read}</p>
+                                <p className="font-mono text-[10px] tracking-[0.25em] uppercase text-copper">{s.tag} - {s.read}</p>
                                 <h3 className="text-xl lg:text-2xl font-extrabold tracking-tight leading-snug mt-3 group-hover:text-copper transition-colors duration-300">
                                     {s.title}
                                 </h3>

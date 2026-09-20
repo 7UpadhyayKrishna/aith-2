@@ -10,7 +10,7 @@ export default function Markets() {
         <main id="main-content">
             <Seo
                 title="Markets"
-                description="Asian supply into Middle East, Africa, Europe and North America — trade lanes, ports and market regions coordinated by AITH."
+                description="Asian supply into Middle East, Africa, Europe and North America - trade lanes, ports and market regions coordinated by AITH."
                 path="/markets"
             />
             <section className="relative bg-forest text-ivory overflow-hidden" data-testid="markets-hero">
@@ -33,7 +33,7 @@ export default function Markets() {
                     </h1>
                     <Fade delay={0.45}>
                         <p className="text-ivory/65 text-sm lg:text-base leading-relaxed mt-10 max-w-xl">
-                            Asian supply, international demand. We coordinate products from origin networks in Asia into four primary market regions — with routes, documentation and inspection managed end to end.
+                            Asian supply, international demand. We coordinate products from origin networks in Asia into four primary market regions - with routes, documentation and inspection managed end to end.
                         </p>
                     </Fade>
                 </div>

@@ -7,7 +7,7 @@ const btn =
     'px-2 py-1 font-mono text-[9px] tracking-[0.14em] uppercase border border-graphite/20 hover:border-copper disabled:opacity-40';
 
 function fmt(iso) {
-    if (!iso) return '—';
+    if (!iso) return '-';
     try {
         return new Date(iso).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' });
     } catch {
@@ -28,7 +28,7 @@ function Field({ label, value }) {
     return (
         <div className="mb-2">
             <dt className="font-mono text-[9px] tracking-widest uppercase text-mute">{label}</dt>
-            <dd className="text-sm mt-0.5 break-words">{value || '—'}</dd>
+            <dd className="text-sm mt-0.5 break-words">{value || '-'}</dd>
         </div>
     );
 }
@@ -158,9 +158,9 @@ export default function AdminQuotes() {
                                     onClick={() => open(row.id)}
                                 >
                                     <td className="px-3 py-2.5 text-mute whitespace-nowrap">{fmt(row.createdAt)}</td>
-                                    <td className="px-3 py-2.5 font-mono text-xs">{row.reference || '—'}</td>
+                                    <td className="px-3 py-2.5 font-mono text-xs">{row.reference || '-'}</td>
                                     <td className="px-3 py-2.5">{row.name}</td>
-                                    <td className="px-3 py-2.5">{row.product || '—'}</td>
+                                    <td className="px-3 py-2.5">{row.product || '-'}</td>
                                     <td className="px-3 py-2.5">{row.internalStatus}</td>
                                 </tr>
                             ))}
@@ -221,7 +221,7 @@ export default function AdminQuotes() {
                                 <Field label="Documentation" value={detail.documentation} />
                             </Section>
                             <Section title="Notes">
-                                <p className="text-sm whitespace-pre-wrap">{detail.notes || '—'}</p>
+                                <p className="text-sm whitespace-pre-wrap">{detail.notes || '-'}</p>
                             </Section>
                             <Section title="Metadata">
                                 <Field label="ID" value={detail.id} />

@@ -1,6 +1,6 @@
 /**
  * Long-form service page content keyed by URL slug.
- * Freight language uses "coordination" only — no forwarder/broker claims.
+ * Freight language uses "coordination" only - no forwarder/broker claims.
  */
 
 export const SERVICE_PAGES = {
@@ -11,11 +11,11 @@ export const SERVICE_PAGES = {
         titleLines: ['GLOBAL SOURCING,', 'BUILT AROUND', 'THE REQUIREMENT.'],
         italicLast: true,
         lead:
-            'We start from what you need to buy — specification, volume, destination and timing — then map origin options, evaluate suppliers and coordinate samples before commercial commitment.',
+            'We start from what you need to buy - specification, volume, destination and timing - then map origin options, evaluate suppliers and coordinate samples before commercial commitment.',
         heroImageKey: 'cranes',
         overview: [
             'Global sourcing only works when the brief is clear. Vague product names create vague offers. We push for grade, packing, compliance needs and destination rules early so supplier conversations stay commercial, not exploratory theatre.',
-            'From India and wider Asia, we identify manufacturers and exporters who can actually produce to the brief, then compare landed economics — not just unit price. Samples, inspection points and documentation are part of the path, not an afterthought.',
+            'From India and wider Asia, we identify manufacturers and exporters who can actually produce to the brief, then compare landed economics - not just unit price. Samples, inspection points and documentation are part of the path, not an afterthought.',
             'Once a source is selected, we stay on the file through order confirmation, production windows and export readiness so the requirement does not drift between desk and dock.',
         ],
         sections: [
@@ -23,7 +23,7 @@ export const SERVICE_PAGES = {
                 index: '01',
                 title: 'Requirement definition',
                 body: [
-                    'We capture product identity, technical or commercial grade, quantity bands, target Incoterm, destination country or port, and any hard constraints — shelf life, labelling language, restricted ingredients, assay ranges.',
+                    'We capture product identity, technical or commercial grade, quantity bands, target Incoterm, destination country or port, and any hard constraints - shelf life, labelling language, restricted ingredients, assay ranges.',
                     'If the brief is incomplete, we return clarification questions before contacting suppliers. A clean brief shortens quote cycles and reduces rework later.',
                 ],
             },
@@ -31,7 +31,7 @@ export const SERVICE_PAGES = {
                 index: '02',
                 title: 'Market mapping',
                 body: [
-                    'Against the brief we map viable origin clusters and typical commercial patterns for that category — harvest windows for agri, production lead times for manufactured lines, common packing formats for bulk.',
+                    'Against the brief we map viable origin clusters and typical commercial patterns for that category - harvest windows for agri, production lead times for manufactured lines, common packing formats for bulk.',
                     'Market mapping is practical: which origins can meet the spec at the volume you need, and what documentation those lanes usually require.',
                 ],
             },
@@ -55,7 +55,7 @@ export const SERVICE_PAGES = {
                 index: '05',
                 title: 'Commercial comparison',
                 body: [
-                    'Offers are compared on the same basis — unit of measure, packing, Incoterm point, validity, lead time and known extras. Apples-to-apples comparison beats the cheapest headline number.',
+                    'Offers are compared on the same basis - unit of measure, packing, Incoterm point, validity, lead time and known extras. Apples-to-apples comparison beats the cheapest headline number.',
                     'Currency, freight assumptions and inspection costs are called out when they materially change the landed picture.',
                 ],
             },
@@ -72,7 +72,7 @@ export const SERVICE_PAGES = {
                 title: 'Documentation alignment',
                 body: [
                     'Destination import rules drive the document set. We align commercial invoice detail, packing list structure, origin certificates and product-specific certificates with what the market expects.',
-                    'Documentation work starts before stuffing — so marks, HS descriptions and certificate names are not improvised on the quay.',
+                    'Documentation work starts before stuffing - so marks, HS descriptions and certificate names are not improvised on the quay.',
                 ],
             },
             {
@@ -115,7 +115,7 @@ export const SERVICE_PAGES = {
         heroImageKey: 'vessel',
         overview: [
             'Import support helps buyers bring Asian-origin goods into their markets with clear specification, Incoterms and destination document readiness. Export support helps origin suppliers and programmes move goods out with complete commercial and shipping paperwork.',
-            'We do not claim to act as a licensed customs broker or freight forwarder. Origin export formalities and destination clearance are coordinated with the parties named under your Incoterm — including your appointed broker where you nominate one.',
+            'We do not claim to act as a licensed customs broker or freight forwarder. Origin export formalities and destination clearance are coordinated with the parties named under your Incoterm - including your appointed broker where you nominate one.',
             'The same discipline applies whether the lane is a single trial container or a recurring programme: match the commercial path to the product, then keep documents and milestones aligned until handoff.',
         ],
         sections: [
@@ -123,7 +123,7 @@ export const SERVICE_PAGES = {
                 index: '01',
                 title: 'Import support',
                 body: [
-                    'For buyers importing into Middle East, Africa, Europe, North America or other destinations, we structure the origin side — product, packing, inspection and export documents — against your market rules.',
+                    'For buyers importing into Middle East, Africa, Europe, North America or other destinations, we structure the origin side - product, packing, inspection and export documents - against your market rules.',
                     'Import duties, local taxes and inland delivery beyond the agreed Incoterm remain with the responsible party under those terms. We flag known destination requirements early so they are not discovered at the gate.',
                 ],
             },
@@ -139,7 +139,7 @@ export const SERVICE_PAGES = {
                 index: '03',
                 title: 'Sourcing within the trade',
                 body: [
-                    'When the product is not yet locked, import-export work includes sourcing — finding a capable origin and verifying it before freight is discussed.',
+                    'When the product is not yet locked, import-export work includes sourcing - finding a capable origin and verifying it before freight is discussed.',
                     'Sourcing and logistics are sequenced deliberately: wrong source cannot be fixed by a faster vessel.',
                 ],
             },
@@ -148,7 +148,7 @@ export const SERVICE_PAGES = {
                 title: 'Commercial coordination',
                 body: [
                     'Price, Incoterm, payment structure and validity windows are confirmed before production or booking. Mid-stream changes are documented so both sides share the same file.',
-                    'We state what a quote includes and excludes — product, freight assumptions, inspection — so landed cost surprises stay rare.',
+                    'We state what a quote includes and excludes - product, freight assumptions, inspection - so landed cost surprises stay rare.',
                 ],
             },
             {
@@ -156,7 +156,7 @@ export const SERVICE_PAGES = {
                 title: 'Documentation',
                 body: [
                     'Typical sets include commercial invoice, packing list, certificate of origin and product-specific certificates (phytosanitary, inspection, analysis). Sea shipments use bills of lading; air uses air waybills.',
-                    'Exact documents follow destination rules and category. We are not a legal or customs authority — we coordinate accurate, complete sets against the commercial path.',
+                    'Exact documents follow destination rules and category. We are not a legal or customs authority - we coordinate accurate, complete sets against the commercial path.',
                 ],
             },
             {
@@ -164,7 +164,7 @@ export const SERVICE_PAGES = {
                 title: 'Quality before departure',
                 body: [
                     'Pre-shipment inspection, sampling standards and certificate checks sit before loading wherever the programme requires them.',
-                    'If goods fail inspection, the remedy follows the agreed commercial terms — rework, replacement or hold — rather than shipping and arguing later.',
+                    'If goods fail inspection, the remedy follows the agreed commercial terms - rework, replacement or hold - rather than shipping and arguing later.',
                 ],
             },
             {
@@ -212,12 +212,12 @@ export const SERVICE_PAGES = {
         titleLines: ['PROCUREMENT', 'WITH A PLAN.'],
         italicLast: true,
         lead:
-            'Institutional and commercial buyers with repeating demand need more than one-off quotes. We build structured procurement paths — specification lock, supplier options, quality gates and shipment rhythm.',
+            'Institutional and commercial buyers with repeating demand need more than one-off quotes. We build structured procurement paths - specification lock, supplier options, quality gates and shipment rhythm.',
         heroImageKey: 'warehouse',
         overview: [
             'International procurement fails when each order reinvents the brief. We treat recurring requirements as programmes: locked specifications, dual-sourcing where risk justifies it, and calendars that respect production and vessel realities.',
             'Distributors, industrial buyers and institutional purchasers use this path when volume, compliance or multi-SKU complexity exceeds a casual RFQ.',
-            'Every cycle still starts with a clear requirement. The difference is that lessons from the first shipment feed the second — packing tweaks, document templates and supplier performance notes stay on file.',
+            'Every cycle still starts with a clear requirement. The difference is that lessons from the first shipment feed the second - packing tweaks, document templates and supplier performance notes stay on file.',
         ],
         sections: [
             {
@@ -240,7 +240,7 @@ export const SERVICE_PAGES = {
                 index: '03',
                 title: 'Comparison',
                 body: [
-                    'Shortlisted options are compared on total commercial fit — price structure, MOQ, lead time, inspection willingness and document readiness.',
+                    'Shortlisted options are compared on total commercial fit - price structure, MOQ, lead time, inspection willingness and document readiness.',
                     'Where two suppliers both clear the bar, dual-sourcing can reduce concentration risk for critical lines.',
                 ],
             },
@@ -272,7 +272,7 @@ export const SERVICE_PAGES = {
                 index: '07',
                 title: 'Documentation templates',
                 body: [
-                    'Repeating document formats — invoice layouts, packing list marks, certificate names — are stabilised after the first successful clearance.',
+                    'Repeating document formats - invoice layouts, packing list marks, certificate names - are stabilised after the first successful clearance.',
                     'Template discipline reduces customs queries and LC discrepancies on later shipments.',
                 ],
             },
@@ -288,7 +288,7 @@ export const SERVICE_PAGES = {
                 index: '09',
                 title: 'Repeat procurement',
                 body: [
-                    'After each cycle we note what worked — supplier reliability, packing damage rates, document friction — and adjust the next order plan.',
+                    'After each cycle we note what worked - supplier reliability, packing damage rates, document friction - and adjust the next order plan.',
                     'Long-term programmes are where this discipline pays: fewer surprises, clearer landed costs, and a file both sides can trust.',
                 ],
             },
@@ -324,7 +324,7 @@ export const SERVICE_PAGES = {
         heroImageKey: 'approach',
         overview: [
             'Supplier sourcing is for buyers who know what they need but not yet who should make it. We work from your specification and volume, then search origin clusters that actually produce that category.',
-            'We do not advertise a fixed supplier count or “exclusive network size.” Fit is demonstrated per brief — capacity, quality process, documentation and willingness to export on your terms.',
+            'We do not advertise a fixed supplier count or “exclusive network size.” Fit is demonstrated per brief - capacity, quality process, documentation and willingness to export on your terms.',
             'Indian manufacturers seeking international demand should use our Partner path. This page is written primarily for inbound buyer requirements seeking origin.',
         ],
         sections: [
@@ -340,7 +340,7 @@ export const SERVICE_PAGES = {
                 index: '02',
                 title: 'Finding manufacturers',
                 body: [
-                    'We identify manufacturers and exporters whose product range and production profile match the brief — spinning mills, garment units, chemical producers, agri processors, mineral traders and others as relevant.',
+                    'We identify manufacturers and exporters whose product range and production profile match the brief - spinning mills, garment units, chemical producers, agri processors, mineral traders and others as relevant.',
                     'Candidates without export documentation discipline are filtered early, even if domestic pricing looks attractive.',
                 ],
             },
@@ -372,7 +372,7 @@ export const SERVICE_PAGES = {
                 index: '06',
                 title: 'Onboarding to order',
                 body: [
-                    'Once selected, the supplier is onboarded into the commercial path — contacts, document templates, inspection points and first-order schedule.',
+                    'Once selected, the supplier is onboarded into the commercial path - contacts, document templates, inspection points and first-order schedule.',
                     'Ongoing performance is watched through the first shipments; underperformance triggers a structured review, not silence.',
                 ],
             },
@@ -381,7 +381,7 @@ export const SERVICE_PAGES = {
                 title: 'For suppliers applying in',
                 body: [
                     'If you are an Indian or Asian manufacturer seeking buyers, use Partner. Provide product range, capacity, certifications and export experience.',
-                    'We review fit against active demand. Not every application becomes an active file — honesty beats inflated onboarding.',
+                    'We review fit against active demand. Not every application becomes an active file - honesty beats inflated onboarding.',
                 ],
             },
         ],
@@ -412,7 +412,7 @@ export const SERVICE_PAGES = {
         titleLines: ['DOCUMENTS', 'THAT CLEAR.'],
         italicLast: true,
         lead:
-            'Trade documents are operational tools, not paperwork theatre. Here is what the core set does — and how we coordinate accurate export packages against destination rules.',
+            'Trade documents are operational tools, not paperwork theatre. Here is what the core set does - and how we coordinate accurate export packages against destination rules.',
         heroImageKey: 'warehouse',
         overview: [
             'A complete document set lets banks, carriers and destination customs understand what moved, at what value, in what packing, and under which terms. Missing or inconsistent documents create holds, discrepancies and demurrage.',
@@ -441,7 +441,7 @@ export const SERVICE_PAGES = {
                 title: 'Certificate of origin (CoO)',
                 body: [
                     'A certificate of origin states where goods were produced. Preferential duty treatment under trade agreements often depends on a correctly issued CoO.',
-                    'Issuing bodies and formats differ by country and scheme. We coordinate the correct type for the lane — not a generic placeholder.',
+                    'Issuing bodies and formats differ by country and scheme. We coordinate the correct type for the lane - not a generic placeholder.',
                 ],
             },
             {
@@ -457,7 +457,7 @@ export const SERVICE_PAGES = {
                 title: 'Air waybill (AWB)',
                 body: [
                     'For air cargo, the air waybill is the carrier document. It is typically non-negotiable compared with traditional ocean B/Ls, but accuracy of shipper, consignee and cargo description still matters.',
-                    'Urgent healthcare or high-value parcels often move on AWB — document timing must match flight cut-offs.',
+                    'Urgent healthcare or high-value parcels often move on AWB - document timing must match flight cut-offs.',
                 ],
             },
             {
@@ -503,11 +503,11 @@ export const SERVICE_PAGES = {
         titleLines: ['FREIGHT,', 'COORDINATED.'],
         italicLast: true,
         lead:
-            'Mode, timing and Incoterm decide how cargo moves. We coordinate air, sea and multimodal legs with logistics partners — booking support, milestones and handoff — without claiming to be a freight forwarder or shipping line.',
+            'Mode, timing and Incoterm decide how cargo moves. We coordinate air, sea and multimodal legs with logistics partners - booking support, milestones and handoff - without claiming to be a freight forwarder or shipping line.',
         heroImageKey: 'cranes',
         overview: [
             'Freight coordination sits between commercial agreement and destination receipt. Once product, packing and documents are clear, mode selection and booking windows determine cost and risk.',
-            'We work with logistics partners for carriage. AITH coordinates the trade file — readiness dates, document timing, booking preferences and milestone communication. We do not operate vessels, aircraft or customs brokerage licences.',
+            'We work with logistics partners for carriage. AITH coordinates the trade file - readiness dates, document timing, booking preferences and milestone communication. We do not operate vessels, aircraft or customs brokerage licences.',
             'Buyers and suppliers still own the obligations named in their Incoterm. Our job is to keep those obligations visible and the schedule honest.',
         ],
         sections: [
@@ -524,7 +524,7 @@ export const SERVICE_PAGES = {
                 title: 'Sea freight coordination',
                 body: [
                     'Container and bulk vessel planning includes origin readiness, stuffing or loading windows, and alignment of B/L instructions with commercial documents.',
-                    'Schedules slip. We communicate revised ETDs and ETAs when carriers update — silence helps no one.',
+                    'Schedules slip. We communicate revised ETDs and ETAs when carriers update - silence helps no one.',
                 ],
             },
             {
@@ -547,7 +547,7 @@ export const SERVICE_PAGES = {
                 index: '05',
                 title: 'Booking and readiness',
                 body: [
-                    'Bookings are requested against confirmed cargo readiness — not hopeful production dates. Early booking on late cargo creates storage and roll costs.',
+                    'Bookings are requested against confirmed cargo readiness - not hopeful production dates. Early booking on late cargo creates storage and roll costs.',
                     'Inspection holds and certificate delays are treated as readiness blockers, not footnotes.',
                 ],
             },
@@ -556,7 +556,7 @@ export const SERVICE_PAGES = {
                 title: 'Milestones and updates',
                 body: [
                     'Typical updates cover booking confirmation, goods ready, export formalities, departure, arrival and delivery handoff where applicable.',
-                    'Channel and frequency follow shipment size and your preference. Portal access, if offered later, will be confirmed separately — not assumed here.',
+                    'Channel and frequency follow shipment size and your preference. Portal access, if offered later, will be confirmed separately - not assumed here.',
                 ],
             },
             {

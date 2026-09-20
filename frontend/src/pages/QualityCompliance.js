@@ -16,7 +16,7 @@ const SECTIONS = [
     {
         index: '02',
         title: 'Supplier due diligence',
-        blurb: 'Facilities, trade references and production capacity are reviewed before onboarding. Fit is judged against the requirement — not a generic vendor list.',
+        blurb: 'Facilities, trade references and production capacity are reviewed before onboarding. Fit is judged against the requirement - not a generic vendor list.',
     },
     {
         index: '03',
@@ -41,7 +41,7 @@ const SECTIONS = [
     {
         index: '07',
         title: 'Claims & issue resolution',
-        blurb: 'If goods do not match the agreed specification, the path is documentation, inspection evidence and commercial resolution under the contracted terms — not silence.',
+        blurb: 'If goods do not match the agreed specification, the path is documentation, inspection evidence and commercial resolution under the contracted terms - not silence.',
     },
 ];
 
@@ -50,7 +50,7 @@ export default function QualityCompliance() {
         <main id="main-content" className="overflow-x-clip">
             <Seo
                 title="Quality & Compliance"
-                description="How Asian International Trade House approaches supplier due diligence, inspection, documentation, packaging and trade compliance — without invented certifications."
+                description="How Asian International Trade House approaches supplier due diligence, inspection, documentation, packaging and trade compliance - without invented certifications."
                 path="/quality-compliance"
                 jsonLd={breadcrumbJsonLd([
                     { name: 'Home', path: '/' },
@@ -64,7 +64,7 @@ export default function QualityCompliance() {
                     { label: 'Quality & Compliance' },
                 ]}
                 titleLines={['QUALITY', 'IS A PROCESS.']}
-                lead="Requirements are assessed according to product, destination and buyer needs. We describe the working sequence honestly — without claiming certifications the company has not confirmed."
+                lead="Requirements are assessed according to product, destination and buyer needs. We describe the working sequence honestly - without claiming certifications the company has not confirmed."
                 primaryCta={{ to: '/request-quote', label: 'Discuss Specification', testId: 'quality-quote-cta' }}
                 secondaryCta={{ to: '/services', label: 'View services', testId: 'quality-services-cta' }}
                 testId="quality-hero"

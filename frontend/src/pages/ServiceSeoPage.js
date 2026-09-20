@@ -132,9 +132,7 @@ export default function ServiceSeoPage({ slug }) {
                 <div className="flex flex-wrap items-end justify-between gap-8">
                     <h2 className="text-[clamp(2.2rem,5vw,4.5rem)] leading-[0.95] tracking-[-0.03em] font-extrabold max-w-2xl">
                         <Line>Ready to brief</Line>
-                        <Line delay={0.1}>
-                            <span className="font-serif italic font-normal">a requirement?</span>
-                        </Line>
+                        <Line delay={0.1}>a requirement?</Line>
                     </h2>
                     <Fade delay={0.15}>
                         <Link

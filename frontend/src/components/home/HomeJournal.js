@@ -13,7 +13,7 @@ function fmt(iso) {
     }
 }
 
-/** Restrained homepage teaser — latest published journal posts. Hidden if API unavailable. */
+/** Restrained homepage teaser - latest published journal posts. Hidden if API unavailable. */
 export default function HomeJournal() {
     const [items, setItems] = useState([]);
 
@@ -64,7 +64,7 @@ export default function HomeJournal() {
                         <Link to={`/blogs/${b.slug}`} className="group block">
                             <p className="font-mono text-[10px] tracking-[0.25em] uppercase text-copper">
                                 {b.category}
-                                {b.publishedAt ? ` — ${fmt(b.publishedAt)}` : ''}
+                                {b.publishedAt ? ` - ${fmt(b.publishedAt)}` : ''}
                             </p>
                             <h3 className="text-lg lg:text-xl font-extrabold tracking-tight leading-snug mt-3 group-hover:text-copper transition-colors">
                                 {b.title}

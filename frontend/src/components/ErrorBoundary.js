@@ -2,7 +2,7 @@ import { Component } from 'react';
 import { Link } from 'react-router-dom';
 
 /**
- * Minimal branded boundary — prevents a blank white screen on uncaught render errors.
+ * Minimal branded boundary - prevents a blank white screen on uncaught render errors.
  * Stack traces stay in the console for developers; users see recovery actions only.
  */
 export default class ErrorBoundary extends Component {

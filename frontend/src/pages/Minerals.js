@@ -7,6 +7,7 @@ import { Line, Fade, Tag } from '../components/Reveal';
 import { RARE_EARTH_ELEMENTS, MINERALS_HERO_IMAGE, MINERALS_INTRO } from '../data/minerals';
 import { getSeoPage } from '../data/seoPages';
 
+/** Rare-earth catalogue: hero -> intro -> 17-element grid -> trade note -> CTA */
 export default function Minerals() {
     const seo = getSeoPage('/minerals');
 
@@ -16,7 +17,7 @@ export default function Minerals() {
                 title={seo?.title || 'Rare Earth Minerals & Elements | AITH'}
                 description={
                     seo?.description ||
-                    'Seventeen rare earth elements with core industrial uses — scandium to lutetium — for specialty mineral sourcing programmes.'
+                    'Seventeen rare earth elements with core industrial uses - scandium to lutetium - for specialty mineral sourcing programmes.'
                 }
                 path="/minerals"
                 jsonLd={breadcrumbJsonLd([
@@ -57,6 +58,7 @@ export default function Minerals() {
                 <div className="absolute inset-0 bg-forest/60" />
             </PageHero>
 
+            {/* Both lines use Manrope bold - keep them visually aligned */}
             <section
                 className="bg-ivory text-graphite px-5 sm:px-6 lg:px-12 py-16 sm:py-20 border-b border-graphite/10"
                 data-testid="minerals-overview"
@@ -66,15 +68,13 @@ export default function Minerals() {
                         <Tag index="01" label="Catalogue" />
                         <h2 className="text-[clamp(2rem,4.5vw,3.75rem)] leading-[0.95] tracking-[-0.03em] font-extrabold mt-8 max-w-3xl">
                             <Line>Seventeen elements.</Line>
-                            <Line delay={0.1}>
-                                <span className="font-serif italic font-normal">Assay-led trade.</span>
-                            </Line>
+                            <Line delay={0.1}>Assay-led trade.</Line>
                         </h2>
                     </div>
                     <Fade delay={0.15} className="lg:col-span-5">
                         <p className="text-sm lg:text-base text-mute leading-relaxed max-w-md">
-                            Rare earths are traded on specification — purity, oxide form, particle size and
-                            packaging — not on name alone. Each panel below lists the element&apos;s core
+                            Rare earths are traded on specification - purity, oxide form, particle size and
+                            packaging - not on name alone. Each panel below lists the element&apos;s core
                             industrial uses for buyers scoping specialty programmes.
                         </p>
                         <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-mute mt-6">
@@ -182,13 +182,14 @@ export default function Minerals() {
                 <Tag index="02" label="Trade note" />
                 <div className="grid lg:grid-cols-12 gap-10 mt-10">
                     <div className="lg:col-span-7">
-                        <h2 className="text-[clamp(1.85rem,4vw,3.25rem)] leading-[0.95] tracking-[-0.03em] font-extrabold max-w-2xl">
-                            <Line>Specification before freight.</Line>
+                        <h2 className="text-[clamp(1.85rem,4vw,3.25rem)] leading-[1.05] tracking-[-0.03em] font-extrabold max-w-2xl">
+                            <Line>Specification before</Line>
+                            <Line delay={0.1}>freight.</Line>
                         </h2>
                         <Fade delay={0.12}>
                             <p className="text-sm lg:text-base text-forest/75 leading-relaxed mt-6 max-w-xl">
                                 Rare earth programmes typically move as oxides, metals or alloys against assay
-                                and impurity limits. AITH coordinates commercial sourcing and documentation —
+                                and impurity limits. AITH coordinates commercial sourcing and documentation -
                                 we do not claim mine ownership or extraction control.
                             </p>
                         </Fade>

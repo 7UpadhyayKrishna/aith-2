@@ -29,7 +29,7 @@ export default function Insights() {
                 </h1>
                 <Fade delay={0.45}>
                     <p className="text-ivory/65 text-sm lg:text-base leading-relaxed mt-10 max-w-xl">
-                        Notes on markets, documentation and sourcing — written for buyers and suppliers who move real goods.
+                        Notes on markets, documentation and sourcing - written for buyers and suppliers who move real goods.
                     </p>
                 </Fade>
             </section>
@@ -45,7 +45,7 @@ export default function Insights() {
                                 </div>
                                 <div className="lg:col-span-5 min-w-0">
                                     <p className="font-mono text-[10px] tracking-[0.25em] uppercase text-copper">
-                                        {s.tag} — {s.read}
+                                        {s.tag} - {s.read}
                                     </p>
                                     <h2 className="text-3xl lg:text-5xl font-extrabold tracking-tight leading-[1.02] mt-5">{s.title}</h2>
                                     <p className="text-mute text-sm lg:text-base leading-relaxed mt-6 max-w-md">{s.excerpt}</p>
@@ -73,7 +73,7 @@ export default function Insights() {
                     </Line>
                 </h2>
                 <p className="text-mute text-sm max-w-xl mt-6 leading-relaxed">
-                    Guides and checklists are shared as part of an active trade conversation — start a request or open the FAQ for immediate answers.
+                    Guides and checklists are shared as part of an active trade conversation - start a request or open the FAQ for immediate answers.
                 </p>
 
                 <div className="mt-14 lg:mt-20 divide-y divide-graphite/15 border-y border-graphite/15">

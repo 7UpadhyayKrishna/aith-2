@@ -1,5 +1,5 @@
 /**
- * Central site configuration — update SITE_ORIGIN when production domain changes.
+ * Central site configuration - update SITE_ORIGIN when production domain changes.
  */
 export const SITE_NAME = 'Asian International Trade House';
 export const SITE_SHORT = 'AITH';
@@ -7,7 +7,7 @@ export const SITE_ORIGIN = 'https://aithinternational.com';
 export const SITE_EMAIL = 'connect@aithworld.com';
 
 export const DEFAULT_DESCRIPTION =
-    'Asian International Trade House — global sourcing, international trading and supply solutions connecting products, suppliers and buyers across international markets.';
+    'Asian International Trade House - global sourcing, international trading and supply solutions connecting products, suppliers and buyers across international markets.';
 
 export const BRAND = {
     logoWebp: '/brand/logo-transparent.webp?v=8',
@@ -35,7 +35,7 @@ export const SOCIAL = {
 };
 
 /**
- * Show "Draft — for review" on Privacy / Terms.
+ * Show "Draft - for review" on Privacy / Terms.
  * Set REACT_APP_SHOW_LEGAL_DRAFT=false in production once counsel has approved.
  */
 export const SHOW_LEGAL_DRAFT_BANNER = process.env.REACT_APP_SHOW_LEGAL_DRAFT !== 'false';

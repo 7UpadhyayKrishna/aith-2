@@ -323,17 +323,17 @@ export default function AdminBlogs() {
                                             </Link>
                                             <p className="font-mono text-[10px] text-mute mt-0.5">{b.slug}</p>
                                         </td>
-                                        <td className="px-3 py-3 text-mute">{b.category || '—'}</td>
+                                        <td className="px-3 py-3 text-mute">{b.category || '-'}</td>
                                         <td className={`px-3 py-3 font-mono text-[10px] uppercase tracking-wider ${statusTone(b.status)}`}>
                                             {b.status}
                                             {b.refreshDue ? <span className="block text-copper normal-case tracking-normal">refresh due</span> : null}
                                         </td>
                                         <td className={`px-3 py-3 font-mono text-[10px] uppercase tracking-wider ${seoBadge(b.seoStatus)}`}>
-                                            {b.seoStatus || '—'}
+                                            {b.seoStatus || '-'}
                                         </td>
                                         <td className="px-3 py-3 font-mono text-[11px] text-mute">{fmtDate(b.publishedAt)}</td>
                                         <td className="px-3 py-3 font-mono text-[11px] text-mute">{fmtDate(b.updatedAt)}</td>
-                                        <td className="px-3 py-3 text-mute">{b.author?.name || '—'}</td>
+                                        <td className="px-3 py-3 text-mute">{b.author?.name || '-'}</td>
                                         <td className="px-3 py-3 relative">
                                             <button
                                                 type="button"

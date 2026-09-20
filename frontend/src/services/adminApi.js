@@ -48,7 +48,7 @@ function detailMessage(data, fallback) {
 }
 
 /**
- * @param {string} path — e.g. /api/admin/dashboard
+ * @param {string} path - e.g. /api/admin/dashboard
  * @param {RequestInit & { raw?: boolean }} options
  */
 export async function adminFetch(path, options = {}) {
@@ -90,7 +90,7 @@ export async function adminFetch(path, options = {}) {
     }
 
     if (!res.ok) {
-        // CRA often returns HTML 404 when /api is not proxied — don't treat as auth failure
+        // CRA often returns HTML 404 when /api is not proxied - don't treat as auth failure
         const looksHtml = typeof data?.raw === 'string' && data.raw.trimStart().startsWith('<');
         let fallback = `Request failed (${res.status})`;
         if (res.status === 404 || looksHtml) {

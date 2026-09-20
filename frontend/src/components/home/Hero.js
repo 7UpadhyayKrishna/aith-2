@@ -11,7 +11,7 @@ const ANNOTATIONS = [
     { text: "28°36'N 77°13'E", cls: 'top-[22%] left-[6%]' },
     { text: 'SOURCE / VERIFY / MOVE', cls: 'top-[30%] right-[8%]' },
     { text: 'ASIA → MIDDLE EAST → EUROPE', cls: 'top-[52%] right-[12%]' },
-    { text: 'INNSA1 — AEJEA — NLRTM', cls: 'top-[58%] left-[10%]' },
+    { text: 'INNSA1 - AEJEA - NLRTM', cls: 'top-[58%] left-[10%]' },
 ];
 
 export default function Hero() {
