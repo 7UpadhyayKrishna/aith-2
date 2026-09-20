@@ -11,6 +11,7 @@ const NAV = [
     { label: 'Global Sourcing', to: '/global-sourcing-services' },
     { label: 'Import & Export', to: '/import-export-services' },
     { label: 'Products', to: '/products' },
+    { label: 'Minerals', to: '/minerals' },
     { label: 'Industries', to: '/industries' },
     { label: 'Markets', to: '/markets' },
     { label: 'Insights', to: '/insights' },

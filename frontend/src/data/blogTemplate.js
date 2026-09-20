@@ -189,7 +189,7 @@ export const TOPIC_CLUSTER_LINKS = {
     industry: ['/industries', '/products'],
     healthcare: ['/industries/healthcare'],
     agriculture: ['/industries/agriculture'],
-    minerals: ['/industries/minerals-metals'],
+    minerals: ['/minerals', '/industries/minerals-metals'],
     chemicals: ['/industries/chemicals'],
     textiles: ['/industries/textiles'],
 };

@@ -243,6 +243,10 @@ export const INDUSTRIES = {
                 title: 'Industrial salt and quartz',
                 body: 'Purity and grain-size specifications matched to chemical, glass or process uses.',
             },
+            {
+                title: 'Rare earth elements',
+                body: 'Seventeen REEs (Sc–Lu) for magnets, phosphors, catalysts and specialty alloys — see the dedicated /minerals catalogue.',
+            },
         ],
         buyerConsiderations: [
             'Provide assay targets and rejection limits — not only a commodity name.',
@@ -295,8 +299,10 @@ export const INDUSTRIES = {
             'Bauxite',
             'Industrial Salt',
             'Quartz',
+            'Rare Earth Elements',
         ],
         relatedLinks: [
+            { label: 'Rare Earth Minerals', to: '/minerals' },
             { label: 'Quality & Compliance', to: '/quality-compliance' },
             { label: 'Freight Coordination', to: '/freight-coordination' },
             { label: 'International Procurement', to: '/international-procurement' },

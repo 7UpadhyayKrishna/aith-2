@@ -72,6 +72,16 @@ export default function Products() {
                                         View {c.name.toLowerCase()} sourcing
                                         <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
                                     </Link>
+                                    {c.id === 'minerals' && (
+                                        <Link
+                                            to="/minerals"
+                                            className="group inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.22em] uppercase text-copper border-b border-copper/40 pb-1 hover:border-copper transition-colors duration-300"
+                                            data-testid="chapter-rare-earths"
+                                        >
+                                            Rare earth elements
+                                            <ArrowRight size={13} className="transition-transform duration-300 group-hover:translate-x-1" />
+                                        </Link>
+                                    )}
                                     <Link
                                         to={`/request-quote?category=${c.id}`}
                                         className="group inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.22em] uppercase text-graphite border-b border-graphite/40 pb-1 hover:text-copper hover:border-copper transition-colors duration-300"
@@ -88,19 +98,24 @@ export default function Products() {
                                 <img src={c.image} alt={`${c.name} materials`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
                             </div>
                             <div className="divide-y divide-graphite/12 border-y border-graphite/12">
-                                {c.products.map((p) => (
+                                {c.products.map((p) => {
+                                    const isRareEarth = p === 'Rare Earth Elements';
+                                    return (
                                     <Link
                                         key={p}
-                                        to={`/request-quote?product=${encodeURIComponent(p)}`}
+                                        to={isRareEarth ? '/minerals' : `/request-quote?product=${encodeURIComponent(p)}`}
                                         className="group flex items-center justify-between py-5"
                                         data-testid={`product-row-${p.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
                                     >
                                         <span className="text-xl lg:text-3xl font-extrabold tracking-tight group-hover:text-copper group-hover:translate-x-2 transition-all duration-300">
                                             {p}
                                         </span>
-                                        <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-mute">Spec on request</span>
+                                        <span className="font-mono text-[10px] tracking-[0.25em] uppercase text-mute">
+                                            {isRareEarth ? 'View catalogue' : 'Spec on request'}
+                                        </span>
                                     </Link>
-                                ))}
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>

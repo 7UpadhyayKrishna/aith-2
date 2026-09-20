@@ -42,7 +42,7 @@ export const CATEGORIES = [
         toneName: 'DUSTED STONE',
         blurb: 'Industrial minerals and raw materials with assay-backed quality documentation.',
         image: u('photo-1504917595217-d4dc5ebe6122', 1000),
-        products: ['Iron Ore', 'Coal & Coke', 'Limestone', 'Bauxite', 'Industrial Salt', 'Quartz'],
+        products: ['Iron Ore', 'Coal & Coke', 'Limestone', 'Bauxite', 'Industrial Salt', 'Quartz', 'Rare Earth Elements'],
     },
     {
         id: 'chemicals',

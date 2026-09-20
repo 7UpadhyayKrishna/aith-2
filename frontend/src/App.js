@@ -10,6 +10,7 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import Home from '@/pages/Home';
 
 const Products = lazy(() => import('@/pages/Products'));
+const Minerals = lazy(() => import('@/pages/Minerals'));
 const Markets = lazy(() => import('@/pages/Markets'));
 const Insights = lazy(() => import('@/pages/Insights'));
 const RequestQuote = lazy(() => import('@/pages/RequestQuote'));
@@ -188,6 +189,7 @@ function AppLayout() {
                         />
                     ))}
                     <Route path="/products" element={<Products />} />
+                    <Route path="/minerals" element={<Minerals />} />
                     <Route path="/industries" element={<IndustriesIndex />} />
                     <Route path="/industries/:slug" element={<IndustryPage />} />
                     <Route path="/markets" element={<Markets />} />

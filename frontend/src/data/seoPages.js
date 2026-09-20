@@ -101,10 +101,34 @@ export const SEO_PAGES = {
         italicLast: true,
         schemaType: 'collection',
         internalLinks: [
+            { label: 'Rare Earth Minerals', to: '/minerals' },
             { label: 'Industries', to: '/industries' },
             { label: 'Agriculture', to: '/industries/agriculture' },
             { label: 'Request a Quote', to: '/request-quote' },
             { label: 'Custom sourcing', to: '/supplier-sourcing' },
+        ],
+        status: 'complete',
+    },
+
+    '/minerals': {
+        path: '/minerals',
+        primaryIntent: 'rare earth elements trade India',
+        supporting: [
+            'neodymium dysprosium magnets',
+            'rare earth minerals catalogue',
+            'REE industrial uses',
+        ],
+        title: 'Rare Earth Minerals & Elements | 17 REEs Catalogue',
+        description:
+            'Seventeen rare earth elements — scandium to lutetium — with core industrial uses for magnets, phosphors, catalysts and medical systems. Specialty mineral sourcing via AITH.',
+        h1Lines: ['RARE EARTH', 'ELEMENTS.'],
+        italicLast: true,
+        schemaType: 'webpage',
+        internalLinks: [
+            { label: 'Minerals & Metals', to: '/industries/minerals-metals' },
+            { label: 'Products', to: '/products' },
+            { label: 'Quality & Compliance', to: '/quality-compliance' },
+            { label: 'Request a Quote', to: '/request-quote' },
         ],
         status: 'complete',
     },
@@ -550,6 +574,7 @@ export const SEO_PAGES = {
         italicLast: true,
         schemaType: 'webpage',
         internalLinks: [
+            { label: 'Rare Earth Minerals', to: '/minerals' },
             { label: 'Products', to: '/products' },
             { label: 'Quality & Compliance', to: '/quality-compliance' },
             { label: 'Bulk freight', to: '/freight-coordination' },
@@ -611,6 +636,7 @@ export const SITEMAP_ROUTES = [
     { path: '/about', changefreq: 'monthly', priority: 0.9 },
     { path: '/services', changefreq: 'monthly', priority: 0.9 },
     { path: '/products', changefreq: 'weekly', priority: 0.9 },
+    { path: '/minerals', changefreq: 'monthly', priority: 0.85 },
     { path: '/markets', changefreq: 'monthly', priority: 0.8 },
     { path: '/insights', changefreq: 'weekly', priority: 0.8 },
     { path: '/faq', changefreq: 'monthly', priority: 0.8 },

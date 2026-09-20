@@ -63,7 +63,11 @@ export default function Discovery({ withShowcase = true }) {
                             results.map((r) => (
                                 <Link
                                     key={r.name}
-                                    to={`/request-quote?product=${encodeURIComponent(r.name)}`}
+                                    to={
+                                        r.name === 'Rare Earth Elements'
+                                            ? '/minerals'
+                                            : `/request-quote?product=${encodeURIComponent(r.name)}`
+                                    }
                                     className="group flex items-center justify-between border-t border-graphite/15 last:border-b py-5"
                                     data-testid={`search-result-${r.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
                                 >
