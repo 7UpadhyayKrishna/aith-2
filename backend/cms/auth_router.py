@@ -322,6 +322,56 @@ async def me(request: Request, user: dict = Depends(get_current_admin)):
     }
 
 
+@router.get('/sessions')
+async def list_sessions(
+    request: Request,
+    user: dict = Depends(get_current_admin),
+    db=Depends(get_db),
+):
+    """List active sessions for the current admin. Never returns session tokens."""
+    current_hash = getattr(request.state, 'session_hash', None)
+    items = []
+    async for s in db.admin_sessions.find({'userId': user['id']}, {'_id': 0}).sort('lastUsedAt', -1).limit(50):
+        items.append({
+            'id': s.get('id'),
+            'createdAt': s.get('createdAt'),
+            'lastUsedAt': s.get('lastUsedAt') or s.get('lastActiveAt'),
+            'expiresAt': s.get('expiresAt'),
+            'idleExpiresAt': s.get('idleExpiresAt'),
+            'ip': s.get('ip'),
+            'userAgent': (s.get('userAgent') or '')[:160],
+            'current': bool(current_hash and s.get('sessionHash') == current_hash),
+        })
+    return {'items': items, 'mfaEnabledGlobally': config.MFA_ENABLED, 'mfaEnabledForUser': bool(user.get('mfaEnabled'))}
+
+
+@router.post('/sessions/revoke-others')
+async def revoke_other_sessions(
+    request: Request,
+    user: dict = Depends(require_admin_csrf),
+    db=Depends(get_db),
+):
+    """Sign out all other sessions for this account; keep the current one."""
+    current_hash = getattr(request.state, 'session_hash', None)
+    deleted = 0
+    async for s in db.admin_sessions.find({'userId': user['id']}, {'_id': 0}):
+        if current_hash and s.get('sessionHash') == current_hash:
+            continue
+        await db.admin_sessions.delete_one({'id': s.get('id')})
+        deleted += 1
+    await write_audit(
+        db,
+        action='SESSIONS_REVOKED_OTHERS',
+        admin_user_id=user['id'],
+        resource_type='admin_user',
+        resource_id=user['id'],
+        result='ok',
+        meta={'revoked': deleted},
+        ip=_client_ip(request),
+    )
+    return {'ok': True, 'revoked': deleted}
+
+
 @router.post('/change-password')
 async def change_password(
     body: ChangePasswordBody,

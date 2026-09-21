@@ -1,13 +1,19 @@
-"""One-off: replace em/en dashes with ASCII hyphens in Mongo string fields."""
+#!/usr/bin/env python3
+"""One-off: replace em/en dashes with ASCII hyphens in string fields."""
+from __future__ import annotations
+
+import asyncio
+import sys
 from pathlib import Path
-import os
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
 
 from dotenv import load_dotenv
-from pymongo import MongoClient
 
-load_dotenv(Path(__file__).resolve().parent.parent / '.env')
-client = MongoClient(os.environ['MONGO_URL'])
-db = client[os.environ['DB_NAME']]
+load_dotenv(ROOT / '.env')
+
+from cms.script_db import open_db
 
 
 def scrub(val):
@@ -35,23 +41,29 @@ def scrub(val):
     return val, False
 
 
-def main():
+async def _run() -> int:
     total = 0
-    for name in db.list_collection_names():
-        col = db[name]
-        updated = 0
-        for doc in col.find({}):
-            new_doc, hit = scrub(doc)
-            if not hit:
-                continue
-            new_doc.pop('_id', None)
-            col.update_one({'_id': doc['_id']}, {'$set': new_doc})
-            updated += 1
-        if updated:
-            print(f'{name}: {updated} docs')
-            total += updated
+    async with open_db() as db:
+        for name in await db.list_collection_names():
+            col = getattr(db, name)
+            updated = 0
+            async for doc in col.find({}):
+                new_doc, hit = scrub(doc)
+                if not hit:
+                    continue
+                new_doc.pop('_id', None)
+                await col.replace_one({'id': doc['id']}, new_doc)
+                updated += 1
+            if updated:
+                print(f'{name}: {updated} docs')
+                total += updated
     print(f'total={total}')
+    return 0
+
+
+def main() -> int:
+    return asyncio.run(_run())
 
 
 if __name__ == '__main__':
-    main()
+    raise SystemExit(main())

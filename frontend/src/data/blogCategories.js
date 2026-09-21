@@ -21,5 +21,15 @@ export const SEO_ISSUE_FILTERS = [
     { value: 'canonical-override', label: 'Canonical override' },
 ];
 
-export const ENQUIRY_STATUSES = ['new', 'read', 'in-progress', 'resolved', 'archived'];
+export const ENQUIRY_STATUSES = ['new', 'read', 'in_progress', 'resolved', 'archived'];
 export const QUOTE_STATUSES = ['new', 'reviewing', 'responded', 'closed', 'archived'];
+export const CAREER_APP_STATUSES = [
+    'new',
+    'reviewing',
+    'shortlisted',
+    'interview',
+    'rejected',
+    'hired',
+    'archived',
+];
+export const JOB_STATUSES = ['draft', 'published', 'archived'];

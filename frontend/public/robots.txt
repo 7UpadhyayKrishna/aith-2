@@ -4,5 +4,5 @@ Allow: /
 Disallow: /admin
 Disallow: /admin/
 
-Sitemap: https://aithinternational.com/sitemap.xml
-Sitemap: https://aithinternational.com/blog-sitemap.xml
+Sitemap: https://www.aithworld.com/sitemap.xml
+Sitemap: https://www.aithworld.com/blog-sitemap.xml

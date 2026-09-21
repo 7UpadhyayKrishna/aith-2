@@ -20,11 +20,13 @@ Shell: dark forest sidebar + ivory main chrome, sticky header with breadcrumb, o
 | **SEO** | SEO Health (`/admin/seo`) |
 | **System** | Users, Audit Log, System Health |
 
-Collapsible desktop sidebar; mobile drawer. Role-gated: `admin` sees System (users/audit); `editor` gets blogs + operations + SEO.
+Collapsible desktop sidebar; mobile drawer. Role-gated: **`admin`** sees Operations (PII) + System; **`editor`** gets blogs, calendar, SEO only (no enquiry/quote/career PII).
 
 ### Dashboard
 
-Live Mongo counts: published / draft / scheduled blogs, new enquiries and quotes, pipeline columns (Draft → Review → Scheduled → Published), attention-needed list, recent operations, SEO/content health (**PASS / WARNING / ERROR** — not a score), API / Mongo / SMTP status (no secrets).
+Postgres-backed counts: published / draft / scheduled blogs, ops metrics for admins (open jobs, new/unassigned applications, unassigned enquiries/quotes, needs-attention), pipeline columns, SEO attention list, API / DB / SMTP status (no secrets).
+
+Ops attention indicators are **internal only** — not a contractual customer SLA.
 
 ---
 
@@ -226,16 +228,46 @@ Meaningful saves / publish create revisions (`blog_revisions`, capped). View/res
 - Unsaved blog recovery may use **sessionStorage** for draft JSON only — never credentials.
 - `/admin` is `noindex`; robots Disallow is **not** the security boundary — authentication is.
 - MFA (TOTP) is P1 hardening — not required this phase.
-- Production: `ADMIN_SESSION_SECRET` (32+ chars), `ADMIN_COOKIE_SECURE=true` behind HTTPS, explicit `CORS_ORIGINS` (no `*`) when API is cross-origin with credentials.
+- Production: `ADMIN_SESSION_SECRET` (32+ chars) **required from environment** when `APP_ENV=production` — no file fallback, no generated-on-boot secret. Dev-only fallback: `backend/.admin_session_secret`.
+- Account → Security (`/admin/account/security`): list sessions, revoke other sessions (tokens never shown). MFA section appears only when `ADMIN_MFA_ENABLED`.
 - Local: leave `REACT_APP_API_URL` empty so `setupProxy.js` forwards `/api` → `http://127.0.0.1:8000`.
 
 ---
 
-## Enquiries / quotes / careers
+## Enquiries / quotes / careers (ops console)
 
-- `/admin/enquiries` — new → read → in-progress → resolved → archived; CSV export; internal notes admin-only.
-- `/admin/quotes` — new → reviewing → responded → closed → archived.
-- `/admin/careers` — application submissions (job defs remain static frontend data unless migrated).
+Full-page record views (not drawers): ownership, status workflow, append-only internal notes, activity timeline, outbound reply (SMTP when configured), email message history for AITH-sent mail.
+
+### Ownership
+
+Fields: `assignedTo`, `assignedAt`, `assignedBy` (+ display name). Assign to me / assign to admin / unassign. **PII records may only be assigned to `admin` users** (not content editors). Every change is audited and timeline-logged.
+
+### Statuses (validated; no free-text)
+
+| Domain | Statuses |
+|--------|----------|
+| Enquiries | `new` `read` `in_progress` `resolved` `archived` |
+| Quotes | `new` `reviewing` `responded` `closed` `archived` |
+| Applications | `new` `reviewing` `shortlisted` `interview` `rejected` `hired` `archived` |
+
+### List tools
+
+Filters: status, assignee, unassigned, needs attention, date (+ quote destination/type; careers job/team/stage). Bulk: assign, change status, archive (confirm), CSV export. Original customer submission fields are never bulk-edited.
+
+### Reply workflow
+
+Admin compose → backend SMTP send → log `ops_messages` + timeline. If SMTP is not configured: UI shows **Email delivery is not configured** and offers copy email / copy response — no silent mailto fallback as the primary path.
+
+### Jobs CMS
+
+Routes: `/admin/careers/jobs`, `/admin/careers/jobs/new`, `/admin/careers/jobs/:id`.
+
+Fields include basics, blurb, `descriptionMarkdown`, responsibilities/requirements, optional salary band, optional deadline, cover image URL/alt, status `draft|published|archived`.
+
+- **Public board:** `GET /api/careers/jobs` — published + still accepting applications only. Empty success → intentional empty state (no static `careers.js` sync).
+- **Public detail:** `/careers/:slug` via `GET /api/careers/jobs/{slug}`. Closed/expired/archived roles return an **archived-style page** (`acceptingApplications: false`), not 404. Drafts are 404.
+- **Apply:** form must send `jobId`; backend validates job exists and is accepting applications; persists trusted `jobTitle`/`jobSlug` from DB.
+- **`seed-defaults`:** one-time import helper only — not ongoing sync. After CMS adoption, **database is source of truth**. Static `frontend/src/data/careers.js` is bootstrap/fallback for API **failure** only.
 
 ---
 
@@ -243,8 +275,8 @@ Meaningful saves / publish create revisions (`blog_revisions`, capped). View/res
 
 | Role | Access |
 |------|--------|
-| `admin` | Everything including users, audit, system |
-| `editor` | Blogs + operations + SEO content health |
+| `admin` | Everything including ops PII, jobs CMS, users, audit, system |
+| `editor` | Blogs + calendar + SEO content health only |
 
 ---
 
@@ -252,9 +284,18 @@ Meaningful saves / publish create revisions (`blog_revisions`, capped). View/res
 
 ```bash
 cd backend
-python scripts/create_admin.py
-python scripts/seed_blogs.py          # idempotent by slug
-python scripts/seed_blogs.py --update # refresh seed content
+py -3 scripts/create_admin.py
+py -3 scripts/seed_blogs.py          # idempotent by slug
+py -3 scripts/seed_blogs.py --update # refresh seed content
+py -3 scripts/apply_schema.py        # idempotent CREATE IF NOT EXISTS
+```
+
+RLS (one-time): apply `backend/sql/migrations/20260921_enable_rls.sql` in Supabase SQL editor. Verify with:
+
+```sql
+SELECT relname, relrowsecurity
+FROM pg_class
+WHERE relname IN ('job_postings','contact_submissions','ops_activity','ops_notes','ops_messages');
 ```
 
 ---
@@ -263,4 +304,4 @@ python scripts/seed_blogs.py --update # refresh seed content
 
 `GET /api/blog-sitemap.xml`
 
-Production should proxy `/blog-sitemap.xml` → FastAPI `/api/blog-sitemap.xml`. Static SPA routes cannot serve a live Mongo sitemap.
+Production should proxy `/blog-sitemap.xml` → FastAPI `/api/blog-sitemap.xml`. Static SPA routes cannot serve a live Postgres sitemap.

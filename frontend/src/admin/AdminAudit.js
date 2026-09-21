@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { listAudit } from '@/services/adminApi';
+import { RecordHeader } from './AdminRecordPage';
 
 function fmt(iso) {
     if (!iso) return '-';
@@ -44,6 +45,11 @@ export default function AdminAudit() {
 
     return (
         <div className="space-y-4" data-testid="admin-audit">
+            <RecordHeader
+                eyebrow="System"
+                title="Audit log"
+                subtitle="Immutable admin actions for accountability."
+            />
             <div className="flex gap-2">
                 <input
                     value={action}

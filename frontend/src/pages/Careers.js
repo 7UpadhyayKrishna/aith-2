@@ -17,6 +17,7 @@ import { FAQ_BY_CONTEXT, getFaqsByIds } from '../data/faqs';
 import { CONTACT } from '../data/contact';
 import { getSeoPage } from '../data/seoPages';
 import { submitCareerApplication } from '../services/forms';
+import { fetchPublicJobs } from '../services/adminApi';
 
 const fieldCls =
     'mt-2 w-full bg-transparent border-0 border-b border-graphite/25 rounded-none px-0 py-3 text-base focus:outline-none focus:border-copper transition-colors';
@@ -32,21 +33,29 @@ const EMPTY_FORM = {
     linkedinOrCv: '',
     message: '',
     website: '',
+    jobId: '',
+    jobSlug: '',
+    jobTitle: '',
 };
 
 function RoleCard({ role, onApply, expanded, onToggle }) {
+    const slug = role.slug || role.id;
     return (
         <li
             className="border border-graphite/12 bg-ivory"
             data-testid={`career-role-${role.id}`}
-            id={`role-${role.id}`}
+            id={`role-${slug}`}
         >
             <div className="p-6 lg:p-8 flex flex-col lg:flex-row lg:items-start justify-between gap-6">
                 <div className="min-w-0 flex-1">
                     <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-copper">
                         {role.team} · {role.type} · {role.location}
                     </p>
-                    <h3 className="text-2xl lg:text-3xl font-extrabold tracking-tight mt-2">{role.title}</h3>
+                    <h3 className="text-2xl lg:text-3xl font-extrabold tracking-tight mt-2">
+                        <Link to={`/careers/${slug}`} className="hover:text-copper transition-colors">
+                            {role.title}
+                        </Link>
+                    </h3>
                     <p className="text-sm text-mute leading-relaxed mt-3 max-w-2xl">{role.blurb}</p>
 
                     {(role.responsibilities?.length > 0 || role.requirements?.length > 0) && (
@@ -100,6 +109,12 @@ function RoleCard({ role, onApply, expanded, onToggle }) {
                             )}
                         </div>
                     )}
+                    <Link
+                        to={`/careers/${slug}`}
+                        className="mt-4 inline-flex font-mono text-[10px] tracking-[0.2em] uppercase text-mute hover:text-copper"
+                    >
+                        View role →
+                    </Link>
                 </div>
 
                 <button
@@ -118,8 +133,9 @@ function RoleCard({ role, onApply, expanded, onToggle }) {
 /** Careers board: openings + general interest application. */
 export default function Careers() {
     const seo = getSeoPage('/careers');
-    const roles = useMemo(() => getPublishedRoles(), []);
-    const teams = useMemo(() => [...new Set(roles.map((r) => r.team))], [roles]);
+    const [roles, setRoles] = useState([]);
+    const [rolesSource, setRolesSource] = useState('loading');
+    const teams = useMemo(() => [...new Set(roles.map((r) => r.team).filter(Boolean))], [roles]);
 
     const [searchParams, setSearchParams] = useSearchParams();
     const [teamFilter, setTeamFilter] = useState('all');
@@ -128,6 +144,34 @@ export default function Careers() {
     const [errors, setErrors] = useState({});
     const [submitting, setSubmitting] = useState(false);
     const [status, setStatus] = useState(null);
+    const [submitError, setSubmitError] = useState('');
+
+    useEffect(() => {
+        let cancelled = false;
+        (async () => {
+            try {
+                const data = await fetchPublicJobs();
+                const items = (data.items || []).map((j) => ({
+                    ...j,
+                    id: j.id || j.slug,
+                    published: true,
+                }));
+                if (!cancelled) {
+                    setRoles(items);
+                    setRolesSource('api');
+                }
+            } catch {
+                if (!cancelled) {
+                    /* Network/API failure only — keep static fallback */
+                    setRoles(getPublishedRoles());
+                    setRolesSource('static');
+                }
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
     const filteredRoles =
         teamFilter === 'all' ? roles : roles.filter((r) => r.team === teamFilter);
@@ -135,13 +179,39 @@ export default function Careers() {
     // Prefill from ?role=id when landing from a deep link
     useEffect(() => {
         const roleId = searchParams.get('role');
-        if (!roleId) return;
-        const role = getRoleById(roleId);
-        if (role?.published) {
-            setForm((s) => ({ ...s, roleInterest: role.title }));
-            setExpandedId(role.id);
+        let bind = null;
+        try {
+            const raw = sessionStorage.getItem('aith_career_apply');
+            if (raw) {
+                bind = JSON.parse(raw);
+                sessionStorage.removeItem('aith_career_apply');
+            }
+        } catch {
+            /* ignore */
         }
-    }, [searchParams]);
+
+        if (!roleId && !bind) return;
+
+        const role =
+            roles.find(
+                (r) =>
+                    r.id === roleId ||
+                    r.slug === roleId ||
+                    (bind && (r.id === bind.jobId || r.slug === bind.jobSlug))
+            ) ||
+            (rolesSource === 'static' && roleId ? getRoleById(roleId) : null);
+
+        if (role || bind) {
+            setForm((s) => ({
+                ...s,
+                roleInterest: (role && role.title) || bind?.jobTitle || s.roleInterest,
+                jobId: (role && role.id) || bind?.jobId || s.jobId,
+                jobSlug: (role && role.slug) || bind?.jobSlug || s.jobSlug,
+                jobTitle: (role && role.title) || bind?.jobTitle || s.jobTitle,
+            }));
+            if (role) setExpandedId(role.id || role.slug);
+        }
+    }, [searchParams, roles, rolesSource]);
 
     const set = (k, v) => {
         setForm((s) => ({ ...s, [k]: v }));
@@ -150,8 +220,17 @@ export default function Careers() {
 
     const goApply = (role) => {
         if (role) {
-            set('roleInterest', role.title);
-            setSearchParams({ role: role.id }, { replace: true });
+            setForm((s) => ({
+                ...s,
+                roleInterest: role.title,
+                jobId: role.id || '',
+                jobSlug: role.slug || '',
+                jobTitle: role.title || '',
+            }));
+            setSearchParams({ role: role.slug || role.id }, { replace: true });
+        } else {
+            setForm((s) => ({ ...s, jobId: '', jobSlug: '', jobTitle: '' }));
+            setSearchParams({}, { replace: true });
         }
         const el = document.getElementById('apply');
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -170,22 +249,27 @@ export default function Careers() {
         e.preventDefault();
         if (submitting) return;
         setStatus(null);
+        setSubmitError('');
         if (!validate()) return;
         setSubmitting(true);
         try {
-            const result = await submitCareerApplication(form);
-            if (result.mode === 'mailto' && result.mailto) {
-                setStatus('mailto');
-                window.location.href = result.mailto;
-            } else if (result.ok) {
+            const result = await submitCareerApplication({
+                ...form,
+                jobId: form.jobId || undefined,
+                jobSlug: form.jobSlug || undefined,
+                jobTitle: form.jobTitle || form.roleInterest || undefined,
+            });
+            if (result.ok && (result.mode === 'api' || result.mode === 'stub')) {
                 setStatus('api');
                 setForm(EMPTY_FORM);
                 setSearchParams({}, { replace: true });
             } else {
                 setStatus('failed');
+                setSubmitError(result.message || "We couldn't submit your application right now. Please try again.");
             }
         } catch {
             setStatus('failed');
+            setSubmitError("We couldn't submit your application right now. Please try again.");
         } finally {
             setSubmitting(false);
         }
@@ -291,7 +375,9 @@ export default function Careers() {
                     )}
                 </div>
 
-                {filteredRoles.length === 0 ? (
+                {rolesSource === 'loading' ? (
+                    <p className="mt-12 font-mono text-[11px] tracking-[0.22em] uppercase text-mute">Loading roles…</p>
+                ) : filteredRoles.length === 0 ? (
                     <Fade>
                         <div className="mt-12 max-w-2xl border border-graphite/15 px-6 py-8" data-testid="careers-empty">
                             <p className="font-mono text-[11px] tracking-[0.22em] uppercase text-copper">
@@ -423,22 +509,15 @@ export default function Careers() {
                         </p>
                     </div>
                 )}
-                {status === 'mailto' && (
-                    <div className="mt-8 border border-graphite/20 bg-ivory px-5 py-4 max-w-xl" role="status">
-                        <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-copper">
-                            Email client opened
-                        </p>
-                        <p className="text-sm mt-2 text-graphite/80">
-                            Complete the message in your mail app to finish the application.
-                        </p>
-                    </div>
-                )}
                 {status === 'failed' && (
                     <div className="mt-8 border border-terra/50 bg-ivory px-5 py-4 max-w-xl" role="alert">
                         <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-terra">
                             Could not submit
                         </p>
-                        <p className="text-sm mt-2">Please retry or email {CONTACT.email} directly.</p>
+                        <p className="text-sm mt-2">{submitError || "We couldn't submit your application right now. Please try again."}</p>
+                        <p className="text-sm mt-2 text-mute">
+                            You can retry, or email {CONTACT.email} directly.
+                        </p>
                     </div>
                 )}
 
@@ -475,7 +554,20 @@ export default function Careers() {
                         <select
                             id="career-roleInterest"
                             value={form.roleInterest}
-                            onChange={(e) => set('roleInterest', e.target.value)}
+                            onChange={(e) => {
+                                const title = e.target.value;
+                                const matched = roles.find((r) => r.title === title);
+                                setForm((s) => ({
+                                    ...s,
+                                    roleInterest: title,
+                                    jobId: matched ? matched.id || '' : '',
+                                    jobSlug: matched ? matched.slug || '' : '',
+                                    jobTitle: matched ? matched.title || '' : '',
+                                }));
+                                if (errors.roleInterest) {
+                                    setErrors((er) => ({ ...er, roleInterest: undefined }));
+                                }
+                            }}
                             className={`${fieldCls} appearance-none cursor-pointer`}
                             data-testid="career-input-roleInterest"
                         >

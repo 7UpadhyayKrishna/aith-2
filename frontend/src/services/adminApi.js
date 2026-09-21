@@ -8,6 +8,7 @@ const API_BASE = (process.env.REACT_APP_API_URL || '').replace(/\/$/, '');
 const CSRF_COOKIE = 'aith_admin_csrf';
 
 let memoryCsrf = '';
+let unauthorizedHandler = null;
 
 function endpoint(path) {
     if (API_BASE) return `${API_BASE}${path}`;
@@ -26,6 +27,11 @@ export function getCsrf() {
 
 export function setCsrf(token) {
     if (token) memoryCsrf = token;
+}
+
+/** Register once from AdminApp. Called on authenticated-route 401s (not login/me). */
+export function setUnauthorizedHandler(fn) {
+    unauthorizedHandler = typeof fn === 'function' ? fn : null;
 }
 
 function qs(params = {}) {
@@ -49,10 +55,10 @@ function detailMessage(data, fallback) {
 
 /**
  * @param {string} path - e.g. /api/admin/dashboard
- * @param {RequestInit & { raw?: boolean }} options
+ * @param {RequestInit & { raw?: boolean, skipAuthHandler?: boolean }} options
  */
 export async function adminFetch(path, options = {}) {
-    const { raw, headers: extraHeaders, body, ...rest } = options;
+    const { raw, headers: extraHeaders, body, skipAuthHandler, ...rest } = options;
     const method = (rest.method || 'GET').toUpperCase();
     const headers = {
         Accept: 'application/json',
@@ -102,9 +108,24 @@ export async function adminFetch(path, options = {}) {
         } else if (res.status === 429) {
             fallback = detailMessage(data, 'Too many attempts. Please wait and try again.');
         }
-        const err = new Error(detailMessage(data, fallback));
+        const message = detailMessage(data, fallback);
+        const err = new Error(message);
         err.status = res.status;
         err.data = data;
+
+        if (
+            res.status === 401 &&
+            !skipAuthHandler &&
+            unauthorizedHandler &&
+            !path.includes('/admin/auth/login') &&
+            !path.includes('/admin/auth/me')
+        ) {
+            try {
+                unauthorizedHandler(message);
+            } catch {
+                /* ignore handler errors */
+            }
+        }
         throw err;
     }
     return data;
@@ -118,6 +139,7 @@ export async function login(email, password, totpCode) {
     const data = await adminFetch('/api/admin/auth/login', {
         method: 'POST',
         body,
+        skipAuthHandler: true,
     });
     if (data?.csrfToken) setCsrf(data.csrfToken);
     return data;
@@ -125,14 +147,14 @@ export async function login(email, password, totpCode) {
 
 export async function logout() {
     try {
-        await adminFetch('/api/admin/auth/logout', { method: 'POST', body: {} });
+        await adminFetch('/api/admin/auth/logout', { method: 'POST', body: {}, skipAuthHandler: true });
     } finally {
         memoryCsrf = '';
     }
 }
 
 export async function me() {
-    const data = await adminFetch('/api/admin/auth/me');
+    const data = await adminFetch('/api/admin/auth/me', { skipAuthHandler: true });
     if (data?.csrfToken) setCsrf(data.csrfToken);
     return data;
 }
@@ -141,6 +163,17 @@ export function changePassword(currentPassword, newPassword) {
     return adminFetch('/api/admin/auth/change-password', {
         method: 'POST',
         body: { currentPassword, newPassword },
+    });
+}
+
+export function listSessions() {
+    return adminFetch('/api/admin/auth/sessions');
+}
+
+export function revokeOtherSessions() {
+    return adminFetch('/api/admin/auth/sessions/revoke-others', {
+        method: 'POST',
+        body: {},
     });
 }
 
@@ -274,6 +307,14 @@ export function duplicateBlog(blogId) {
 
 // ---- Operations ----
 
+export function listAssignees() {
+    return adminFetch('/api/admin/assignees');
+}
+
+export function getOpsConfig() {
+    return adminFetch('/api/admin/ops/config');
+}
+
 export function listEnquiries(params = {}) {
     return adminFetch(`/api/admin/enquiries${qs(params)}`);
 }
@@ -287,6 +328,31 @@ export function patchEnquiry(id, payload) {
         method: 'PATCH',
         body: payload,
     });
+}
+
+export function assignEnquiry(id, { assignedTo } = {}) {
+    return adminFetch(`/api/admin/enquiries/${encodeURIComponent(id)}/assign`, {
+        method: 'POST',
+        body: { assignedTo: assignedTo ?? null },
+    });
+}
+
+export function addEnquiryNote(id, { body }) {
+    return adminFetch(`/api/admin/enquiries/${encodeURIComponent(id)}/notes`, {
+        method: 'POST',
+        body: { body },
+    });
+}
+
+export function replyEnquiry(id, { to, subject, body }) {
+    return adminFetch(`/api/admin/enquiries/${encodeURIComponent(id)}/reply`, {
+        method: 'POST',
+        body: { to, subject, body },
+    });
+}
+
+export function bulkEnquiries(payload) {
+    return adminFetch('/api/admin/enquiries/bulk', { method: 'POST', body: payload });
 }
 
 export function listQuotes(params = {}) {
@@ -304,6 +370,205 @@ export function patchQuote(id, payload) {
     });
 }
 
+export function assignQuote(id, { assignedTo } = {}) {
+    return adminFetch(`/api/admin/quotes/${encodeURIComponent(id)}/assign`, {
+        method: 'POST',
+        body: { assignedTo: assignedTo ?? null },
+    });
+}
+
+export function addQuoteNote(id, { body }) {
+    return adminFetch(`/api/admin/quotes/${encodeURIComponent(id)}/notes`, {
+        method: 'POST',
+        body: { body },
+    });
+}
+
+export function replyQuote(id, { to, subject, body }) {
+    return adminFetch(`/api/admin/quotes/${encodeURIComponent(id)}/reply`, {
+        method: 'POST',
+        body: { to, subject, body },
+    });
+}
+
+export function bulkQuotes(payload) {
+    return adminFetch('/api/admin/quotes/bulk', { method: 'POST', body: payload });
+}
+
 export function listCareers(params = {}) {
     return adminFetch(`/api/admin/careers${qs(params)}`);
+}
+
+export function getCareer(id) {
+    return adminFetch(`/api/admin/careers/${encodeURIComponent(id)}`);
+}
+
+export function patchCareer(id, payload) {
+    return adminFetch(`/api/admin/careers/${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        body: payload,
+    });
+}
+
+export function assignCareer(id, { assignedTo } = {}) {
+    return adminFetch(`/api/admin/careers/${encodeURIComponent(id)}/assign`, {
+        method: 'POST',
+        body: { assignedTo: assignedTo ?? null },
+    });
+}
+
+export function addCareerNote(id, { body }) {
+    return adminFetch(`/api/admin/careers/${encodeURIComponent(id)}/notes`, {
+        method: 'POST',
+        body: { body },
+    });
+}
+
+export function replyCareer(id, { to, subject, body }) {
+    return adminFetch(`/api/admin/careers/${encodeURIComponent(id)}/reply`, {
+        method: 'POST',
+        body: { to, subject, body },
+    });
+}
+
+export function bulkCareers(payload) {
+    return adminFetch('/api/admin/careers/bulk', { method: 'POST', body: payload });
+}
+
+/** GET CSV export with credentials + CSRF header; returns a Blob. */
+async function exportCsvBlob(path, params = {}) {
+    const res = await adminFetch(`${path}${qs(params)}`, {
+        raw: true,
+        headers: {
+            Accept: 'text/csv,*/*',
+            'X-CSRF-Token': getCsrf(),
+        },
+    });
+    if (!res.ok) {
+        let message = `Export failed (${res.status})`;
+        try {
+            const text = await res.text();
+            if (text) {
+                try {
+                    const data = JSON.parse(text);
+                    message = detailMessage(data, message);
+                } catch {
+                    /* keep status message */
+                }
+            }
+        } catch {
+            /* ignore */
+        }
+        const err = new Error(message);
+        err.status = res.status;
+        throw err;
+    }
+    return res.blob();
+}
+
+export function exportEnquiriesCsv(params = {}) {
+    return exportCsvBlob('/api/admin/enquiries/export.csv', params);
+}
+
+export function exportQuotesCsv(params = {}) {
+    return exportCsvBlob('/api/admin/quotes/export.csv', params);
+}
+
+export function exportCareersCsv(params = {}) {
+    return exportCsvBlob('/api/admin/careers/export.csv', params);
+}
+
+export function listJobs(params = {}) {
+    return adminFetch(`/api/admin/jobs${qs(params)}`);
+}
+
+export function getJob(id) {
+    return adminFetch(`/api/admin/jobs/${encodeURIComponent(id)}`);
+}
+
+export function createJob(payload) {
+    return adminFetch('/api/admin/jobs', { method: 'POST', body: payload });
+}
+
+export function updateJob(id, payload) {
+    return adminFetch(`/api/admin/jobs/${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        body: payload,
+    });
+}
+
+export function publishJob(id) {
+    return adminFetch(`/api/admin/jobs/${encodeURIComponent(id)}/publish`, {
+        method: 'POST',
+        body: {},
+    });
+}
+
+export function unpublishJob(id) {
+    return adminFetch(`/api/admin/jobs/${encodeURIComponent(id)}/unpublish`, {
+        method: 'POST',
+        body: {},
+    });
+}
+
+export function deleteJob(id) {
+    return adminFetch(`/api/admin/jobs/${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+    });
+}
+
+export function seedDefaultJobs() {
+    return adminFetch('/api/admin/jobs/seed-defaults', {
+        method: 'POST',
+        body: {},
+    });
+}
+
+/** Public careers board (no admin cookie required). */
+export async function fetchPublicJobs() {
+    const res = await fetch(endpoint('/api/careers/jobs'), {
+        headers: { Accept: 'application/json' },
+        credentials: 'same-origin',
+    });
+    if (!res.ok) {
+        const err = new Error(`Failed to load jobs (${res.status})`);
+        err.status = res.status;
+        throw err;
+    }
+    return res.json();
+}
+
+/** Public job detail by slug. Retries with includeArchived when first response is 404. */
+export async function fetchPublicJob(slug) {
+    const clean = String(slug || '').trim();
+    async function once(path) {
+        const res = await fetch(endpoint(path), {
+            headers: { Accept: 'application/json' },
+            credentials: 'same-origin',
+        });
+        let data = null;
+        const text = await res.text();
+        if (text) {
+            try {
+                data = JSON.parse(text);
+            } catch {
+                data = null;
+            }
+        }
+        return { res, data };
+    }
+
+    const primary = await once(`/api/careers/jobs/${encodeURIComponent(clean)}`);
+    if (primary.res.ok) return primary.data;
+
+    if (primary.res.status === 404) {
+        const archived = await once(
+            `/api/careers/jobs/${encodeURIComponent(clean)}${qs({ includeArchived: true })}`
+        );
+        if (archived.res.ok) return archived.data;
+    }
+
+    const err = new Error(`Failed to load job (${primary.res.status})`);
+    err.status = primary.res.status;
+    throw err;
 }

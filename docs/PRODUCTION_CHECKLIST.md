@@ -2,42 +2,56 @@
 
 Operational go-live list. Mark items only when verified in the target environment.
 
-**Last verification:** 17 September 2026 → see `docs/GO_LIVE_REPORT.md`  
-**Launch state:** **DEPLOYMENT BLOCKED**
+**Last verification:** 21 September 2026 (code pass — direct forms + www canonical + Postgres hardening)  
+**Launch state:** **DEPLOYMENT BLOCKED** (API host + Vercel rewrite target not yet live-verified)
+
+**Status ladder:** `LOCAL DEV READY` → `STAGING VERIFIED` → `SOFT LAUNCH READY` → `PRODUCTION LIVE` / `DEPLOYMENT BLOCKED`
 
 ## DOMAIN
 
-- [ ] DNS configured for **canonical** host (today: `aithinternational.com` = NXDOMAIN; live serve = `www.aithworld.com`)
-- [x] HTTPS valid on **www.aithworld.com** (Vercel TLS + HSTS)
-- [ ] Canonical host correct (`SITE_ORIGIN` matches what users and crawlers actually hit)
-- [x] www / non-www redirect consistent on **aithworld.com** (apex → www); **re-verify** after canonical decision
+- [x] Canonical locked: **`https://www.aithworld.com`** (`frontend/src/config/site.js`, backend default `SITE_ORIGIN`, sitemap/robots/index.html)
+- [x] HTTPS valid on **www.aithworld.com** (Vercel TLS + HSTS) — re-verify after each deploy
+- [ ] DNS re-confirmed: www resolves; apex `aithworld.com` → 301/308 to www
+- [ ] `aithinternational.com` intentionally **not** used in production configs
 
 ## FRONTEND
 
-- [ ] Production build deployed from **current** CODE READY tree (live `main.fb402376.js` is stale)
-- [ ] `REACT_APP_API_URL` configured (or same-origin `/api` proxy to real FastAPI)
-- [ ] `REACT_APP_SHOW_LEGAL_DRAFT` remains true until counsel approval (`false` only after approval)
-- [x] Sitemap file accessible on live host (`/sitemap.xml` 200) — **locs still wrong host**
-- [x] Robots accessible (`/robots.txt` 200) — **Sitemap: URL still wrong host**
-- [x] Favicon / webmanifest (200 on www)
-- [x] OG image loads on **www** (`/brand/og-image.jpg` ~59KB) — meta tags still point at dead canonical host
+- [ ] Production build deployed from **current** tree (includes direct forms + www canonical)
+- [ ] `frontend/vercel.json`: `REPLACE_WITH_API_HOST` replaced with real FastAPI host
+- [ ] Same-origin `/api` rewrite works (`/api/health` → JSON, not SPA HTML)
+- [ ] `/blog-sitemap.xml` rewrite → API
+- [ ] SPA fallback does not swallow `/api/*`
+- [ ] `REACT_APP_API_URL` empty (preferred with rewrite) or absolute API origin
+- [ ] `REACT_APP_SHOW_LEGAL_DRAFT` remains true until counsel approval
+- [x] Sitemap / robots / OG use `https://www.aithworld.com` (code)
+- [x] Favicon / webmanifest / OG image paths present
 
 ## BACKEND
 
-- [ ] FastAPI deployed to a public host
-- [ ] `MONGO_URL` + `DB_NAME` configured on **production**
-- [ ] `CORS_ORIGINS` set to explicit production origins (not `*`)
-- [ ] Healthcheck: `GET /api/health` returns JSON `status: ok` and `database: true` on **production**
+- [ ] FastAPI deployed to a public long-lived host (Railway / Render / Fly / VPS)
+- [ ] `DATABASE_URL` = Supabase **Session pooler** URI (+ SSL)
+- [ ] One-time RLS applied: `backend/sql/migrations/20260921_enable_rls.sql`
+- [ ] `CORS_ORIGINS=https://www.aithworld.com,https://aithworld.com` (not `*`)
+- [ ] `APP_ENV=production`, `ADMIN_SESSION_SECRET` ≥32, `ADMIN_COOKIE_SECURE=true`, `SITE_ORIGIN=https://www.aithworld.com`
+- [ ] Healthcheck: `GET https://<API_HOST>/api/health` → JSON `database: true`
+- [ ] Healthcheck via www: `GET https://www.aithworld.com/api/health` → same JSON
+- [ ] Pool caps understood (`DATABASE_POOL_MAX` default 5)
 - [ ] Rate limit understood (in-memory 8/IP/60s; add proxy limits for multi-instance)
-- [ ] Application logs reachable on production host
-- [ ] Startup SMTP warning reviewed if notifications incomplete
+- [ ] Application logs reachable
 
-## EMAIL
+## FORMS (direct persist — no mailto submit)
 
-- [ ] SMTP configured **or** Mongo-only monitoring owner named in writing
-- [ ] Test Contact enquiry → Mongo row + ops email (or documented Mongo-only path)
-- [ ] Test Quote request → Mongo row + ops email (or documented Mongo-only path)
-- [ ] SMTP failure after Mongo success still returns user success (verify logs show `notify=failed`)
+- [ ] Contact → Postgres row + Admin → Enquiries
+- [ ] Quote → Postgres row + Admin → Quotes
+- [ ] Careers → Postgres row + Admin → Careers
+- [ ] API down / 5xx → **error UI only** (no mail client auto-open)
+- [ ] 429 mapped to rate-limit message
+- [ ] Passive footer/contact `mailto:` links still work as contact info only
+
+## EMAIL / MONITORING
+
+- [ ] SMTP configured **or** named Admin monitoring owner + cadence in `PRODUCTION_RUNBOOK.md` §5
+- [ ] SMTP failure after Postgres success still returns user success (`notificationStatus=failed`)
 
 ## LEGAL
 
@@ -47,44 +61,59 @@ Operational go-live list. Mark items only when verified in the target environmen
 
 ## SEO
 
-- [ ] Search Console property verified for **canonical** host
-- [ ] Sitemap submitted (only after locs use canonical host and routes 200 in SPA)
-- [ ] Spot-check canonicals against serving host (no NXDOMAIN)
+- [ ] Search Console property verified for **www.aithworld.com**
+- [ ] Sitemap submitted only after locs use www and routes 200
+- [ ] Spot-check canonicals / OG against www
 
 ## ANALYTICS
 
 - [ ] Initial landing = 1 pageview
 - [ ] SPA navigations increment without duplicates
-- [ ] Session recording remains disabled (**fail on current live bundle**)
+- [ ] Session recording remains disabled
 
 ## QA
 
-- [x] Homepage loads on www (brand + hero)
-- [x] Editorial 404 for unknown path (`noindex`)
-- [ ] Desktop smoke after redeploy (nav, Process, industries, Who We Work With arrows, footer without TBD)
-- [ ] Mobile smoke (320–430 widths, grouped nav, quote CTA)
-- [ ] Contact + Request Quote happy path against **production** API
-- [ ] 404 / invalid insight / invalid industry (and SEO service routes **not** 404)
-- [ ] Keyboard + focus-visible
-- [ ] `prefers-reduced-motion`
-- [ ] Lighthouse mobile accepted or remediated (baseline Perf 35 / LCP ~9s on current live)
+- [ ] Homepage loads on www (brand + hero)
+- [ ] Desktop + mobile smoke after redeploy
+- [ ] Contact / Quote / Careers happy path against **production** API
+- [ ] 404 / invalid routes; SEO service routes not 404
+- [ ] Keyboard + `prefers-reduced-motion`
 
 ## ADMIN CMS / BLOGS
 
-- [ ] `APP_ENV=production` on API (startup enforces secret, secure cookies, explicit CORS)
-- [ ] `ADMIN_SESSION_SECRET` (32+ chars) + `ADMIN_COOKIE_SECURE=true` on HTTPS
-- [ ] Admin provisioned: `python scripts/create_admin.py`
-- [ ] Legacy weak accounts flagged: `python scripts/mark_legacy_passwords.py --apply` then rotate via `/admin/change-password`
-- [ ] Password reset path known: `python scripts/reset_admin_password.py`
-- [ ] Password policy enforced (15–128 chars / Argon2id) on create + change
-- [ ] MFA: leave `ADMIN_MFA_ENABLED=false` for soft launch **or** enable + enroll admins (P1)
-- [ ] Blogs seeded or published: `python scripts/seed_blogs.py`
-- [ ] Proxy `/blog-sitemap.xml` → API `/api/blog-sitemap.xml` (`frontend/vercel.json.example`)
+- [ ] **New** production admin created (`scripts/create_admin.py`) — not `admin@aith.local`
+- [ ] Any prod copy of leaked local admin rotated/disabled
+- [ ] Blogs seeded/published if needed (`scripts/seed_blogs.py`)
+- [ ] Public blogs: published only; draft slug 404
+- [ ] `/blog-sitemap.xml` → 200 XML
 - [ ] Unauthenticated `GET /api/admin/blogs` → 401
-- [ ] Draft slug not public; published `/blogs/{slug}` + schema OK
-- [ ] `/admin` absent from sitemap; admin pages `noindex`
-- [ ] Cover + contentImages + `media:image-id` embeds verified on a published post
-- [ ] Publishing calendar `/admin/blogs/calendar` + refresh filter `?needsRefresh=true`
-- [ ] SEO Health shows PASS/WARNING/ERROR only (no fake scores); docs: `ADMIN_CMS_GUIDE.md`, `BLOG_JSON_SCHEMA.md`, `BLOG_SEO_PLAYBOOK.md`
-- [ ] Editors cannot open Enquiries / Quotes / Careers (PII is ADMIN-only)
-- [ ] Ops docs: `PRODUCTION_RUNBOOK.md`, `ROLLBACK_PLAN.md`, `GO_LIVE_REPORT.md`
+- [ ] Admin login/logout/CMS via same-origin rewrite (cookies)
+- [ ] `/admin` `noindex`; absent from sitemap
+- [ ] Editors cannot open Enquiries / Quotes / Careers / Jobs PII
+- [ ] Ops docs current: runbook, checklist, go-live report
+
+## OPS CONSOLE / CAREERS CMS
+
+- [ ] `job_postings` (+ `ops_activity` / `ops_notes` / `ops_messages`) schema applied
+- [ ] RLS migration applied and verified (`relrowsecurity = true` for CMS tables incl. `job_postings`)
+- [ ] Production `ADMIN_SESSION_SECRET` set from environment (≥32 chars; no file fallback)
+- [ ] Public jobs API works (`GET /api/careers/jobs`)
+- [ ] Job publish → appears on `/careers` and `/careers/:slug`
+- [ ] Job apply with `jobId` → application row linked to job
+- [ ] Admin application detail: assign, notes, timeline, status
+- [ ] Enquiry/quote/application assignment works (admin assignees only)
+- [ ] CSV export for enquiries, quotes, career applications
+- [ ] Bulk status/archive requires confirm for archive
+- [ ] PII blocked for editor (403 on ops + jobs)
+- [ ] Reply delivery configured **or** UI clearly shows email not configured
+- [ ] Closed/expired roles show “no longer accepting applications” (archived page, not silent remove)
+
+## EXIT CRITERIA
+
+| Label | When |
+|-------|------|
+| LOCAL DEV READY | Local API + Postgres + forms + admin work |
+| STAGING VERIFIED | Staging host passes health + forms + admin gates |
+| SOFT LAUNCH READY | Production stack passes P0 gates; legal waiver OK |
+| PRODUCTION LIVE | Owner signs off after soft launch soak |
+| DEPLOYMENT BLOCKED | Any P0 gate fails |

@@ -1,50 +1,70 @@
 """Security regression tests for admin CMS authz (sync TestClient).
 
-Isolation: forces a unique DB_NAME per pytest worker (or process) so parallel
-runs cannot wipe each other's data. Never use production DB_NAME.
+Uses DATABASE_URL (Supabase/Postgres). Wipes CMS tables between tests —
+do not point at a production database with real content.
 """
 from __future__ import annotations
 
+import asyncio
 import os
 import uuid
 
 import pytest
 
 # --- Test env MUST be set before importing server ---
-_WORKER = os.environ.get('PYTEST_XDIST_WORKER', 'gw0')
-_TEST_DB = f"aith_test_cms_{_WORKER}_{os.getpid()}"
-os.environ['MONGO_URL'] = os.environ.get('MONGO_URL') or 'mongodb://localhost:27017'
-os.environ['DB_NAME'] = _TEST_DB
 os.environ['CORS_ORIGINS'] = 'http://localhost:3000'
 os.environ['ADMIN_SESSION_SECRET'] = 'test-secret-key-at-least-32-chars!!'
 os.environ['ADMIN_COOKIE_SECURE'] = 'false'
 os.environ['APP_ENV'] = 'test'
 os.environ.pop('ADMIN_MFA_ENABLED', None)
+# Load .env DATABASE_URL if present without overriding an explicit test URL
+if not os.environ.get('DATABASE_URL'):
+    from pathlib import Path
+    from dotenv import load_dotenv
+
+    load_dotenv(Path(__file__).resolve().parent.parent / '.env')
+
+if not os.environ.get('DATABASE_URL'):
+    pytest.skip('DATABASE_URL required for CMS tests', allow_module_level=True)
 
 from fastapi.testclient import TestClient  # noqa: E402
 
-from server import app, client as mongo_client  # noqa: E402
+from server import app  # noqa: E402
 from cms import config  # noqa: E402
+from cms.pg_store import TABLES  # noqa: E402
 from cms.security import hash_password, iso_now  # noqa: E402
+
+_API = None
+
+
+def _run(async_fn, *args, **kwargs):
+    """Run async callable on the TestClient portal (same loop as asyncpg pool)."""
+    assert _API is not None, 'TestClient fixture not active'
+    return _API.portal.call(async_fn, *args, **kwargs)
 
 
 @pytest.fixture(scope='module')
 def api():
+    global _API
     with TestClient(app) as c:
+        _API = c
         yield c
+    _API = None
 
 
 @pytest.fixture(autouse=True)
-def clean_db():
+def clean_db(api):
     from cms.auth_router import reset_login_rate_limits
 
     reset_login_rate_limits()
-    db = mongo_client[_TEST_DB]
-    for name in (
-        'admin_users', 'admin_sessions', 'blogs', 'blog_revisions',
-        'blog_redirects', 'admin_audit_logs', 'contact_submissions', 'quote_submissions',
-    ):
-        db[name].delete_many({})
+
+    async def wipe():
+        db = app.state.db
+        assert db is not None
+        for name in TABLES:
+            await getattr(db, name).delete_many({})
+
+    _run(wipe)
     yield
 
 
@@ -63,7 +83,11 @@ def _insert_user(*, email: str, role: str, must_change: bool = False, active: bo
         'mustChangePassword': must_change,
         'mfaEnabled': False,
     }
-    mongo_client[_TEST_DB].admin_users.insert_one(doc)
+
+    async def go():
+        await app.state.db.admin_users.insert_one(doc)
+
+    _run(go)
     return doc
 
 
@@ -120,6 +144,8 @@ def test_editor_cannot_access_enquiries_pii(api):
     assert res.status_code == 403
     res2 = api.get('/api/admin/quotes')
     assert res2.status_code == 403
+    assert api.get('/api/admin/careers').status_code == 403
+    assert api.get('/api/admin/jobs').status_code == 403
 
 
 def test_public_draft_not_leaked(api):

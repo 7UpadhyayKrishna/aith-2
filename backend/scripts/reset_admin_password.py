@@ -3,19 +3,14 @@
 Reset an AITH admin password securely.
 
 Usage (from backend/):
-  python scripts/reset_admin_password.py
+  py -3 scripts/reset_admin_password.py
 
-- Identifies user by email
-- Prompts for new password via getpass (never echoed / never printed)
-- Enforces production password policy
-- Rehashes with Argon2id
-- Clears mustChangePassword and sets passwordPolicyVersion
-- Invalidates all existing sessions
+Requires DATABASE_URL in environment or backend/.env.
 """
 from __future__ import annotations
 
+import asyncio
 import getpass
-import os
 import sys
 import uuid
 from datetime import datetime, timezone
@@ -28,19 +23,12 @@ from dotenv import load_dotenv
 
 load_dotenv(ROOT / '.env')
 
-from pymongo import MongoClient
-
 from cms import config
+from cms.script_db import open_db
 from cms.security import hash_password
 
 
-def main() -> int:
-    mongo_url = os.environ.get('MONGO_URL')
-    db_name = os.environ.get('DB_NAME')
-    if not mongo_url or not db_name:
-        print('MONGO_URL and DB_NAME are required.', file=sys.stderr)
-        return 1
-
+async def _run() -> int:
     email = input('Admin email to reset: ').strip().lower()
     if '@' not in email:
         print('Invalid email.', file=sys.stderr)
@@ -58,41 +46,42 @@ def main() -> int:
         )
         return 1
 
-    client = MongoClient(mongo_url)
-    db = client[db_name]
-    user = db.admin_users.find_one({'email': email})
-    if not user:
-        print('User not found.', file=sys.stderr)
-        client.close()
-        return 1
+    async with open_db() as db:
+        user = await db.admin_users.find_one({'email': email})
+        if not user:
+            print('User not found.', file=sys.stderr)
+            return 1
 
-    now = datetime.now(timezone.utc).isoformat()
-    db.admin_users.update_one(
-        {'id': user['id']},
-        {
-            '$set': {
-                'passwordHash': hash_password(password),
-                'updatedAt': now,
-                'mustChangePassword': False,
-                'passwordPolicyVersion': config.PASSWORD_POLICY_VERSION,
-            }
-        },
-    )
-    deleted = db.admin_sessions.delete_many({'userId': user['id']})
-    db.admin_audit_logs.insert_one({
-        'id': str(uuid.uuid4()),
-        'timestamp': now,
-        'adminUserId': None,
-        'action': 'PASSWORD_RESET_CLI',
-        'resourceType': 'admin_user',
-        'resourceId': user['id'],
-        'result': 'ok',
-        'meta': {'sessionsRevoked': deleted.deleted_count, 'via': 'reset_admin_password.py'},
-        'ip': None,
-    })
-    print(f'Reset password for {email}; revoked {deleted.deleted_count} session(s).')
-    client.close()
+        now = datetime.now(timezone.utc).isoformat()
+        await db.admin_users.update_one(
+            {'id': user['id']},
+            {
+                '$set': {
+                    'passwordHash': hash_password(password),
+                    'updatedAt': now,
+                    'mustChangePassword': False,
+                    'passwordPolicyVersion': config.PASSWORD_POLICY_VERSION,
+                }
+            },
+        )
+        deleted = await db.admin_sessions.delete_many({'userId': user['id']})
+        await db.admin_audit_logs.insert_one({
+            'id': str(uuid.uuid4()),
+            'timestamp': now,
+            'adminUserId': None,
+            'action': 'PASSWORD_RESET_CLI',
+            'resourceType': 'admin_user',
+            'resourceId': user['id'],
+            'result': 'ok',
+            'meta': {'sessionsRevoked': deleted.deleted_count, 'via': 'reset_admin_password.py'},
+            'ip': None,
+        })
+        print(f'Reset password for {email}; revoked {deleted.deleted_count} session(s).')
     return 0
+
+
+def main() -> int:
+    return asyncio.run(_run())
 
 
 if __name__ == '__main__':

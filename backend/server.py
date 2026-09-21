@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response as StarletteResponse
-from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 import time
@@ -20,8 +19,9 @@ from datetime import datetime, timezone
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# Fail fast on production misconfiguration before opening Mongo / admin
+# Fail fast on production misconfiguration before opening DB / admin
 from cms import config as cms_config  # noqa: E402
+from cms.pg_store import Database, create_pool, ensure_schema  # noqa: E402
 
 _prod_errors = cms_config.validate_production_security()
 if _prod_errors:
@@ -31,10 +31,13 @@ if _prod_errors:
         'FATAL: Production security configuration invalid:\n- ' + '\n- '.join(_prod_errors)
     )
 
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+_database_url = (os.environ.get('DATABASE_URL') or '').strip()
+if not _database_url:
+    raise SystemExit('FATAL: DATABASE_URL is required (Supabase Postgres connection URI).')
+
+# Pool + Database are attached on startup (async). Placeholders until then.
+pool = None  # type: ignore
+db: Database | None = None
 
 app = FastAPI(title="AITH API", docs_url=None, redoc_url=None)
 api_router = APIRouter(prefix="/api")
@@ -118,7 +121,7 @@ def _notify_ops(
     meta: Optional[Dict[str, Any]] = None,
 ) -> Tuple[str, Optional[str]]:
     """
-    Optional ops email after Mongo persistence.
+    Optional ops email after durable DB persistence.
     Returns (notificationStatus, notificationError).
     Failures never reverse a successful store.
     """
@@ -290,6 +293,9 @@ class ContactSubmission(BaseModel):
     roleInterest: Optional[str] = Field(default="", max_length=160)
     locationPreference: Optional[str] = Field(default="", max_length=120)
     linkedinOrCv: Optional[str] = Field(default="", max_length=400)
+    jobId: Optional[str] = Field(default="", max_length=80)
+    jobSlug: Optional[str] = Field(default="", max_length=120)
+    jobTitle: Optional[str] = Field(default="", max_length=200)
     website: Optional[str] = ""  # honeypot
     kind: Optional[str] = "contact"
     submittedAt: Optional[str] = None
@@ -340,8 +346,10 @@ async def health(request: Request):
     """Liveness/readiness for deploy monitors. No secrets or connection strings."""
     db_ok = False
     try:
-        await db.command('ping')
-        db_ok = True
+        database = getattr(request.app.state, 'db', None) or db
+        if database is not None:
+            await database.command('ping')
+            db_ok = True
     except Exception:
         logger.warning(
             'health: database ping failed request_id=%s',
@@ -379,9 +387,57 @@ async def submit_contact(payload: ContactSubmission, request: Request):
     doc['notificationStatus'] = 'pending'
     doc['requestId'] = request_id
     doc['internalStatus'] = 'new'
+
+    if kind == 'careers':
+        from cms.ops_workflow import append_activity, job_accepting_applications
+
+        job_id = (payload.jobId or '').strip()
+        if job_id:
+            job = await db.job_postings.find_one({'id': job_id}, {'_id': 0})
+            if not job:
+                raise HTTPException(status_code=400, detail='Referenced job does not exist')
+            if not job_accepting_applications(job):
+                raise HTTPException(
+                    status_code=400,
+                    detail='This role is no longer accepting applications',
+                )
+            # Persist relationship from trusted job record - do not trust client title
+            doc['jobId'] = job['id']
+            doc['jobSlug'] = job.get('slug')
+            doc['jobTitle'] = job.get('title')
+            doc['jobTeam'] = job.get('team')
+            doc['roleInterest'] = job.get('title') or payload.roleInterest
+        elif (payload.jobSlug or '').strip():
+            raise HTTPException(
+                status_code=400,
+                detail='jobId is required when applying to a specific role',
+            )
+
     collection = db.career_submissions if kind == 'careers' else db.contact_submissions
     await collection.insert_one(doc)
     logger.info('enquiry stored=yes type=%s id=%s request_id=%s', kind, doc_id, request_id)
+
+    if kind == 'careers':
+        from cms.ops_workflow import append_activity
+
+        await append_activity(
+            db,
+            record_type='career_application',
+            record_id=doc_id,
+            event_type='applied',
+            summary=f"Application received{(' for ' + doc['jobTitle']) if doc.get('jobTitle') else ''}",
+            meta={'jobId': doc.get('jobId')},
+        )
+    else:
+        from cms.ops_workflow import append_activity
+
+        await append_activity(
+            db,
+            record_type='enquiry',
+            record_id=doc_id,
+            event_type='created',
+            summary='Enquiry received',
+        )
 
     status, error = _notify_ops(
         kind=kind,
@@ -392,7 +448,7 @@ async def submit_contact(payload: ContactSubmission, request: Request):
     )
     await _patch_notification(collection, doc_id, status, error)
 
-    # Mongo success is durable - always return success to the user
+    # Persist success is durable - always return success to the user
     return {'ok': True, 'id': doc_id, 'notificationStatus': status}
 
 
@@ -426,6 +482,17 @@ async def submit_quote(payload: QuoteSubmission, request: Request):
         request_id,
     )
 
+    from cms.ops_workflow import append_activity
+
+    await append_activity(
+        db,
+        record_type='quote',
+        record_id=doc_id,
+        event_type='created',
+        summary=f'Quote request {reference}',
+        meta={'reference': reference},
+    )
+
     status, error = _notify_ops(
         kind='quote',
         subject=f"New AITH quote request - {reference} - {_header_safe(payload.product, 60)}",
@@ -445,16 +512,15 @@ from cms.auth_router import router as admin_auth_router  # noqa: E402
 from cms.blogs_admin_router import router as admin_blogs_router  # noqa: E402
 from cms.blogs_public_router import router as blogs_public_router  # noqa: E402
 from cms.ops_router import router as admin_ops_router  # noqa: E402
+from cms.ops_console import router as admin_ops_console_router  # noqa: E402
 
 api_router_cms = APIRouter(prefix='/api')
 api_router_cms.include_router(admin_auth_router)
 api_router_cms.include_router(admin_blogs_router)
 api_router_cms.include_router(admin_ops_router)
+api_router_cms.include_router(admin_ops_console_router)
 api_router_cms.include_router(blogs_public_router)
 app.include_router(api_router_cms)
-
-# Expose db on app.state for CMS deps
-app.state.db = db
 
 _cors_raw = os.environ.get('CORS_ORIGINS', '*').strip()
 _cors_origins = [o.strip() for o in _cors_raw.split(',') if o.strip()]
@@ -520,52 +586,51 @@ logging.basicConfig(
 )
 
 
-async def _ensure_cms_indexes() -> None:
-    """Create required indexes (idempotent)."""
-    try:
-        await db.admin_users.create_index('email', unique=True)
-        await db.admin_users.create_index('id', unique=True)
-        await db.admin_sessions.create_index('sessionHash', unique=True)
-        await db.admin_sessions.create_index('userId')
-        # TTL: Mongo removes session docs after expiresAt (ISO date stored as datetime preferred)
-        # Sessions store ISO strings - convert-friendly expireAfterSeconds on a datetime field.
-        # We also store expiresAtDate as BSON date for TTL when creating sessions.
-        await db.admin_sessions.create_index('expiresAtDate', expireAfterSeconds=0)
-        await db.blogs.create_index('slug', unique=True)
-        await db.blogs.create_index('id', unique=True)
-        await db.blogs.create_index([('status', 1), ('publishedAt', -1)])
-        await db.blogs.create_index('updatedAt')
-        await db.blog_revisions.create_index([('blogId', 1), ('timestamp', -1)])
-        await db.blog_redirects.create_index('fromSlug', unique=True)
-        await db.admin_audit_logs.create_index([('timestamp', -1)])
-        await db.admin_audit_logs.create_index('adminUserId')
-        await db.admin_audit_logs.create_index('action')
-        await db.contact_submissions.create_index('createdAt')
-        await db.contact_submissions.create_index('internalStatus')
-        await db.quote_submissions.create_index('createdAt')
-        await db.quote_submissions.create_index('internalStatus')
-        await db.career_submissions.create_index('createdAt')
-        logger.info('CMS indexes ensured')
-    except Exception:
-        logger.exception('Failed to ensure CMS indexes')
-
-
 @app.on_event('startup')
 async def startup_checks():
+    global pool, db
+    pool = await create_pool(_database_url)
+    db = Database(pool)
     app.state.db = db
-    await _ensure_cms_indexes()
+    try:
+        await ensure_schema(pool)
+    except Exception:
+        logger.exception('Failed to ensure Postgres schema - apply backend/sql/schema.sql manually')
+        raise
+    # Purge expired admin sessions (replaces Mongo TTL index)
+    try:
+        from cms.security import utcnow
+
+        now = utcnow().isoformat()
+        expired = [
+            d
+            async for d in db.admin_sessions.find({})
+        ]
+        stale_ids = [
+            d['id']
+            for d in expired
+            if (d.get('expiresAt') and d['expiresAt'] < now)
+            or (d.get('idleExpiresAt') and d['idleExpiresAt'] < now)
+        ]
+        if stale_ids:
+            await db.admin_sessions.delete_many({'id': {'$in': stale_ids}})
+            logger.info('Purged %s expired admin sessions', len(stale_ids))
+    except Exception:
+        logger.exception('Session purge skipped')
+
     if cms_config.is_production():
         logger.info('APP_ENV=production - strict security validation applied at import')
     elif not os.environ.get('ADMIN_SESSION_SECRET'):
         logger.warning(
-            'ADMIN_SESSION_SECRET is not set - using ephemeral secret (sessions reset on restart). '
-            'Set a 32+ char secret before production.'
+            'ADMIN_SESSION_SECRET is not set - using local .admin_session_secret file fallback '
+            '(dev only). Production must set ADMIN_SESSION_SECRET (≥32 chars) in the environment; '
+            'startup fails closed when APP_ENV=production.'
         )
     if not cms_config.COOKIE_SECURE and not cms_config.is_production():
         logger.info('ADMIN_COOKIE_SECURE=false (dev). Must be true behind HTTPS in production.')
     state = _smtp_startup_state()
     if state == 'disabled':
-        logger.info('SMTP notifications: disabled (no SMTP env set) - Mongo-only mode')
+        logger.info('SMTP notifications: disabled (no SMTP env set) - DB-only mode')
     elif state == 'incomplete':
         present = _smtp_present_keys()
         logger.warning(
@@ -577,14 +642,18 @@ async def startup_checks():
         logger.info('SMTP notifications: enabled → %s', os.environ.get('OPS_NOTIFICATION_EMAIL'))
     if '*' in _cors_origins:
         logger.warning(
-            'CORS_ORIGINS is wildcard (*). Set explicit production origins (e.g. https://aithinternational.com).'
+            'CORS_ORIGINS is wildcard (*). Set explicit production origins (e.g. https://www.aithworld.com).'
         )
     if cms_config.MFA_ENABLED:
         logger.info('Admin MFA (TOTP) feature flag ENABLED')
     else:
         logger.info('Admin MFA (TOTP) feature flag disabled - set ADMIN_MFA_ENABLED=true to activate')
+    logger.info('Database: Supabase Postgres (DATABASE_URL)')
 
 
 @app.on_event('shutdown')
 async def shutdown_db_client():
-    client.close()
+    global pool
+    if pool is not None:
+        await pool.close()
+        pool = None

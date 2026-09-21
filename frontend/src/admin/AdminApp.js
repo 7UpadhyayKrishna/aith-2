@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import * as api from '@/services/adminApi';
 import { AdminAuthContext } from './AdminAuthContext';
@@ -12,12 +12,17 @@ import AdminBlogPreview from './AdminBlogPreview';
 import AdminBlogImport from './AdminBlogImport';
 import AdminBlogCalendar from './AdminBlogCalendar';
 import AdminEnquiries from './AdminEnquiries';
+import AdminEnquiryDetail from './AdminEnquiryDetail';
 import AdminQuotes from './AdminQuotes';
-import AdminCareers from './AdminCareers';
+import AdminQuoteDetail from './AdminQuoteDetail';
+import AdminCareersLayout, { AdminCareerApplications, AdminJobList } from './AdminCareers';
+import AdminCareerDetail from './AdminCareerDetail';
+import AdminJobEditor from './AdminJobEditor';
 import AdminSeo from './AdminSeo';
 import AdminUsers from './AdminUsers';
 import AdminAudit from './AdminAudit';
 import AdminSystem from './AdminSystem';
+import AdminSecurity from './AdminSecurity';
 
 export { useAdminAuth } from './AdminAuthContext';
 
@@ -27,6 +32,8 @@ export default function AdminApp() {
     const [authError, setAuthError] = useState('');
     const [sessionExpired, setSessionExpired] = useState(false);
     const navigate = useNavigate();
+    const userRef = useRef(null);
+    userRef.current = user;
 
     const refreshMe = useCallback(async () => {
         const data = await api.me();
@@ -34,12 +41,35 @@ export default function AdminApp() {
         return data.user;
     }, []);
 
+    const handleSessionExpired = useCallback((detail) => {
+        if (!userRef.current) return;
+        setUser(null);
+        setSessionExpired(true);
+        const msg = String(detail || '');
+        if (/session expired/i.test(msg)) {
+            setAuthError('Your admin session expired. Please sign in again.');
+        } else if (/account inactive/i.test(msg)) {
+            setAuthError('This admin account is inactive.');
+        } else {
+            setAuthError('Please sign in again to continue.');
+        }
+    }, []);
+
+    useEffect(() => {
+        api.setUnauthorizedHandler(handleSessionExpired);
+        return () => api.setUnauthorizedHandler(null);
+    }, [handleSessionExpired]);
+
     useEffect(() => {
         let cancelled = false;
         (async () => {
             try {
                 const data = await api.me();
-                if (!cancelled) setUser(data.user);
+                if (!cancelled) {
+                    setUser(data.user);
+                    setSessionExpired(false);
+                    setAuthError('');
+                }
             } catch {
                 if (!cancelled) setUser(null);
             } finally {
@@ -63,14 +93,31 @@ export default function AdminApp() {
                     err.mfaRequired = true;
                     throw err;
                 }
-                setUser(data.user);
-                if (data.user?.mustChangePassword) {
+
+                // Confirm HttpOnly cookie stuck (same-origin proxy / Secure flag).
+                let sessionUser = data.user;
+                try {
+                    const verified = await api.me();
+                    sessionUser = verified.user || data.user;
+                    setUser(sessionUser);
+                } catch {
+                    setUser(null);
+                    setAuthError(
+                        'Signed in, but the session cookie was not kept. Use the CRA proxy (/api → backend) and keep ADMIN_COOKIE_SECURE=false on http://localhost.'
+                    );
+                    const err = new Error('SESSION_COOKIE_FAILED');
+                    err.status = 401;
+                    throw err;
+                }
+
+                if (sessionUser?.mustChangePassword) {
                     navigate('/admin/change-password', { replace: true });
                 } else {
                     navigate('/admin', { replace: true });
                 }
             } catch (err) {
                 if (err?.mfaRequired) throw err;
+                if (err?.message === 'SESSION_COOKIE_FAILED') throw err;
                 const status = err?.status;
                 if (status === 401) {
                     setAuthError('Invalid credentials.');
@@ -96,14 +143,10 @@ export default function AdminApp() {
             /* clear local auth regardless */
         }
         setUser(null);
+        setSessionExpired(false);
+        setAuthError('');
         navigate('/admin', { replace: true });
     }, [navigate]);
-
-    const handleSessionExpired = useCallback(() => {
-        setUser(null);
-        setSessionExpired(true);
-        setAuthError('Your admin session expired. Please sign in again.');
-    }, []);
 
     const value = useMemo(
         () => ({
@@ -130,7 +173,7 @@ export default function AdminApp() {
     if (!user) {
         return (
             <AdminAuthContext.Provider value={value}>
-                <AdminLogin onSubmit={handleLogin} error={authError} />
+                <AdminLogin onSubmit={handleLogin} error={authError} sessionExpired={sessionExpired} />
             </AdminAuthContext.Provider>
         );
     }
@@ -155,13 +198,22 @@ export default function AdminApp() {
                     <Route path="blogs/:id" element={<AdminBlogEditor />} />
                     <Route path="blogs/:id/preview" element={<AdminBlogPreview />} />
                     <Route path="enquiries" element={<AdminEnquiries />} />
+                    <Route path="enquiries/:id" element={<AdminEnquiryDetail />} />
                     <Route path="quotes" element={<AdminQuotes />} />
-                    <Route path="careers" element={<AdminCareers />} />
+                    <Route path="quotes/:id" element={<AdminQuoteDetail />} />
+                    <Route path="careers" element={<AdminCareersLayout />}>
+                        <Route index element={<AdminCareerApplications />} />
+                        <Route path="jobs" element={<AdminJobList />} />
+                        <Route path="jobs/new" element={<AdminJobEditor />} />
+                        <Route path="jobs/:id" element={<AdminJobEditor />} />
+                    </Route>
+                    <Route path="careers/applications/:id" element={<AdminCareerDetail />} />
                     <Route path="seo" element={<AdminSeo />} />
                     <Route path="users" element={<AdminUsers />} />
                     <Route path="audit" element={<AdminAudit />} />
                     <Route path="system" element={<AdminSystem />} />
                     <Route path="change-password" element={<AdminChangePassword />} />
+                    <Route path="account/security" element={<AdminSecurity />} />
                     <Route path="*" element={<Navigate to="/admin" replace />} />
                 </Route>
             </Routes>

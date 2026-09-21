@@ -1,7 +1,8 @@
 /**
  * Careers / open roles for AITH.
- * Only roles with published: true appear on /careers.
- * Toggle `published` when hiring - keep drafts here so postings stay consistent.
+ * Static fallback when the API has no published jobs yet.
+ * Prefer managing openings in Admin → Careers → Job openings (Postgres).
+ * Only roles with published: true appear on /careers when using this fallback.
  */
 
 export const OPEN_ROLES = [

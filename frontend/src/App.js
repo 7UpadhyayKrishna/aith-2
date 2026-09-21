@@ -24,6 +24,7 @@ const QualityCompliance = lazy(() => import('@/pages/QualityCompliance'));
 const Privacy = lazy(() => import('@/pages/Privacy'));
 const Terms = lazy(() => import('@/pages/Terms'));
 const Careers = lazy(() => import('@/pages/Careers'));
+const CareersJob = lazy(() => import('@/pages/CareersJob'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
 const ServiceSeoPage = lazy(() => import('@/pages/ServiceSeoPage'));
 const IndustriesIndex = lazy(() => import('@/pages/IndustriesIndex'));
@@ -204,6 +205,7 @@ function AppLayout() {
                     <Route path="/privacy" element={<Privacy />} />
                     <Route path="/terms" element={<Terms />} />
                     <Route path="/careers" element={<Careers />} />
+                    <Route path="/careers/:slug" element={<CareersJob />} />
                     <Route path="/request-quote" element={<RequestQuote />} />
                     <Route path="*" element={<NotFound />} />
                 </Routes>

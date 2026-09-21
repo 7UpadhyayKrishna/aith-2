@@ -179,3 +179,63 @@ async def resolve_redirect(slug: str, db=Depends(get_db)):
         raise HTTPException(status_code=404, detail='Not found')
     target = f"{config.SITE_ORIGIN}/blogs/{red['toSlug']}"
     return RedirectResponse(url=target, status_code=301)
+
+
+def _serialize_public_job(d: dict) -> dict:
+    from cms.ops_workflow import serialize_job
+
+    out = serialize_job(d, include_private=False)
+    # Public payload only
+    return {
+        'id': out['id'],
+        'slug': out['slug'],
+        'title': out['title'],
+        'team': out['team'],
+        'location': out['location'],
+        'type': out['type'],
+        'experienceLevel': out.get('experienceLevel') or '',
+        'blurb': out['blurb'],
+        'descriptionMarkdown': out.get('descriptionMarkdown') or '',
+        'responsibilities': out['responsibilities'],
+        'requirements': out['requirements'],
+        'salaryMin': out.get('salaryMin'),
+        'salaryMax': out.get('salaryMax'),
+        'salaryCurrency': out.get('salaryCurrency') or '',
+        'salaryPeriod': out.get('salaryPeriod') or '',
+        'applicationDeadline': out.get('applicationDeadline'),
+        'coverImage': out.get('coverImage') or {'url': '', 'alt': ''},
+        'postedAt': out.get('postedAt'),
+        'status': out.get('status'),
+        'acceptingApplications': out.get('acceptingApplications', False),
+    }
+
+
+@router.get('/careers/jobs')
+async def list_public_jobs(db=Depends(get_db)):
+    """
+    Open roles for /careers.
+    Only published roles still accepting applications.
+    Empty list when none — do not fall back to static careers.js.
+    """
+    from cms.ops_workflow import job_accepting_applications
+
+    items = []
+    async for d in db.job_postings.find({'status': 'published'}, {'_id': 0}).sort('postedAt', -1).limit(100):
+        if job_accepting_applications(d):
+            items.append(_serialize_public_job(d))
+    return {'items': items, 'total': len(items)}
+
+
+@router.get('/careers/jobs/{slug}')
+async def get_public_job(slug: str, db=Depends(get_db)):
+    """
+    Public job detail.
+
+    Behavior for closed/expired roles: return an archived-style page (HTTP 200)
+    with acceptingApplications=false rather than 404, so SEO/history can remain.
+    Draft jobs are 404.
+    """
+    d = await db.job_postings.find_one({'slug': slug.strip().lower()}, {'_id': 0})
+    if not d or (d.get('status') or 'draft') == 'draft':
+        raise HTTPException(status_code=404, detail='Not found')
+    return _serialize_public_job(d)

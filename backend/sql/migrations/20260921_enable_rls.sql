@@ -1,0 +1,17 @@
+-- One-time: enable RLS so PostgREST anon/authenticated cannot read CMS tables.
+-- Apply manually in Supabase SQL editor (or psql). Safe to re-run.
+-- Table owner / DATABASE_URL role bypasses RLS.
+
+ALTER TABLE admin_users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE admin_sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE admin_audit_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE blogs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE blog_revisions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE blog_redirects ENABLE ROW LEVEL SECURITY;
+ALTER TABLE contact_submissions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE quote_submissions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE career_submissions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE job_postings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE ops_activity ENABLE ROW LEVEL SECURITY;
+ALTER TABLE ops_notes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE ops_messages ENABLE ROW LEVEL SECURITY;
