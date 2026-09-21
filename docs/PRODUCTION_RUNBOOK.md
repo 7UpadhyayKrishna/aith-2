@@ -33,12 +33,14 @@ Same-origin `/api` via Vercel rewrites (`frontend/vercel.json`) keeps admin Http
 ### Frontend (Vercel)
 
 1. Confirm DNS: www + apex→www; `SITE_ORIGIN` in backend + `frontend/src/config/site.js` + `public/sitemap.xml` / `robots.txt` / `index.html` all use `https://www.aithworld.com`.
-2. Edit `frontend/vercel.json`: replace `REPLACE_WITH_API_HOST` with the real FastAPI hostname (no `https://` duplication — destination already includes scheme).
-3. Set frontend env:
-   - `REACT_APP_API_URL` — **empty** when `/api` is rewritten same-origin; otherwise absolute API origin
-   - `REACT_APP_SHOW_LEGAL_DRAFT=true` until counsel approval
+2. Ensure API rewrites are live on Vercel:
+   - Prefer repo-root `vercel.json` (Root Directory = `.`) **or** `frontend/vercel.json` when Root Directory = `frontend`.
+   - Proxy `/api/:path*` → `https://aith-production.up.railway.app/api/:path*` (change host if Railway URL differs).
+   - Leave `REACT_APP_API_URL` empty (same-origin `/api`).
+   - **Redeploy production** after rewrite changes (a GitHub merge does nothing if Vercel auto-deploy is off / Root Directory ignores the file).
+3. Set `REACT_APP_SHOW_LEGAL_DRAFT=true` until counsel approval.
 4. `cd frontend && npm ci && npm run build`
-5. Deploy; smoke `/`, `/contact`, `/blogs`, `/admin` (`noindex`), and `https://www.aithworld.com/api/health` → **JSON** (not SPA HTML).
+5. Smoke `/`, `/contact`, `/blogs`, `/admin` (`noindex`), and `https://www.aithworld.com/api/health` → **JSON** (`database: true`), not SPA HTML/404.
 
 ### Backend (FastAPI)
 
