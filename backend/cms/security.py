@@ -141,7 +141,7 @@ def os_environ_cors() -> list:
 
 
 def public_user(doc: dict) -> dict[str, Any]:
-    # mustChangePassword is set explicitly by migration / reset scripts — never inferred from Argon2.
+    # mustChangePassword is set explicitly by migration / reset scripts - never inferred from Argon2.
     policy_ver = int(doc.get('passwordPolicyVersion') or config.PASSWORD_POLICY_VERSION)
     must_change = bool(doc.get('mustChangePassword'))
     mfa_enabled = bool(doc.get('mfaEnabled'))

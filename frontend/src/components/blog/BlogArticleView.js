@@ -28,7 +28,7 @@ function resolveMarkdownImages(markdown, contentImages = []) {
 
 /**
  * Shared public + admin preview article body.
- * Markdown only — no heavy WYSIWYG deps.
+ * Markdown only - no heavy WYSIWYG deps.
  */
 export default function BlogArticleView({ blog, showMeta = true }) {
     if (!blog) return null;

@@ -62,7 +62,7 @@ const ScrollManager = () => {
     return null;
 };
 
-/** SPA route pageviews for PostHog — skip duplicate of first auto pageview */
+/** SPA route pageviews for PostHog - skip duplicate of first auto pageview */
 const AnalyticsPageviews = () => {
     const { pathname, search } = useLocation();
     const first = useRef(true);

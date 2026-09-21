@@ -100,7 +100,7 @@ export default function Contact() {
         try {
             const result = await submitContact(form);
             if (result.mode === 'mailto' && result.mailto) {
-                // Mailto is a client fallback — not equivalent to server persistence
+                // Mailto is a client fallback - not equivalent to server persistence
                 setStatus('success-mailto');
                 window.location.href = result.mailto;
             } else if (result.ok && result.mode === 'api') {
@@ -138,7 +138,7 @@ export default function Contact() {
         <main id="main-content" className="overflow-x-clip">
             <Seo
                 title="Contact"
-                description="Contact Asian International Trade House in New Delhi — trade enquiries, partnership requests and sourcing conversations."
+                description="Contact Asian International Trade House in New Delhi - trade enquiries, partnership requests and sourcing conversations."
                 path="/contact"
             />
             <PageHero

@@ -17,7 +17,7 @@ const SECTIONS = [
     {
         id: 'collect',
         h: 'Information we collect',
-        p: `When you use Contact, Careers or Request Quote forms, we collect the details you submit — such as name, email, company, phone, country and trade requirement text. Server infrastructure may generate technical logs (for example IP address, request time and user agent). Analytics tools configured in production may collect page-view and device information. A full processor inventory will be confirmed by counsel before this notice is treated as final.`,
+        p: `When you use Contact, Careers or Request Quote forms, we collect the details you submit - such as name, email, company, phone, country and trade requirement text. Server infrastructure may generate technical logs (for example IP address, request time and user agent). Analytics tools configured in production may collect page-view and device information. A full processor inventory will be confirmed by counsel before this notice is treated as final.`,
     },
     {
         id: 'use',
@@ -74,7 +74,7 @@ export default function Privacy() {
                 <div className="max-w-3xl print:max-w-none">
                     {SHOW_LEGAL_DRAFT_BANNER && LEGAL_STATUS === 'draft' && (
                         <p className="font-mono text-[10px] tracking-[0.22em] uppercase text-mute mb-4" data-legal-status="draft">
-                            Draft — for review
+                            Draft - for review
                         </p>
                     )}
                     <Tag index="01" label="Notice" />
@@ -93,7 +93,7 @@ export default function Privacy() {
                                         href={`#${s.id}`}
                                         className="text-sm text-graphite/80 hover:text-copper transition-colors duration-300 ease-editorial"
                                     >
-                                        {String(i + 1).padStart(2, '0')} — {s.h}
+                                        {String(i + 1).padStart(2, '0')} - {s.h}
                                     </a>
                                 </li>
                             ))}

@@ -1,4 +1,4 @@
-/** Shared admin UI primitives — dense, calm, AITH brand tokens. */
+/** Shared admin UI primitives - dense, calm, AITH brand tokens. */
 
 export const field =
     'w-full border border-graphite/20 bg-white px-2.5 py-2 text-sm text-graphite outline-none focus-visible:border-copper focus-visible:ring-1 focus-visible:ring-copper/40';
@@ -34,7 +34,7 @@ export function statusTone(status) {
 }
 
 export function fmtDate(iso) {
-    if (!iso) return '—';
+    if (!iso) return '-';
     try {
         return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
     } catch {
@@ -43,7 +43,7 @@ export function fmtDate(iso) {
 }
 
 export function fmtDateTime(iso) {
-    if (!iso) return '—';
+    if (!iso) return '-';
     try {
         return new Date(iso).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' });
     } catch {

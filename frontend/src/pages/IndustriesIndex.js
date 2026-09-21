@@ -14,7 +14,7 @@ export default function IndustriesIndex() {
         <main id="main-content">
             <Seo
                 title={seo?.title || 'Industries We Source For'}
-                description={seo?.description || 'Healthcare, agriculture, minerals, chemicals and textiles — industry sourcing coordinated from India and Asia.'}
+                description={seo?.description || 'Healthcare, agriculture, minerals, chemicals and textiles - industry sourcing coordinated from India and Asia.'}
                 path="/industries"
                 jsonLd={breadcrumbJsonLd([
                     { name: 'Home', path: '/' },

@@ -13,7 +13,7 @@ export default function Products() {
         <main id="main-content">
             <Seo
                 title="Products Sourced from India | Healthcare to Textiles"
-                description="Healthcare, agriculture, minerals, chemicals and textiles — products, materials and commodities sourced through Asian International Trade House."
+                description="Healthcare, agriculture, minerals, chemicals and textiles - products, materials and commodities sourced through Asian International Trade House."
                 path="/products"
             />
             <section className="relative bg-forest text-ivory overflow-hidden" data-testid="products-hero">
@@ -36,7 +36,7 @@ export default function Products() {
                     </h1>
                     <Fade delay={0.4}>
                         <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-ivory/45 mt-10">
-                            5 Categories — Healthcare / Agriculture / Minerals / Chemicals / Textiles
+                            5 Categories - Healthcare / Agriculture / Minerals / Chemicals / Textiles
                         </p>
                     </Fade>
                 </div>

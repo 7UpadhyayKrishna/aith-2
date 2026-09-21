@@ -45,7 +45,7 @@ export default function Services() {
         <main id="main-content">
             <Seo
                 title="Import Export & Sourcing Services in India"
-                description="Global sourcing, import & export, procurement, documentation and freight coordination — structured trade services from Asian International Trade House."
+                description="Global sourcing, import & export, procurement, documentation and freight coordination - structured trade services from Asian International Trade House."
                 path="/services"
             />
             <PageHero
@@ -56,7 +56,7 @@ export default function Services() {
                 ]}
                 titleLines={['SOLUTIONS FOR', 'REAL TRADE.']}
                 italicLast
-                lead="From supplier discovery to destination delivery — five core capabilities, plus the freight and documentation work that makes a shipment bankable."
+                lead="From supplier discovery to destination delivery - five core capabilities, plus the freight and documentation work that makes a shipment bankable."
                 primaryCta={{ to: '/request-quote', label: 'Start a requirement', testId: 'services-quote-cta' }}
                 secondaryCta={{ to: '/faq', label: 'Read FAQs', testId: 'services-faq-cta' }}
                 testId="services-hero"
@@ -121,9 +121,7 @@ export default function Services() {
                 <Tag index="02" label="Service Guides" dark />
                 <h2 className="text-[clamp(2.2rem,5vw,4rem)] leading-[0.95] tracking-[-0.03em] font-extrabold mt-10 max-w-3xl">
                     <Line>Guides for buyers</Line>
-                    <Line delay={0.1}>
-                        <span className="font-serif italic font-normal">and procurement teams.</span>
-                    </Line>
+                    <Line delay={0.1}>and procurement teams.</Line>
                 </h2>
                 <ul className="mt-14 grid md:grid-cols-2 gap-x-10 gap-y-8">
                     {DEEP_SERVICES.map((s) => (

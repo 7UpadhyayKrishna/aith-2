@@ -1,7 +1,7 @@
 /**
  * Central business configuration for AITH.
  * Unknown commercial values stay null / [TBD] and must not render in customer UI
- * until confirmed — use isConfigured() before display.
+ * until confirmed - use isConfigured() before display.
  */
 
 import { SITE_NAME, SITE_SHORT, SITE_ORIGIN, SITE_EMAIL, SOCIAL } from '../config/site';
@@ -22,9 +22,9 @@ export const COMPANY = {
     phoneTel: '+911147025456',
     whatsapp: null, // [TBD]
     addressLine1: 'No. 901, Devika Tower, Nehru Place',
-    addressLine2: 'New Delhi — 110019, India',
+    addressLine2: 'New Delhi - 110019, India',
     corporateOffice:
-        '210A, 2nd Floor, Seethakathi Business Center, Anna Salai, Chennai — 600 006',
+        '210A, 2nd Floor, Seethakathi Business Center, Anna Salai, Chennai - 600 006',
     branches: ['Dubai, UAE', 'Singapore', 'Jakarta, Indonesia', 'Thimphu, Bhutan'],
     gstin: '07AGNPR2321L2Z3',
     coordinates: "28°36'N 77°13'E",

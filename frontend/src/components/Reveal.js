@@ -1,12 +1,12 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { motion, useInView, useReducedMotion } from 'framer-motion';
 
-/** Shared editorial ease — matches CSS cubic-bezier(0.16, 1, 0.3, 1) / ease-editorial */
+/** Shared editorial ease - matches CSS cubic-bezier(0.16, 1, 0.3, 1) / ease-editorial */
 export const EASE = [0.16, 1, 0.3, 1];
 
 /**
  * Motion vocabulary (seconds for Framer; CSS uses ms utilities in Tailwind):
- * MICRO ~0.18–0.26 | STANDARD ~0.28–0.42 | EDITORIAL REVEAL ~0.6–1.2
+ * MICRO ~0.18-0.26 | STANDARD ~0.28-0.42 | EDITORIAL REVEAL ~0.6-1.2
  */
 export const MOTION = {
     micro: 0.22,
@@ -15,18 +15,30 @@ export const MOTION = {
     line: 1.05,
 };
 
+/**
+ * Slide-up line reveal. Mask clips during the motion, then opens so g/y/p
+ * descenders aren't shaved off under tight headline leading.
+ */
 export const Line = ({ children, delay = 0, className = '' }) => {
     const ref = useRef(null);
     const inView = useInView(ref, { once: true, margin: '-6% 0px -6% 0px' });
     const reduce = useReducedMotion();
     const show = reduce || inView;
+    const [maskOff, setMaskOff] = useState(!!reduce);
+
     return (
-        <span ref={ref} className={`block overflow-hidden ${className}`}>
+        <span
+            ref={ref}
+            className={`block ${maskOff ? 'overflow-visible' : 'overflow-hidden pb-[0.28em] -mb-[0.28em]'} ${className}`}
+        >
             <motion.span
-                className="block"
+                className="block leading-[1.12]"
                 initial={false}
-                animate={{ y: show ? '0%' : '112%' }}
+                animate={{ y: show ? '0%' : '115%' }}
                 transition={{ duration: reduce ? 0 : 1.05, ease: EASE, delay: reduce ? 0 : delay }}
+                onAnimationComplete={() => {
+                    if (show) setMaskOff(true);
+                }}
             >
                 {children}
             </motion.span>

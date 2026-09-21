@@ -43,12 +43,12 @@ export default function Discovery({ withShowcase = true }) {
                 {results ? (
                     <div className="mt-12" data-testid="product-search-results">
                         <p className="font-mono text-[10px] tracking-[0.3em] uppercase text-mute mb-4">
-                            {results.length} result{results.length === 1 ? '' : 's'} — "{query}"
+                            {results.length} result{results.length === 1 ? '' : 's'} - "{query}"
                         </p>
                         {results.length === 0 ? (
                             <div className="border-t border-graphite/15 py-8">
                                 <p className="text-mute text-base max-w-lg">
-                                    Not in the catalogue — that doesn't mean we can't source it. Send us the specification.
+                                    Not in the catalogue - that doesn't mean we can't source it. Send us the specification.
                                 </p>
                                 <Link
                                     to="/request-quote?type=sourcing"
@@ -177,7 +177,7 @@ export default function Discovery({ withShowcase = true }) {
                     <div className="relative z-10 h-full flex flex-col justify-between p-6 lg:p-12">
                         <Fade y={10}>
                             <div className="flex justify-between font-mono text-[10px] tracking-[0.3em] uppercase text-ivory/60">
-                                <span>Featured Category — 04</span>
+                                <span>Featured Category - 04</span>
                                 <span className="hidden md:block">Sector / Agriculture</span>
                             </div>
                         </Fade>

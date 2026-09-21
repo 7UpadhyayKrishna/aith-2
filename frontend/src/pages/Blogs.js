@@ -55,7 +55,7 @@ export default function Blogs() {
                     category: category || undefined,
                     search: search || undefined,
                 });
-                // Featured is best-effort — never fail the archive if it errors.
+                // Featured is best-effort - never fail the archive if it errors.
                 const featPromise = wantFeatured
                     ? listBlogs({ featured: true, limit: 1 }).catch(() => EMPTY_LIST)
                     : Promise.resolve(null);
@@ -109,7 +109,7 @@ export default function Blogs() {
     return (
         <main id="main-content" className="overflow-x-clip" data-testid="blogs-page">
             <Seo
-                title={filtered ? 'Trade Journal — Filtered' : 'Trade Journal'}
+                title={filtered ? 'Trade Journal - Filtered' : 'Trade Journal'}
                 description="Sourcing, procurement, documentation and trade operations notes from Asian International Trade House."
                 path="/blogs"
                 noIndex={filtered}
@@ -134,7 +134,7 @@ export default function Blogs() {
                 </h1>
                 <Fade delay={0.45}>
                     <p className="text-ivory/65 text-sm lg:text-base leading-relaxed mt-10 max-w-xl">
-                        Practical notes on sourcing, documentation and moving goods — written for buyers and operators.
+                        Practical notes on sourcing, documentation and moving goods - written for buyers and operators.
                     </p>
                 </Fade>
             </section>
@@ -240,7 +240,7 @@ export default function Blogs() {
                         <div className="lg:col-span-5 min-w-0">
                             <p className="font-mono text-[10px] tracking-[0.25em] uppercase text-copper">
                                 {featured.category}
-                                {featured.publishedAt ? ` — ${fmt(featured.publishedAt)}` : ''}
+                                {featured.publishedAt ? ` - ${fmt(featured.publishedAt)}` : ''}
                             </p>
                             <h2 className="text-3xl lg:text-5xl font-extrabold tracking-tight leading-[1.02] mt-5">
                                 {featured.title}
@@ -286,7 +286,7 @@ export default function Blogs() {
                                             </div>
                                             <p className="font-mono text-[10px] tracking-[0.22em] uppercase text-copper">
                                                 {b.category}
-                                                {b.publishedAt ? ` — ${fmt(b.publishedAt)}` : ''}
+                                                {b.publishedAt ? ` - ${fmt(b.publishedAt)}` : ''}
                                             </p>
                                             <h3 className="mt-3 text-xl font-extrabold tracking-tight leading-snug group-hover:text-copper transition-colors">
                                                 {b.title}

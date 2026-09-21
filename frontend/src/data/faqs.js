@@ -11,7 +11,7 @@ export const FAQ_CATEGORIES = [
             {
                 id: 'what-is-aith',
                 q: 'What does Asian International Trade House do?',
-                a: 'AITH connects buyers and suppliers across international markets. We source products from Asia, coordinate import and export documentation, manage procurement programs, and move bulk commodities through verified supply chains — from requirement to delivery.',
+                a: 'AITH connects buyers and suppliers across international markets. We source products from Asia, coordinate import and export documentation, manage procurement programs, and move bulk commodities through verified supply chains - from requirement to delivery.',
             },
             {
                 id: 'who-we-serve',
@@ -36,7 +36,7 @@ export const FAQ_CATEGORIES = [
             {
                 id: 'international-suppliers',
                 q: 'Can AITH work with international suppliers?',
-                a: 'Our core strength is Asian origin networks, but we also coordinate with international suppliers and cross-border supply chains when a buyer requirement calls for it. Share the product, specification and destination — we map viable options.',
+                a: 'Our core strength is Asian origin networks, but we also coordinate with international suppliers and cross-border supply chains when a buyer requirement calls for it. Share the product, specification and destination - we map viable options.',
             },
         ],
     },
@@ -47,7 +47,7 @@ export const FAQ_CATEGORIES = [
             {
                 id: 'categories',
                 q: 'Which product categories do you cover?',
-                a: 'Primary categories include Healthcare, Agriculture, Minerals, Chemicals and Textiles. If your requirement sits outside these chapters, still send it — we routinely evaluate custom sourcing briefs.',
+                a: 'Primary categories include Healthcare, Agriculture, Minerals, Chemicals and Textiles. If your requirement sits outside these chapters, still send it - we routinely evaluate custom sourcing briefs.',
             },
             {
                 id: 'moq',
@@ -67,12 +67,12 @@ export const FAQ_CATEGORIES = [
             {
                 id: 'moq-vary',
                 q: 'Can MOQs differ by supplier or product?',
-                a: 'Yes. Minimum order quantities are set by the supplier, product format and shipping mode — not by a single company-wide rule. Bulk commodities often move in container or vessel lots; manufactured or specialty lines may allow smaller trial volumes after supplier confirmation.',
+                a: 'Yes. Minimum order quantities are set by the supplier, product format and shipping mode - not by a single company-wide rule. Bulk commodities often move in container or vessel lots; manufactured or specialty lines may allow smaller trial volumes after supplier confirmation.',
             },
             {
                 id: 'sourcing-duration',
                 q: 'How long does sourcing take?',
-                a: 'Simple, in-stock requirements may resolve in days once specification is clear. New supplier identification, sampling, compliance checks or multi-origin comparison typically take longer — often one to four weeks depending on category and documentation needs. We share a realistic timeline with each sourcing path.',
+                a: 'Simple, in-stock requirements may resolve in days once specification is clear. New supplier identification, sampling, compliance checks or multi-origin comparison typically take longer - often one to four weeks depending on category and documentation needs. We share a realistic timeline with each sourcing path.',
             },
             {
                 id: 'packaging',
@@ -82,7 +82,7 @@ export const FAQ_CATEGORIES = [
             {
                 id: 'private-label-oem',
                 q: 'Can products be private-labelled or OEM sourced?',
-                a: 'Where suppliers support it, we can explore private label, OEM or custom formulation paths. Share brand requirements, volumes, packaging artwork and regulatory expectations — feasibility depends on category, MOQ and supplier capacity.',
+                a: 'Where suppliers support it, we can explore private label, OEM or custom formulation paths. Share brand requirements, volumes, packaging artwork and regulatory expectations - feasibility depends on category, MOQ and supplier capacity.',
             },
         ],
     },
@@ -98,12 +98,12 @@ export const FAQ_CATEGORIES = [
             {
                 id: 'incoterms',
                 q: 'Which Incoterms do you support?',
-                a: 'Common structures include FOB, CFR, CIF and occasionally EXW or DAP depending on lane and buyer preference. Preferred terms are agreed per commercial path so risk and destination capabilities stay aligned — we recommend the Incoterm that fits your operation rather than forcing a single default.',
+                a: 'Common structures include FOB, CFR, CIF and occasionally EXW or DAP depending on lane and buyer preference. Preferred terms are agreed per commercial path so risk and destination capabilities stay aligned - we recommend the Incoterm that fits your operation rather than forcing a single default.',
             },
             {
                 id: 'price-validity',
                 q: 'How long is a quote valid?',
-                a: 'Commodity and freight markets move. Validity is stated on each offer — typically a short window for bulk commodities and a clearer window for manufactured goods with locked supplier pricing.',
+                a: 'Commodity and freight markets move. Validity is stated on each offer - typically a short window for bulk commodities and a clearer window for manufactured goods with locked supplier pricing.',
             },
             {
                 id: 'currency',
@@ -118,7 +118,7 @@ export const FAQ_CATEGORIES = [
             {
                 id: 'quote-includes',
                 q: 'What is included or excluded from a quote?',
-                a: 'Each offer states what is covered — typically product cost, agreed Incoterm point, and sometimes freight or documentation. Unless explicitly included, quotes exclude import duties and taxes at destination, inland delivery beyond the Incoterm, inspection fees you nominate separately, banking charges and insurance unless arranged. We clarify inclusions on every commercial path.',
+                a: 'Each offer states what is covered - typically product cost, agreed Incoterm point, and sometimes freight or documentation. Unless explicitly included, quotes exclude import duties and taxes at destination, inland delivery beyond the Incoterm, inspection fees you nominate separately, banking charges and insurance unless arranged. We clarify inclusions on every commercial path.',
             },
         ],
     },
@@ -144,27 +144,27 @@ export const FAQ_CATEGORIES = [
             {
                 id: 'shipping-documents',
                 q: 'What are commercial invoices, packing lists and transport documents?',
-                a: 'The commercial invoice states seller, buyer, goods description, value and terms for customs. The packing list details cartons, weights and marks. A bill of lading (sea) or air waybill (air) is the carrier document proving custody and enabling release at destination. Certificate of origin confirms where goods were produced — often required for preferential duty treatment.',
+                a: 'The commercial invoice states seller, buyer, goods description, value and terms for customs. The packing list details cartons, weights and marks. A bill of lading (sea) or air waybill (air) is the carrier document proving custody and enabling release at destination. Certificate of origin confirms where goods were produced - often required for preferential duty treatment.',
             },
             {
                 id: 'shipment-duration',
                 q: 'How long does an international shipment take?',
-                a: 'Transit depends on mode and lane. Sea freight commonly runs two to six weeks port-to-port plus local clearance; air may be three to ten days door-to-airport. Production lead time, inspection holds and destination customs add to the total schedule — we estimate end-to-end timing with each offer.',
+                a: 'Transit depends on mode and lane. Sea freight commonly runs two to six weeks port-to-port plus local clearance; air may be three to ten days door-to-airport. Production lead time, inspection holds and destination customs add to the total schedule - we estimate end-to-end timing with each offer.',
             },
             {
                 id: 'air-vs-sea',
-                q: 'Air freight vs sea freight — how is the mode selected?',
-                a: 'We weigh cost, timeline, product shelf life, volume and destination infrastructure. Bulk and heavy cargo usually moves by sea; urgent, high-value or perishable lines may justify air. If you have a preference or deadline, state it in your enquiry — we recommend the mode that balances commercial and operational risk.',
+                q: 'Air freight vs sea freight - how is the mode selected?',
+                a: 'We weigh cost, timeline, product shelf life, volume and destination infrastructure. Bulk and heavy cargo usually moves by sea; urgent, high-value or perishable lines may justify air. If you have a preference or deadline, state it in your enquiry - we recommend the mode that balances commercial and operational risk.',
             },
             {
                 id: 'cargo-insurance',
                 q: 'Can shipments be insured?',
-                a: 'Cargo insurance may be arranged or coordinated with partners depending on the lane, Incoterm and product. Coverage scope, limits and named insured parties should be confirmed on each commercial path before shipment — we do not assume a single insurance product applies to every file.',
+                a: 'Cargo insurance may be arranged or coordinated with partners depending on the lane, Incoterm and product. Coverage scope, limits and named insured parties should be confirmed on each commercial path before shipment - we do not assume a single insurance product applies to every file.',
             },
             {
                 id: 'shipment-updates',
                 q: 'How are shipment updates communicated?',
-                a: 'We share milestone updates at key points — booking confirmation, goods ready, export clearance, departure, arrival and delivery handoff where applicable. Frequency and channel follow the shipment size and your preference.',
+                a: 'We share milestone updates at key points - booking confirmation, goods ready, export clearance, departure, arrival and delivery handoff where applicable. Frequency and channel follow the shipment size and your preference.',
             },
             {
                 id: 'customs',
@@ -195,12 +195,12 @@ export const FAQ_CATEGORIES = [
             {
                 id: 'product-certificates',
                 q: 'Can you provide product-specific certificates?',
-                a: 'Yes, where the product and destination require them — for example phytosanitary certificates for agriculture, certificates of analysis for chemicals and minerals, health or registration documents for healthcare inputs, and textile test reports. Scope is confirmed against your market rules before loading.',
+                a: 'Yes, where the product and destination require them - for example phytosanitary certificates for agriculture, certificates of analysis for chemicals and minerals, health or registration documents for healthcare inputs, and textile test reports. Scope is confirmed against your market rules before loading.',
             },
             {
                 id: 'spec-mismatch',
                 q: 'What happens if goods do not match agreed specifications?',
-                a: 'Specifications are agreed before production or loading and verified through documentation and inspection where applicable. If goods deviate, we work through the contractual remedy — rework, replacement, credit or claim — according to the commercial terms and evidence from inspection or destination receipt.',
+                a: 'Specifications are agreed before production or loading and verified through documentation and inspection where applicable. If goods deviate, we work through the contractual remedy - rework, replacement, credit or claim - according to the commercial terms and evidence from inspection or destination receipt.',
             },
         ],
     },
@@ -211,7 +211,7 @@ export const FAQ_CATEGORIES = [
             {
                 id: 'payment-terms',
                 q: 'What payment terms do you offer?',
-                a: 'Payment terms depend on relationship stage, order size and destination risk. Options may include advance, letter of credit or other structured settlement after commercial assessment. Exact terms are stated on each offer — we do not publish a single company-wide payment schedule.',
+                a: 'Payment terms depend on relationship stage, order size and destination risk. Options may include advance, letter of credit or other structured settlement after commercial assessment. Exact terms are stated on each offer - we do not publish a single company-wide payment schedule.',
             },
             {
                 id: 'become-supplier',
@@ -247,7 +247,7 @@ export const FAQ_CATEGORIES = [
             {
                 id: 'delhi-hub',
                 q: 'Where is AITH based?',
-                a: 'Our head office is at No. 901, Devika Tower, Nehru Place, New Delhi — 110019 (28°36\'N 77°13\'E), with a corporate office in Chennai and international branches in Dubai, Singapore, Jakarta and Thimphu. Visiting hours are confirmed by appointment — contact us before travelling to an office.',
+                a: 'Our head office is at No. 901, Devika Tower, Nehru Place, New Delhi - 110019 (28°36\'N 77°13\'E), with a corporate office in Chennai and international branches in Dubai, Singapore, Jakarta and Thimphu. Visiting hours are confirmed by appointment - contact us before travelling to an office.',
             },
         ],
     },

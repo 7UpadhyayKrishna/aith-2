@@ -268,7 +268,7 @@ async def import_blogs(body: ImportBody, request: Request, user: dict = Editor, 
         return {'dryRun': True, 'summary': summary, 'results': results}
 
     if not all_ok:
-        raise HTTPException(status_code=400, detail={'message': 'Import blocked — fix validation errors', 'summary': summary, 'results': results})
+        raise HTTPException(status_code=400, detail={'message': 'Import blocked - fix validation errors', 'summary': summary, 'results': results})
 
     created = []
     now = iso_now()
@@ -424,7 +424,7 @@ async def update_blog(blog_id: str, body: dict, request: Request, user: dict = E
             )
 
     now = iso_now()
-    # Allow editorial status transitions via PATCH (not published — use publish endpoint)
+    # Allow editorial status transitions via PATCH (not published - use publish endpoint)
     requested_status = body.get('status')
     if requested_status in ('draft', 'review', 'scheduled', 'archived'):
         new_status = requested_status
@@ -533,7 +533,7 @@ async def publish_blog(blog_id: str, request: Request, user: dict = Editor, db=D
     if warnings and not override:
         return JSONResponse(
             status_code=409,
-            content={'message': 'Publish has warnings — confirm to override', 'errors': errors, 'requiresOverride': True},
+            content={'message': 'Publish has warnings - confirm to override', 'errors': errors, 'requiresOverride': True},
         )
     now = iso_now()
     scheduled_at = body.get('scheduledAt') or doc.get('scheduledAt')
@@ -682,7 +682,7 @@ async def restore_revision(blog_id: str, revision_id: str, request: Request, use
 
 @router.get('/{blog_id}/preview')
 async def preview_blog(blog_id: str, user: dict = EditorRead, db=Depends(get_db)):
-    """Authenticated preview of any status — never public."""
+    """Authenticated preview of any status - never public."""
     doc = await db.blogs.find_one({'id': blog_id}, {'_id': 0})
     if not doc:
         raise HTTPException(status_code=404, detail='Not found')

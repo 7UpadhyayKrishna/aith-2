@@ -1,6 +1,6 @@
 /**
  * Per-route SEO copy and internal-link hints for AITH marketing pages.
- * Titles omit the brand suffix — Seo.js appends " — SITE_NAME".
+ * Titles omit the brand suffix - Seo.js appends " - SITE_NAME".
  */
 
 export const SERVICE_SEO_SLUGS = [
@@ -73,7 +73,7 @@ export const SEO_PAGES = {
         ],
         title: 'Trade Services | Sourcing, Import-Export & Procurement',
         description:
-            'Global sourcing, import-export coordination, procurement programs, trade documentation and freight coordination — structured from requirement to destination handoff.',
+            'Global sourcing, import-export coordination, procurement programs, trade documentation and freight coordination - structured from requirement to destination handoff.',
         h1Lines: ['SOLUTIONS FOR', 'REAL TRADE.'],
         italicLast: true,
         schemaType: 'collection',
@@ -96,7 +96,7 @@ export const SEO_PAGES = {
         ],
         title: 'Products | Healthcare, Agriculture, Minerals, Chemicals, Textiles',
         description:
-            'Five trade chapters — healthcare consumables, agriculture, industrial minerals, chemicals and textiles — sourced to specification for international buyers.',
+            'Five trade chapters - healthcare consumables, agriculture, industrial minerals, chemicals and textiles - sourced to specification for international buyers.',
         h1Lines: ['WHAT WE', 'MOVE.'],
         italicLast: true,
         schemaType: 'collection',
@@ -120,7 +120,7 @@ export const SEO_PAGES = {
         ],
         title: 'Rare Earth Minerals & Elements | 17 REEs Catalogue',
         description:
-            'Seventeen rare earth elements — scandium to lutetium — with core industrial uses for magnets, phosphors, catalysts and medical systems. Specialty mineral sourcing via AITH.',
+            'Seventeen rare earth elements - scandium to lutetium - with core industrial uses for magnets, phosphors, catalysts and medical systems. Specialty mineral sourcing via AITH.',
         h1Lines: ['RARE EARTH', 'ELEMENTS.'],
         italicLast: true,
         schemaType: 'webpage',
@@ -143,7 +143,7 @@ export const SEO_PAGES = {
         ],
         title: 'Markets | Middle East, Africa, Europe & North America',
         description:
-            'Demand regions we serve from Asian origin — Middle East, Africa, Europe and North America — with lane planning, Incoterms and documentation per shipment.',
+            'Demand regions we serve from Asian origin - Middle East, Africa, Europe and North America - with lane planning, Incoterms and documentation per shipment.',
         h1Lines: ['WHERE GOODS', 'LAND.'],
         italicLast: true,
         schemaType: 'webpage',
@@ -166,7 +166,7 @@ export const SEO_PAGES = {
         ],
         title: 'Insights | Trade Guides & Market Notes',
         description:
-            'Practical notes on commodity markets, essential trade documents and bulk procurement — written for buyers and suppliers running real cross-border deals.',
+            'Practical notes on commodity markets, essential trade documents and bulk procurement - written for buyers and suppliers running real cross-border deals.',
         h1Lines: ['TRADE NOTES.', 'NO NOISE.'],
         italicLast: true,
         schemaType: 'collection',
@@ -212,7 +212,7 @@ export const SEO_PAGES = {
         ],
         title: 'Contact | Import-Export Company Delhi (Nehru Place)',
         description:
-            'Reach Asian International Trade House at Devika Tower, Nehru Place, New Delhi — or Chennai corporate office. Send a trade enquiry or visit details.',
+            'Reach Asian International Trade House at Devika Tower, Nehru Place, New Delhi - or Chennai corporate office. Send a trade enquiry or visit details.',
         h1Lines: ["LET'S TALK", 'TRADE.'],
         italicLast: true,
         schemaType: 'webpage',
@@ -281,7 +281,7 @@ export const SEO_PAGES = {
         ],
         title: 'Quality & Compliance | Inspection & Documentation',
         description:
-            'Quality as a process — supplier verification, product inspection, documentation checks and destination-market certificates arranged where required.',
+            'Quality as a process - supplier verification, product inspection, documentation checks and destination-market certificates arranged where required.',
         h1Lines: ['QUALITY', 'IS A PROCESS.'],
         italicLast: false,
         schemaType: 'webpage',
@@ -311,7 +311,7 @@ export const SEO_PAGES = {
         internalLinks: [
             { label: 'About', to: '/about' },
             { label: 'Contact', to: '/contact' },
-            { label: 'FAQ — Careers', to: '/faq' },
+            { label: 'FAQ - Careers', to: '/faq' },
             { label: 'Partner', to: '/partner' },
         ],
         status: 'complete',
@@ -340,7 +340,7 @@ export const SEO_PAGES = {
         supporting: ['website terms of use', 'commercial terms overview'],
         title: 'Terms of Trade',
         description:
-            'Website and trade engagement terms for Asian International Trade House — use of the site, enquiries and commercial dealings subject to agreed contracts.',
+            'Website and trade engagement terms for Asian International Trade House - use of the site, enquiries and commercial dealings subject to agreed contracts.',
         h1Lines: ['TERMS OF', 'TRADE.'],
         italicLast: false,
         schemaType: 'webpage',
@@ -362,7 +362,7 @@ export const SEO_PAGES = {
         ],
         title: 'Global Sourcing Services India | Requirement to Supplier',
         description:
-            'Requirement definition, market mapping, supplier discovery, evaluation, samples and order coordination — sourcing built around your specification.',
+            'Requirement definition, market mapping, supplier discovery, evaluation, samples and order coordination - sourcing built around your specification.',
         h1Lines: ['GLOBAL SOURCING,', 'BUILT AROUND', 'THE REQUIREMENT.'],
         italicLast: true,
         schemaType: 'service',
@@ -385,7 +385,7 @@ export const SEO_PAGES = {
         ],
         title: 'Import & Export Services India | Coordinated Trade',
         description:
-            'Import and export support with sourcing, commercial coordination, documentation, quality checks and freight coordination — not customs brokerage claims.',
+            'Import and export support with sourcing, commercial coordination, documentation, quality checks and freight coordination - not customs brokerage claims.',
         h1Lines: ['IMPORT.', 'EXPORT.', 'COORDINATED.'],
         italicLast: true,
         schemaType: 'service',
@@ -408,7 +408,7 @@ export const SEO_PAGES = {
         ],
         title: 'International Procurement Services | Structured Buying',
         description:
-            'Structured international procurement — requirement, supplier search, comparison, specification lock, quality, documentation and repeat order planning.',
+            'Structured international procurement - requirement, supplier search, comparison, specification lock, quality, documentation and repeat order planning.',
         h1Lines: ['PROCUREMENT', 'WITH A PLAN.'],
         italicLast: true,
         schemaType: 'service',
@@ -431,7 +431,7 @@ export const SEO_PAGES = {
         ],
         title: 'Supplier Sourcing India | Find & Evaluate Manufacturers',
         description:
-            'For foreign buyers seeking Indian and Asian suppliers — manufacturer identification, capability evaluation and commercial comparison against your brief.',
+            'For foreign buyers seeking Indian and Asian suppliers - manufacturer identification, capability evaluation and commercial comparison against your brief.',
         h1Lines: ['FIND THE', 'RIGHT ORIGIN.'],
         italicLast: true,
         schemaType: 'service',
@@ -454,7 +454,7 @@ export const SEO_PAGES = {
         ],
         title: 'Import-Export Documentation | Invoice, CoO, B/L & AWB',
         description:
-            'What commercial invoices, packing lists, certificates of origin, bills of lading and air waybills do — and how we coordinate complete export document sets.',
+            'What commercial invoices, packing lists, certificates of origin, bills of lading and air waybills do - and how we coordinate complete export document sets.',
         h1Lines: ['DOCUMENTS', 'THAT CLEAR.'],
         italicLast: true,
         schemaType: 'service',
@@ -477,7 +477,7 @@ export const SEO_PAGES = {
         ],
         title: 'International Freight Coordination | Air, Sea & Multimodal',
         description:
-            'Air, sea and multimodal freight coordination aligned to your Incoterms — booking support, milestones and handoff. Coordination only, not freight forwarding claims.',
+            'Air, sea and multimodal freight coordination aligned to your Incoterms - booking support, milestones and handoff. Coordination only, not freight forwarding claims.',
         h1Lines: ['FREIGHT,', 'COORDINATED.'],
         italicLast: true,
         schemaType: 'service',
@@ -500,7 +500,7 @@ export const SEO_PAGES = {
         ],
         title: 'Industries | Healthcare, Agri, Minerals, Chemicals, Textiles',
         description:
-            'Five industry chapters — healthcare consumables, agriculture, minerals & metals, chemicals and textiles — each with distinct commercial and compliance needs.',
+            'Five industry chapters - healthcare consumables, agriculture, minerals & metals, chemicals and textiles - each with distinct commercial and compliance needs.',
         h1Lines: ['ESSENTIAL', 'INDUSTRIES.'],
         italicLast: true,
         schemaType: 'collection',
@@ -523,7 +523,7 @@ export const SEO_PAGES = {
         ],
         title: 'Healthcare Sourcing India | Consumables & Process Inputs',
         description:
-            'Sourcing medical consumables, hospital supplies and process inputs from Asian manufacturers — documentation and quality checks without regulatory approval claims.',
+            'Sourcing medical consumables, hospital supplies and process inputs from Asian manufacturers - documentation and quality checks without regulatory approval claims.',
         h1Lines: ['HEALTHCARE', 'SUPPLY,', 'SPECIFIED.'],
         italicLast: true,
         schemaType: 'webpage',
@@ -546,7 +546,7 @@ export const SEO_PAGES = {
         ],
         title: 'Agriculture Export | Rice, Wheat, Pulses & Spices',
         description:
-            'Food grains, pulses, spices and related agri lines from Asian origin — grade, packaging, phytosanitary docs and freight coordination for destination markets.',
+            'Food grains, pulses, spices and related agri lines from Asian origin - grade, packaging, phytosanitary docs and freight coordination for destination markets.',
         h1Lines: ['GRAIN.', 'SPICE.', 'ORIGIN.'],
         italicLast: true,
         schemaType: 'webpage',
@@ -569,7 +569,7 @@ export const SEO_PAGES = {
         ],
         title: 'Minerals & Metals Trade | Industrial Minerals Sourcing',
         description:
-            'Industrial minerals and related materials with assay-backed specs — iron ore, limestone, bauxite, quartz and more. Trading coordination, not mining ownership claims.',
+            'Industrial minerals and related materials with assay-backed specs - iron ore, limestone, bauxite, quartz and more. Trading coordination, not mining ownership claims.',
         h1Lines: ['MINERALS.', 'ASSAYED.', 'SHIPPED.'],
         italicLast: true,
         schemaType: 'webpage',
@@ -593,7 +593,7 @@ export const SEO_PAGES = {
         ],
         title: 'Chemicals Trade | Industrial & Specialty Lines',
         description:
-            'Industrial and specialty chemicals with SDS, handling notes and controlled logistics coordination — solvents, polymers, dyes, fertilizers and related lines.',
+            'Industrial and specialty chemicals with SDS, handling notes and controlled logistics coordination - solvents, polymers, dyes, fertilizers and related lines.',
         h1Lines: ['CHEMICALS,', 'HANDLED WITH', 'CARE.'],
         italicLast: true,
         schemaType: 'webpage',
@@ -616,7 +616,7 @@ export const SEO_PAGES = {
         ],
         title: 'Textiles Sourcing India | Yarn, Fabric & Garments',
         description:
-            'Cotton yarn, woven fabrics, technical and home textiles, denim and garments from established Asian weaving and garment clusters — spec, QC and shipment.',
+            'Cotton yarn, woven fabrics, technical and home textiles, denim and garments from established Asian weaving and garment clusters - spec, QC and shipment.',
         h1Lines: ['YARN.', 'FABRIC.', 'FINISHED.'],
         italicLast: true,
         schemaType: 'webpage',

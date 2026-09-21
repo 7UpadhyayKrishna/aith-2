@@ -1,14 +1,21 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowUpRight, ArrowRight } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { ArrowUpRight, ArrowRight, ChevronDown } from 'lucide-react';
 import Seo, { breadcrumbJsonLd, orgJsonLd } from '../components/Seo';
 import PageHero from '../components/PageHero';
 import FaqAccordion from '../components/FaqAccordion';
 import { Fade, Line, Tag } from '../components/Reveal';
 import { WORK_LOCATIONS } from '../data/company';
-import { CAREER_VALUES, HIRE_STEPS, ROLE_FAMILIES, getPublishedRoles } from '../data/careers';
+import {
+    CAREER_VALUES,
+    HIRE_STEPS,
+    ROLE_FAMILIES,
+    getPublishedRoles,
+    getRoleById,
+} from '../data/careers';
 import { FAQ_BY_CONTEXT, getFaqsByIds } from '../data/faqs';
 import { CONTACT } from '../data/contact';
+import { getSeoPage } from '../data/seoPages';
 import { submitCareerApplication } from '../services/forms';
 
 const fieldCls =
@@ -16,25 +23,138 @@ const fieldCls =
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const EMPTY_FORM = {
+    name: '',
+    email: '',
+    phone: '',
+    roleInterest: '',
+    locationPreference: '',
+    linkedinOrCv: '',
+    message: '',
+    website: '',
+};
+
+function RoleCard({ role, onApply, expanded, onToggle }) {
+    return (
+        <li
+            className="border border-graphite/12 bg-ivory"
+            data-testid={`career-role-${role.id}`}
+            id={`role-${role.id}`}
+        >
+            <div className="p-6 lg:p-8 flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+                <div className="min-w-0 flex-1">
+                    <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-copper">
+                        {role.team} · {role.type} · {role.location}
+                    </p>
+                    <h3 className="text-2xl lg:text-3xl font-extrabold tracking-tight mt-2">{role.title}</h3>
+                    <p className="text-sm text-mute leading-relaxed mt-3 max-w-2xl">{role.blurb}</p>
+
+                    {(role.responsibilities?.length > 0 || role.requirements?.length > 0) && (
+                        <button
+                            type="button"
+                            onClick={onToggle}
+                            className="mt-5 inline-flex items-center gap-2 font-mono text-[10px] tracking-[0.22em] uppercase text-graphite border-b border-graphite/30 pb-1 hover:text-copper hover:border-copper transition-colors"
+                            aria-expanded={expanded}
+                            data-testid={`career-role-toggle-${role.id}`}
+                        >
+                            {expanded ? 'Hide details' : 'Role details'}
+                            <ChevronDown
+                                size={14}
+                                className={`transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`}
+                                aria-hidden="true"
+                            />
+                        </button>
+                    )}
+
+                    {expanded && (
+                        <div className="mt-6 grid sm:grid-cols-2 gap-8 max-w-3xl">
+                            {role.responsibilities?.length > 0 && (
+                                <div>
+                                    <p className="font-mono text-[10px] tracking-[0.24em] uppercase text-copper mb-3">
+                                        What you will do
+                                    </p>
+                                    <ul className="space-y-2">
+                                        {role.responsibilities.map((item) => (
+                                            <li key={item} className="flex gap-2 text-sm text-mute leading-relaxed">
+                                                <span className="mt-1.5 w-1 h-1 shrink-0 bg-copper" aria-hidden="true" />
+                                                <span>{item}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                            {role.requirements?.length > 0 && (
+                                <div>
+                                    <p className="font-mono text-[10px] tracking-[0.24em] uppercase text-copper mb-3">
+                                        What we look for
+                                    </p>
+                                    <ul className="space-y-2">
+                                        {role.requirements.map((item) => (
+                                            <li key={item} className="flex gap-2 text-sm text-mute leading-relaxed">
+                                                <span className="mt-1.5 w-1 h-1 shrink-0 bg-stone" aria-hidden="true" />
+                                                <span>{item}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                <button
+                    type="button"
+                    onClick={() => onApply(role)}
+                    className="inline-flex items-center gap-2 bg-copper text-ivory px-6 py-3 font-mono text-[11px] tracking-[0.2em] uppercase hover:bg-terra transition-colors shrink-0 min-h-[44px] self-start"
+                    data-testid={`career-apply-${role.id}`}
+                >
+                    Apply <ArrowUpRight size={14} aria-hidden="true" />
+                </button>
+            </div>
+        </li>
+    );
+}
+
+/** Careers board: openings + general interest application. */
 export default function Careers() {
-    const roles = getPublishedRoles();
-    const [form, setForm] = useState({
-        name: '',
-        email: '',
-        phone: '',
-        roleInterest: '',
-        locationPreference: '',
-        linkedinOrCv: '',
-        message: '',
-        website: '',
-    });
+    const seo = getSeoPage('/careers');
+    const roles = useMemo(() => getPublishedRoles(), []);
+    const teams = useMemo(() => [...new Set(roles.map((r) => r.team))], [roles]);
+
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [teamFilter, setTeamFilter] = useState('all');
+    const [expandedId, setExpandedId] = useState(null);
+    const [form, setForm] = useState(EMPTY_FORM);
     const [errors, setErrors] = useState({});
     const [submitting, setSubmitting] = useState(false);
     const [status, setStatus] = useState(null);
 
+    const filteredRoles =
+        teamFilter === 'all' ? roles : roles.filter((r) => r.team === teamFilter);
+
+    // Prefill from ?role=id when landing from a deep link
+    useEffect(() => {
+        const roleId = searchParams.get('role');
+        if (!roleId) return;
+        const role = getRoleById(roleId);
+        if (role?.published) {
+            setForm((s) => ({ ...s, roleInterest: role.title }));
+            setExpandedId(role.id);
+        }
+    }, [searchParams]);
+
     const set = (k, v) => {
         setForm((s) => ({ ...s, [k]: v }));
         if (errors[k]) setErrors((e) => ({ ...e, [k]: undefined }));
+    };
+
+    const goApply = (role) => {
+        if (role) {
+            set('roleInterest', role.title);
+            setSearchParams({ role: role.id }, { replace: true });
+        }
+        const el = document.getElementById('apply');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
     const validate = () => {
@@ -59,16 +179,8 @@ export default function Careers() {
                 window.location.href = result.mailto;
             } else if (result.ok) {
                 setStatus('api');
-                setForm({
-                    name: '',
-                    email: '',
-                    phone: '',
-                    roleInterest: '',
-                    locationPreference: '',
-                    linkedinOrCv: '',
-                    message: '',
-                    website: '',
-                });
+                setForm(EMPTY_FORM);
+                setSearchParams({}, { replace: true });
             } else {
                 setStatus('failed');
             }
@@ -79,11 +191,22 @@ export default function Careers() {
         }
     };
 
+    const roleOptions = [
+        ...roles.map((r) => r.title),
+        'General interest - Operations',
+        'General interest - Sourcing',
+        'General interest - Commercial',
+        'General interest - Other',
+    ];
+
     return (
         <main id="main-content" className="overflow-x-clip">
             <Seo
-                title="Careers"
-                description="Careers at Asian International Trade House — work across international trade, sourcing and supply chain with a precise commercial culture."
+                title={seo?.title || 'Careers | Work in Trade Operations & Sourcing'}
+                description={
+                    seo?.description ||
+                    'Careers at Asian International Trade House - work across international trade, sourcing and supply chain with a precise commercial culture.'
+                }
                 path="/careers"
                 jsonLd={{
                     '@context': 'https://schema.org',
@@ -96,23 +219,119 @@ export default function Careers() {
                     ],
                 }}
             />
+
             <PageHero
                 kicker="AITH / Careers"
                 breadcrumb={[
                     { label: 'Home', to: '/' },
                     { label: 'Careers' },
                 ]}
-                titleLines={['WORK WITH', 'TRADE.']}
-                italicLast
-                lead="Build a career in international sourcing, documentation and commercial coordination — with clear expectations and real market exposure."
-                primaryCta={{ to: '/careers#apply', label: 'Apply / Express Interest', testId: 'careers-apply-cta' }}
-                secondaryCta={{ to: '/about', label: 'About AITH', testId: 'careers-about-cta' }}
+                titleLines={seo?.h1Lines || ['WORK WITH', 'TRADE.']}
+                italicLast={seo?.italicLast !== false}
+                lead="Build a career in international sourcing, documentation and commercial coordination - with clear expectations and real market exposure."
+                primaryCta={{
+                    to: '/careers#open-roles',
+                    label: roles.length ? 'View open roles' : 'Express interest',
+                    testId: 'careers-openings-cta',
+                }}
+                secondaryCta={{
+                    to: roles.length ? '/careers#apply' : '/about',
+                    label: roles.length ? 'Apply / Express Interest' : 'About AITH',
+                    testId: 'careers-apply-cta',
+                }}
                 testId="careers-hero"
             />
 
-            <section className="bg-ivory text-graphite px-5 sm:px-6 lg:px-12 py-24 sm:py-28 lg:py-36" data-testid="careers-why">
-                <Tag index="01" label="Why AITH" />
-                <h2 className="text-[clamp(2.2rem,5vw,4.5rem)] leading-[0.95] tracking-[-0.03em] font-extrabold mt-10 max-w-4xl">
+            {/* Job board first - what candidates come for */}
+            <section
+                className="bg-ivory text-graphite px-5 sm:px-6 lg:px-12 py-24 sm:py-28 lg:py-32 scroll-mt-24"
+                id="open-roles"
+                data-testid="careers-roles"
+            >
+                <div className="flex flex-wrap items-end justify-between gap-6">
+                    <div>
+                        <Tag index="01" label="Open Roles" />
+                        <h2 className="text-[clamp(2rem,4vw,3.5rem)] leading-[1.05] tracking-[-0.03em] font-extrabold mt-8">
+                            <Line>Current openings.</Line>
+                        </h2>
+                        <p className="text-mute text-sm leading-relaxed mt-4 max-w-lg">
+                            {roles.length
+                                ? `${roles.length} published role${roles.length === 1 ? '' : 's'}. Select a posting to apply with the form below.`
+                                : 'No active vacancies listed right now - general applications are still welcome.'}
+                        </p>
+                    </div>
+                    {teams.length > 1 && (
+                        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by team">
+                            <button
+                                type="button"
+                                onClick={() => setTeamFilter('all')}
+                                className={`font-mono text-[10px] tracking-[0.2em] uppercase px-3 py-2 border transition-colors ${
+                                    teamFilter === 'all'
+                                        ? 'border-copper text-copper'
+                                        : 'border-graphite/20 text-mute hover:border-graphite/40'
+                                }`}
+                            >
+                                All
+                            </button>
+                            {teams.map((t) => (
+                                <button
+                                    key={t}
+                                    type="button"
+                                    onClick={() => setTeamFilter(t)}
+                                    className={`font-mono text-[10px] tracking-[0.2em] uppercase px-3 py-2 border transition-colors ${
+                                        teamFilter === t
+                                            ? 'border-copper text-copper'
+                                            : 'border-graphite/20 text-mute hover:border-graphite/40'
+                                    }`}
+                                >
+                                    {t}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {filteredRoles.length === 0 ? (
+                    <Fade>
+                        <div className="mt-12 max-w-2xl border border-graphite/15 px-6 py-8" data-testid="careers-empty">
+                            <p className="font-mono text-[11px] tracking-[0.22em] uppercase text-copper">
+                                No open roles right now
+                            </p>
+                            <p className="text-base text-mute leading-relaxed mt-4">
+                                We are not listing active vacancies at this moment. If your experience fits
+                                international trade operations, sourcing or commercial coordination, send a
+                                general application below.
+                            </p>
+                            <button
+                                type="button"
+                                onClick={() => goApply(null)}
+                                className="inline-flex items-center gap-2 mt-6 font-mono text-[11px] tracking-[0.2em] uppercase text-copper hover:text-terra transition-colors"
+                            >
+                                Express interest <ArrowRight size={14} aria-hidden="true" />
+                            </button>
+                        </div>
+                    </Fade>
+                ) : (
+                    <ul className="mt-12 space-y-4" data-testid="careers-role-list">
+                        {filteredRoles.map((role, i) => (
+                            <Fade key={role.id} delay={Math.min(i * 0.05, 0.25)}>
+                                <RoleCard
+                                    role={role}
+                                    expanded={expandedId === role.id}
+                                    onToggle={() =>
+                                        setExpandedId((id) => (id === role.id ? null : role.id))
+                                    }
+                                    onApply={goApply}
+                                />
+                            </Fade>
+                        ))}
+                    </ul>
+                )}
+            </section>
+
+            <section className="bg-bone text-graphite px-5 sm:px-6 lg:px-12 py-24 sm:py-28 lg:py-32" data-testid="careers-why">
+                <Tag index="02" label="Why AITH" />
+                <h2 className="text-[clamp(2.2rem,5vw,4.5rem)] leading-[1.05] tracking-[-0.03em] font-extrabold mt-10 max-w-4xl">
                     <Line>Markets. Documentation.</Line>
                     <Line delay={0.1}>Commercial discipline.</Line>
                 </h2>
@@ -128,12 +347,12 @@ export default function Careers() {
             </section>
 
             <section className="bg-sage text-forest px-5 sm:px-6 lg:px-12 py-24 sm:py-28 lg:py-32" data-testid="careers-role-families">
-                <Tag index="02" label="Role Families" />
-                <h2 className="text-[clamp(2rem,4vw,3.5rem)] leading-[0.95] tracking-[-0.03em] font-extrabold mt-8 max-w-3xl">
+                <Tag index="03" label="Role Families" />
+                <h2 className="text-[clamp(2rem,4vw,3.5rem)] leading-[1.05] tracking-[-0.03em] font-extrabold mt-8 max-w-3xl">
                     Where people contribute
                 </h2>
                 <p className="text-forest/70 text-sm leading-relaxed mt-4 max-w-xl">
-                    These describe the kinds of work we hire for — not current openings. Published vacancies appear in the section below when roles are active.
+                    Broader work areas we hire into over time - separate from the published openings above.
                 </p>
                 <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
                     {ROLE_FAMILIES.map((r, i) => (
@@ -146,9 +365,9 @@ export default function Careers() {
                 </div>
             </section>
 
-            <section className="bg-bone text-graphite px-5 sm:px-6 lg:px-12 py-24 sm:py-28 lg:py-32" data-testid="careers-locations">
-                <Tag index="03" label="Where We Work" />
-                <h2 className="text-[clamp(2rem,4vw,3.5rem)] leading-[0.95] tracking-[-0.03em] font-extrabold mt-8 max-w-3xl">
+            <section className="bg-ivory text-graphite px-5 sm:px-6 lg:px-12 py-24 sm:py-28 lg:py-32" data-testid="careers-locations">
+                <Tag index="04" label="Where We Work" />
+                <h2 className="text-[clamp(2rem,4vw,3.5rem)] leading-[1.05] tracking-[-0.03em] font-extrabold mt-8 max-w-3xl">
                     Offices and branches
                 </h2>
                 <ul className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
@@ -161,52 +380,11 @@ export default function Careers() {
                 </ul>
             </section>
 
-            <section className="bg-ivory text-graphite px-5 sm:px-6 lg:px-12 py-24 sm:py-28 lg:py-36" id="open-roles" data-testid="careers-roles">
-                <Tag index="04" label="Open Roles" />
-                <h2 className="text-[clamp(2rem,4vw,3.5rem)] leading-[0.95] tracking-[-0.03em] font-extrabold mt-8">
-                    Current openings
-                </h2>
-                {roles.length === 0 ? (
-                    <Fade>
-                        <div className="mt-12 max-w-2xl border border-graphite/15 px-6 py-8" data-testid="careers-empty">
-                            <p className="font-mono text-[11px] tracking-[0.22em] uppercase text-copper">No open roles right now</p>
-                            <p className="text-base text-mute leading-relaxed mt-4">
-                                We are not listing active vacancies at this moment. If you believe your experience fits international trade operations, sourcing or commercial coordination, you may still send a general application below.
-                            </p>
-                            <a href="#apply" className="inline-flex items-center gap-2 mt-6 font-mono text-[11px] tracking-[0.2em] uppercase text-copper hover:text-terra transition-colors">
-                                Express interest <ArrowRight size={14} aria-hidden="true" />
-                            </a>
-                        </div>
-                    </Fade>
-                ) : (
-                    <ul className="mt-12 divide-y divide-graphite/15 border-t border-graphite/15">
-                        {roles.map((role) => (
-                            <li key={role.id} className="py-8 flex flex-col lg:flex-row lg:items-end justify-between gap-6" data-testid={`career-role-${role.id}`}>
-                                <div className="min-w-0">
-                                    <p className="font-mono text-[10px] tracking-[0.28em] uppercase text-copper">
-                                        {role.team} · {role.type} · {role.location}
-                                    </p>
-                                    <h3 className="text-2xl lg:text-3xl font-extrabold tracking-tight mt-2">{role.title}</h3>
-                                    <p className="text-sm text-mute leading-relaxed mt-3 max-w-xl">{role.blurb}</p>
-                                </div>
-                                <a
-                                    href={`#apply`}
-                                    onClick={() => set('roleInterest', role.title)}
-                                    className="inline-flex items-center gap-2 bg-copper text-ivory px-6 py-3 font-mono text-[11px] tracking-[0.2em] uppercase hover:bg-terra transition-colors shrink-0 min-h-[44px]"
-                                >
-                                    Apply <ArrowUpRight size={14} aria-hidden="true" />
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
-                )}
-            </section>
-
             <section className="bg-forest text-ivory px-5 sm:px-6 lg:px-12 py-24 sm:py-28 lg:py-32" data-testid="careers-process">
                 <Tag index="05" label="How We Hire" dark />
-                <h2 className="text-[clamp(2rem,4vw,3.5rem)] leading-[0.95] tracking-[-0.03em] font-extrabold mt-8 max-w-3xl">
+                <h2 className="text-[clamp(2rem,4vw,3.5rem)] leading-[1.05] tracking-[-0.03em] font-extrabold mt-8 max-w-3xl">
                     <Line>A clear path.</Line>
-                    <Line delay={0.1} className="font-serif italic font-normal text-copper">
+                    <Line delay={0.1} className="text-copper">
                         No theatre.
                     </Line>
                 </h2>
@@ -221,30 +399,45 @@ export default function Careers() {
                 </ol>
             </section>
 
-            <section className="bg-ivory text-graphite px-5 sm:px-6 lg:px-12 py-24 sm:py-28 lg:py-36" id="apply" data-testid="careers-apply">
+            <section
+                className="bg-bone text-graphite px-5 sm:px-6 lg:px-12 py-24 sm:py-28 lg:py-36 scroll-mt-24"
+                id="apply"
+                data-testid="careers-apply"
+            >
                 <Tag index="06" label="Apply" />
-                <h2 className="text-[clamp(2rem,4vw,3.5rem)] leading-[0.95] tracking-[-0.03em] font-extrabold mt-8">
+                <h2 className="text-[clamp(2rem,4vw,3.5rem)] leading-[1.05] tracking-[-0.03em] font-extrabold mt-8">
                     Express interest
                 </h2>
                 <p className="text-mute max-w-xl mt-4 leading-relaxed">
-                    Share a concise note. Attach a LinkedIn profile or CV link if useful. Applications go to {CONTACT.email}.
+                    Share a concise note. Attach a LinkedIn profile or CV link if useful. Applications go to{' '}
+                    {CONTACT.email}.
                 </p>
 
                 {status === 'api' && (
-                    <div className="mt-8 border border-copper/40 bg-bone px-5 py-4 max-w-xl" role="status">
-                        <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-copper">Application received</p>
-                        <p className="text-sm mt-2 text-graphite/80">Thank you. We will review and respond if there is a fit.</p>
+                    <div className="mt-8 border border-copper/40 bg-ivory px-5 py-4 max-w-xl" role="status">
+                        <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-copper">
+                            Application received
+                        </p>
+                        <p className="text-sm mt-2 text-graphite/80">
+                            Thank you. We will review and respond if there is a fit.
+                        </p>
                     </div>
                 )}
                 {status === 'mailto' && (
-                    <div className="mt-8 border border-graphite/20 bg-bone px-5 py-4 max-w-xl" role="status">
-                        <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-copper">Email client opened</p>
-                        <p className="text-sm mt-2 text-graphite/80">Complete the message in your mail app to finish the application.</p>
+                    <div className="mt-8 border border-graphite/20 bg-ivory px-5 py-4 max-w-xl" role="status">
+                        <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-copper">
+                            Email client opened
+                        </p>
+                        <p className="text-sm mt-2 text-graphite/80">
+                            Complete the message in your mail app to finish the application.
+                        </p>
                     </div>
                 )}
                 {status === 'failed' && (
-                    <div className="mt-8 border border-terra/50 bg-bone px-5 py-4 max-w-xl" role="alert">
-                        <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-terra">Could not submit</p>
+                    <div className="mt-8 border border-terra/50 bg-ivory px-5 py-4 max-w-xl" role="alert">
+                        <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-terra">
+                            Could not submit
+                        </p>
                         <p className="text-sm mt-2">Please retry or email {CONTACT.email} directly.</p>
                     </div>
                 )}
@@ -254,12 +447,11 @@ export default function Careers() {
                         { id: 'name', label: 'Name', required: true },
                         { id: 'email', label: 'Email', required: true, type: 'email' },
                         { id: 'phone', label: 'Phone (optional)', required: false, type: 'tel' },
-                        { id: 'roleInterest', label: 'Role of interest', required: false },
-                        { id: 'locationPreference', label: 'Location preference', required: false },
-                        { id: 'linkedinOrCv', label: 'LinkedIn or CV link (optional)', required: false },
                     ].map((f) => (
                         <label key={f.id} className="block" htmlFor={`career-${f.id}`}>
-                            <span className="font-mono text-[10px] tracking-[0.28em] uppercase text-mute">{f.label}</span>
+                            <span className="font-mono text-[10px] tracking-[0.28em] uppercase text-mute">
+                                {f.label}
+                            </span>
                             <input
                                 id={`career-${f.id}`}
                                 type={f.type || 'text'}
@@ -270,11 +462,73 @@ export default function Careers() {
                                 className={fieldCls}
                                 data-testid={`career-input-${f.id}`}
                             />
-                            {errors[f.id] && <span className="block mt-1 text-xs text-terra">{errors[f.id]}</span>}
+                            {errors[f.id] && (
+                                <span className="block mt-1 text-xs text-terra">{errors[f.id]}</span>
+                            )}
                         </label>
                     ))}
+
+                    <label className="block" htmlFor="career-roleInterest">
+                        <span className="font-mono text-[10px] tracking-[0.28em] uppercase text-mute">
+                            Role of interest
+                        </span>
+                        <select
+                            id="career-roleInterest"
+                            value={form.roleInterest}
+                            onChange={(e) => set('roleInterest', e.target.value)}
+                            className={`${fieldCls} appearance-none cursor-pointer`}
+                            data-testid="career-input-roleInterest"
+                        >
+                            <option value="">Select a role or general interest</option>
+                            {roleOptions.map((opt) => (
+                                <option key={opt} value={opt}>
+                                    {opt}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
+
+                    <label className="block" htmlFor="career-locationPreference">
+                        <span className="font-mono text-[10px] tracking-[0.28em] uppercase text-mute">
+                            Location preference
+                        </span>
+                        <select
+                            id="career-locationPreference"
+                            value={form.locationPreference}
+                            onChange={(e) => set('locationPreference', e.target.value)}
+                            className={`${fieldCls} appearance-none cursor-pointer`}
+                            data-testid="career-input-locationPreference"
+                        >
+                            <option value="">Select a location</option>
+                            {WORK_LOCATIONS.map((loc) => (
+                                <option key={loc.id} value={loc.label}>
+                                    {loc.label}
+                                </option>
+                            ))}
+                            <option value="Remote / flexible">Remote / flexible</option>
+                            <option value="Open to discussion">Open to discussion</option>
+                        </select>
+                    </label>
+
+                    <label className="block" htmlFor="career-linkedinOrCv">
+                        <span className="font-mono text-[10px] tracking-[0.28em] uppercase text-mute">
+                            LinkedIn or CV link (optional)
+                        </span>
+                        <input
+                            id="career-linkedinOrCv"
+                            type="url"
+                            value={form.linkedinOrCv}
+                            onChange={(e) => set('linkedinOrCv', e.target.value)}
+                            placeholder="https://"
+                            className={fieldCls}
+                            data-testid="career-input-linkedinOrCv"
+                        />
+                    </label>
+
                     <label className="block" htmlFor="career-message">
-                        <span className="font-mono text-[10px] tracking-[0.28em] uppercase text-mute">Message</span>
+                        <span className="font-mono text-[10px] tracking-[0.28em] uppercase text-mute">
+                            Message
+                        </span>
                         <textarea
                             id="career-message"
                             required
@@ -284,8 +538,12 @@ export default function Careers() {
                             className={`${fieldCls} resize-y`}
                             data-testid="career-input-message"
                         />
-                        {errors.message && <span className="block mt-1 text-xs text-terra">{errors.message}</span>}
+                        {errors.message && (
+                            <span className="block mt-1 text-xs text-terra">{errors.message}</span>
+                        )}
                     </label>
+
+                    {/* Honeypot - leave empty */}
                     <input
                         type="text"
                         name="website"
@@ -296,17 +554,22 @@ export default function Careers() {
                         aria-hidden="true"
                         className="absolute opacity-0 pointer-events-none h-0 w-0 overflow-hidden"
                     />
+
                     <button
                         type="submit"
                         disabled={submitting}
                         className="inline-flex items-center gap-2 bg-copper text-ivory px-7 py-3.5 font-mono text-[11px] tracking-[0.22em] uppercase hover:bg-terra transition-colors disabled:opacity-50 min-h-[48px]"
                         data-testid="career-submit"
                     >
-                        {submitting ? 'Sending…' : 'Submit application'} <ArrowUpRight size={14} aria-hidden="true" />
+                        {submitting ? 'Sending…' : 'Submit application'}{' '}
+                        <ArrowUpRight size={14} aria-hidden="true" />
                     </button>
                     <p className="text-xs text-mute">
                         Prefer email?{' '}
-                        <a href={`mailto:${CONTACT.email}?subject=Careers%20application`} className="text-copper underline-offset-4 hover:underline">
+                        <a
+                            href={`mailto:${CONTACT.email}?subject=Careers%20application`}
+                            className="text-copper underline-offset-4 hover:underline"
+                        >
                             {CONTACT.email}
                         </a>
                     </p>
@@ -318,11 +581,11 @@ export default function Careers() {
                 index="07"
                 label="Careers FAQ"
                 title="Before you apply"
-                className="bg-bone text-graphite"
+                className="bg-ivory text-graphite"
                 testId="careers-faq"
             />
 
-            <section className="bg-ivory text-graphite px-5 sm:px-6 lg:px-12 py-16 border-t border-graphite/10">
+            <section className="bg-bone text-graphite px-5 sm:px-6 lg:px-12 py-16 border-t border-graphite/10">
                 <div className="flex flex-wrap gap-4">
                     <Link
                         to="/partner"

@@ -53,7 +53,7 @@ export default function WhoWeAre() {
                                 loading="lazy"
                             />
                             <span className="absolute top-4 left-4 bg-forest text-ivory font-mono text-[9px] tracking-[0.25em] px-3 py-2">
-                                TRADE / 001 — SOURCE — VERIFY — DELIVER
+                                TRADE / 001 - SOURCE - VERIFY - DELIVER
                             </span>
                         </motion.div>
                         <Fade delay={0.4} className="absolute bottom-4 lg:bottom-10 right-4 lg:right-10 w-36 lg:w-56 z-10">

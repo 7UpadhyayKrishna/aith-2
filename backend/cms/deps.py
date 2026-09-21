@@ -127,7 +127,7 @@ def require_role(*roles: str):
 
 
 def require_role_read(*roles: str):
-    """Authenticated read (GET) — no CSRF."""
+    """Authenticated read (GET) - no CSRF."""
 
     async def _inner(
         request: Request,

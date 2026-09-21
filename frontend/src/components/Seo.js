@@ -62,7 +62,7 @@ export default function Seo({
         // Prefer natural "Intent | AITH" titles; avoid double-branding when title already includes AITH
         const fullTitle = title
             ? (/\bAITH\b/i.test(title) ? title : `${title} | AITH`)
-            : `${SITE_NAME} — Global Sourcing, Import & Export`;
+            : `${SITE_NAME} - Global Sourcing, Import & Export`;
         const url = canonical || absoluteUrl(path);
         const absImage = image.startsWith('http') ? image : `${SITE_ORIGIN}${image}`;
 

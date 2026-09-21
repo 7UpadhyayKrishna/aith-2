@@ -40,7 +40,7 @@ app = FastAPI(title="AITH API", docs_url=None, redoc_url=None)
 api_router = APIRouter(prefix="/api")
 
 # Simple in-memory rate limit: max N submissions per IP per window
-# Limitation: per-process only — use reverse-proxy / Cloudflare limits in multi-instance deploys
+# Limitation: per-process only - use reverse-proxy / Cloudflare limits in multi-instance deploys
 _RATE: Dict[str, list] = {}
 _RATE_WINDOW = 60  # seconds
 _RATE_MAX = 8
@@ -96,18 +96,18 @@ def _smtp_startup_state() -> str:
     return 'incomplete'
 
 
-def _safe_text(value: Any, fallback: str = '—') -> str:
+def _safe_text(value: Any, fallback: str = '-') -> str:
     if value is None:
         return fallback
     text = str(value).replace('\r\n', '\n').replace('\r', '\n')
-    # Strip control chars except newline/tab — plain-text email body only
+    # Strip control chars except newline/tab - plain-text email body only
     return ''.join(ch for ch in text if ch == '\n' or ch == '\t' or (ord(ch) >= 32)) or fallback
 
 
 def _header_safe(value: Any, max_len: int = 120) -> str:
     from cms.request_utils import header_safe
 
-    return header_safe(None if value is None else str(value), max_len=max_len) or '—'
+    return header_safe(None if value is None else str(value), max_len=max_len) or '-'
 
 
 def _notify_ops(
@@ -165,7 +165,7 @@ def _notify_ops(
         )
         return 'sent', None
     except Exception as exc:
-        # Do not log credentials or full env — message class name + brief str only
+        # Do not log credentials or full env - message class name + brief str only
         err = f'{type(exc).__name__}: {exc}'[:240]
         logger.error(
             'enquiry notify=failed kind=%s id=%s stored=yes attempted_at=%s error=%s',
@@ -224,7 +224,7 @@ def _format_quote_body(doc: dict) -> str:
         f"Reference: {_safe_text(doc.get('reference'))}",
         f"Timestamp: {_safe_text(doc.get('createdAt'))}",
         '',
-        '— Contact —',
+        '- Contact -',
         f"Name: {_safe_text(doc.get('name'))}",
         f"Company: {_safe_text(doc.get('company'))}",
         f"Email: {_safe_text(doc.get('email'))}",
@@ -232,7 +232,7 @@ def _format_quote_body(doc: dict) -> str:
         f"Country: {_safe_text(doc.get('country'))}",
         f"Role: {_safe_text(doc.get('role'))}",
         '',
-        '— Requirement —',
+        '- Requirement -',
         f"Type: {_safe_text(doc.get('requirementType'))}",
         f"Product: {_safe_text(doc.get('product'))}",
         f"Category: {_safe_text(doc.get('category'))}",
@@ -242,23 +242,23 @@ def _format_quote_body(doc: dict) -> str:
         f"Supplier known: {_safe_text(doc.get('supplierKnown'))}",
         f"Timeline: {_safe_text(doc.get('timeline'))}",
         '',
-        '— Product / shipment —',
+        '- Product / shipment -',
         f"Mode: {_safe_text(doc.get('mode'))}",
         f"Incoterm: {_safe_text(doc.get('incoterm'))}",
         f"Budget: {_safe_text(doc.get('budget'))}",
         f"Packaging: {_safe_text(doc.get('packaging'))}",
         f"OEM / private label: {_safe_text(doc.get('oem'))}",
         '',
-        '— Commercial / quality —',
+        '- Commercial / quality -',
         f"Quality: {_safe_text(doc.get('qualityRequirements'))}",
         f"Certifications: {_safe_text(doc.get('certifications'))}",
         f"Inspection: {_safe_text(doc.get('inspection'))}",
         f"Documentation: {_safe_text(doc.get('documentation'))}",
         '',
-        '— Specification —',
+        '- Specification -',
         _safe_text(doc.get('specification'), ''),
         '',
-        '— Notes —',
+        '- Notes -',
         _safe_text(doc.get('notes'), ''),
     ]
     return '\n'.join(lines)
@@ -357,7 +357,7 @@ async def health(request: Request):
     }
 
 
-# /api/status demo endpoints removed — use GET /api/health
+# /api/status demo endpoints removed - use GET /api/health
 
 
 @api_router.post("/contact")
@@ -385,14 +385,14 @@ async def submit_contact(payload: ContactSubmission, request: Request):
 
     status, error = _notify_ops(
         kind=kind,
-        subject=f"New AITH enquiry — {kind} — {_header_safe(payload.name, 80)}",
+        subject=f"New AITH enquiry - {kind} - {_header_safe(payload.name, 80)}",
         body=_format_contact_body(doc),
         reply_to=payload.email,
         meta={'id': doc_id, 'kind': kind, 'requestId': request_id},
     )
     await _patch_notification(collection, doc_id, status, error)
 
-    # Mongo success is durable — always return success to the user
+    # Mongo success is durable - always return success to the user
     return {'ok': True, 'id': doc_id, 'notificationStatus': status}
 
 
@@ -428,7 +428,7 @@ async def submit_quote(payload: QuoteSubmission, request: Request):
 
     status, error = _notify_ops(
         kind='quote',
-        subject=f"New AITH quote request — {reference} — {_header_safe(payload.product, 60)}",
+        subject=f"New AITH quote request - {reference} - {_header_safe(payload.product, 60)}",
         body=_format_quote_body(doc),
         reply_to=payload.email,
         meta={'id': doc_id, 'reference': reference, 'requestId': request_id},
@@ -497,7 +497,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             'Permissions-Policy',
             'camera=(), microphone=(), geolocation=(), payment=()',
         )
-        # Conservative CSP for API JSON responses only — do not break marketing site assets
+        # Conservative CSP for API JSON responses only - do not break marketing site assets
         if request.url.path.startswith('/api/'):
             response.headers.setdefault('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'")
         return response
@@ -528,7 +528,7 @@ async def _ensure_cms_indexes() -> None:
         await db.admin_sessions.create_index('sessionHash', unique=True)
         await db.admin_sessions.create_index('userId')
         # TTL: Mongo removes session docs after expiresAt (ISO date stored as datetime preferred)
-        # Sessions store ISO strings — convert-friendly expireAfterSeconds on a datetime field.
+        # Sessions store ISO strings - convert-friendly expireAfterSeconds on a datetime field.
         # We also store expiresAtDate as BSON date for TTL when creating sessions.
         await db.admin_sessions.create_index('expiresAtDate', expireAfterSeconds=0)
         await db.blogs.create_index('slug', unique=True)
@@ -555,17 +555,17 @@ async def startup_checks():
     app.state.db = db
     await _ensure_cms_indexes()
     if cms_config.is_production():
-        logger.info('APP_ENV=production — strict security validation applied at import')
+        logger.info('APP_ENV=production - strict security validation applied at import')
     elif not os.environ.get('ADMIN_SESSION_SECRET'):
         logger.warning(
-            'ADMIN_SESSION_SECRET is not set — using ephemeral secret (sessions reset on restart). '
+            'ADMIN_SESSION_SECRET is not set - using ephemeral secret (sessions reset on restart). '
             'Set a 32+ char secret before production.'
         )
     if not cms_config.COOKIE_SECURE and not cms_config.is_production():
         logger.info('ADMIN_COOKIE_SECURE=false (dev). Must be true behind HTTPS in production.')
     state = _smtp_startup_state()
     if state == 'disabled':
-        logger.info('SMTP notifications: disabled (no SMTP env set) — Mongo-only mode')
+        logger.info('SMTP notifications: disabled (no SMTP env set) - Mongo-only mode')
     elif state == 'incomplete':
         present = _smtp_present_keys()
         logger.warning(
@@ -582,7 +582,7 @@ async def startup_checks():
     if cms_config.MFA_ENABLED:
         logger.info('Admin MFA (TOTP) feature flag ENABLED')
     else:
-        logger.info('Admin MFA (TOTP) feature flag disabled — set ADMIN_MFA_ENABLED=true to activate')
+        logger.info('Admin MFA (TOTP) feature flag disabled - set ADMIN_MFA_ENABLED=true to activate')
 
 
 @app.on_event('shutdown')

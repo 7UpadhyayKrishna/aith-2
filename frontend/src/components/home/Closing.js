@@ -43,7 +43,7 @@ export default function Closing() {
                                     />
                                 </div>
                                 <p className="font-mono text-[10px] tracking-[0.25em] uppercase text-copper mt-6">
-                                    {s.tag} — {s.read}
+                                    {s.tag} - {s.read}
                                 </p>
                                 <h3 className="text-xl lg:text-2xl font-extrabold tracking-tight leading-snug mt-3 group-hover:text-copper transition-colors duration-300">
                                     {s.title}

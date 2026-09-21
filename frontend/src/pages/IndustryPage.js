@@ -183,9 +183,7 @@ export default function IndustryPage() {
                 <div className="flex flex-wrap items-end justify-between gap-8">
                     <h2 className="text-[clamp(2rem,4.5vw,4rem)] leading-[0.95] tracking-[-0.03em] font-extrabold max-w-2xl">
                         <Line>Source {page.name.toLowerCase()}</Line>
-                        <Line delay={0.1}>
-                            <span className="font-serif italic font-normal">with a clear brief.</span>
-                        </Line>
+                        <Line delay={0.1}>with a clear brief.</Line>
                     </h2>
                     <Link
                         to="/request-quote"

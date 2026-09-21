@@ -11,7 +11,7 @@ const EXPECTATIONS = [
     {
         index: '01',
         title: 'Product capability',
-        blurb: 'Clear specifications, consistent grade and capacity that can support commercial volumes — not sample-only production.',
+        blurb: 'Clear specifications, consistent grade and capacity that can support commercial volumes - not sample-only production.',
     },
     {
         index: '02',
@@ -26,7 +26,7 @@ const EXPECTATIONS = [
     {
         index: '04',
         title: 'Export readiness',
-        blurb: 'Experience — or readiness to build it — with packaging, labelling and lead times suited to international lanes.',
+        blurb: 'Experience - or readiness to build it - with packaging, labelling and lead times suited to international lanes.',
     },
 ];
 
@@ -42,7 +42,7 @@ export default function Partner() {
         <main id="main-content" className="overflow-x-clip">
             <Seo
                 title="Partner With AITH"
-                description="Become a supplier, manufacturer or distribution partner with Asian International Trade House — market access, quality expectations and partnership workflow."
+                description="Become a supplier, manufacturer or distribution partner with Asian International Trade House - market access, quality expectations and partnership workflow."
                 path="/partner"
                 jsonLd={{
                     '@context': 'https://schema.org',
@@ -63,7 +63,7 @@ export default function Partner() {
                 ]}
                 titleLines={['BUILD TRADE', 'TOGETHER.']}
                 italicLast
-                lead="AITH partners with manufacturers, exporters and distributors who want structured access to international demand — with clear expectations on quality, documentation and delivery."
+                lead="AITH partners with manufacturers, exporters and distributors who want structured access to international demand - with clear expectations on quality, documentation and delivery."
                 primaryCta={{ to: '/request-quote?type=partner', label: 'Partnership Enquiry', testId: 'partner-enquiry-cta' }}
                 secondaryCta={{ to: '/contact', label: 'Talk to us', testId: 'partner-contact-cta' }}
                 testId="partner-hero"
@@ -143,7 +143,7 @@ export default function Partner() {
                 </div>
                 <Fade delay={0.2}>
                     <p className="text-sm text-mute mt-14 max-w-2xl">
-                        Requirements are assessed according to product, destination and buyer needs. We do not claim certifications on behalf of partners — documentation is verified case by case.
+                        Requirements are assessed according to product, destination and buyer needs. We do not claim certifications on behalf of partners - documentation is verified case by case.
                     </p>
                 </Fade>
             </section>

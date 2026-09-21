@@ -1,5 +1,5 @@
 /**
- * Public blog API — credentials omitted (no session cookies required).
+ * Public blog API - credentials omitted (no session cookies required).
  */
 
 const API_BASE = (process.env.REACT_APP_API_URL || '').replace(/\/$/, '');
@@ -87,13 +87,30 @@ function qs(params = {}) {
     return s ? `?${s}` : '';
 }
 
+/** Swap em/en dashes for plain hyphens in user-facing blog copy */
+function plainHyphens(value) {
+    if (typeof value !== 'string') return value;
+    return value.replace(/\u2014|\u2013/g, '-');
+}
+
+function scrubBlogFields(blog) {
+    if (!blog || typeof blog !== 'object') return blog;
+    const next = { ...blog };
+    for (const key of ['title', 'excerpt', 'summary', 'category', 'contentMarkdown', 'contentHtml']) {
+        if (typeof next[key] === 'string') next[key] = plainHyphens(next[key]);
+    }
+    return next;
+}
+
 /**
  * Normalize list payload to the public contract:
  * { items: Blog[], page, limit, total, pages }
- * Only `items` is accepted — wrong field names surface as an empty list, not a crash.
+ * Only `items` is accepted - wrong field names surface as an empty list, not a crash.
  */
 function normalizeBlogList(data) {
-    const items = Array.isArray(data?.items) ? data.items.filter(Boolean) : [];
+    const items = Array.isArray(data?.items)
+        ? data.items.filter(Boolean).map(scrubBlogFields)
+        : [];
     const page = Number(data?.page) > 0 ? Number(data.page) : 1;
     const limit = Number(data?.limit) > 0 ? Number(data.limit) : items.length || 12;
     const total = Number.isFinite(Number(data?.total)) ? Number(data.total) : items.length;
@@ -142,5 +159,5 @@ export async function getBlogBySlug(slug) {
         err.data = data;
         throw err;
     }
-    return data;
+    return scrubBlogFields(data);
 }

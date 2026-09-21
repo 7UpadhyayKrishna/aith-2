@@ -9,7 +9,7 @@ import { CONTACT } from '../data/contact';
 import { submitQuote } from '../services/forms';
 
 const UNITS = ['MT', 'KG', 'CBM', 'Containers', 'Units'];
-const TIMELINES = ['Immediately', 'Within 30 days', '60–90 days', 'Flexible'];
+const TIMELINES = ['Immediately', 'Within 30 days', '60-90 days', 'Flexible'];
 const MODES = ['Air', 'Sea', 'Road', 'Flexible'];
 const REQUIREMENT_TYPES = ['Import', 'Export', 'Product Sourcing', 'Procurement', 'Distribution', 'Other'];
 const YES_NO = ['Yes', 'No'];
@@ -112,7 +112,7 @@ export default function RequestQuote() {
             const result = await submitQuote({ ...data, refCode });
             setSubmitMode(result.mode);
             if (result.mode === 'mailto' && result.mailto) {
-                // Mailto opened ≠ Mongo persistence — UI distinguishes via submitMode
+                // Mailto opened ≠ Mongo persistence - UI distinguishes via submitMode
                 window.open(result.mailto, '_blank');
             }
             if (result.ok) setDone(true);
@@ -155,7 +155,7 @@ export default function RequestQuote() {
         <main id="main-content" className="bg-forest text-ivory min-h-screen relative overflow-x-clip" data-testid="request-quote-page">
             <Seo
                 title="Request a Quote"
-                description="Start a trade requirement with Asian International Trade House — product, volume, destination and timeline."
+                description="Start a trade requirement with Asian International Trade House - product, volume, destination and timeline."
                 path="/request-quote"
             />
             <span className="absolute top-28 right-8 font-mono text-[10px] tracking-[0.3em] text-ivory/20 hidden lg:block">
@@ -191,7 +191,7 @@ export default function RequestQuote() {
                         )}
                         <Fade delay={0.5}>
                             <p className="text-ivory/65 text-sm lg:text-base leading-relaxed mt-10 max-w-xl">
-                                A structured trade brief — contact, requirement type, product, shipment and commercial notes — so we can respond with a clear commercial path.
+                                A structured trade brief - contact, requirement type, product, shipment and commercial notes - so we can respond with a clear commercial path.
                             </p>
                             <div className="flex flex-wrap items-center gap-6 mt-12">
                                 <button
@@ -207,7 +207,7 @@ export default function RequestQuote() {
                                     className="font-mono text-[11px] tracking-[0.2em] uppercase text-ivory/60 hover:text-ivory border-b border-ivory/30 pb-1 transition-colors duration-300 break-all"
                                     data-testid="quote-email-link"
                                 >
-                                    Prefer email — {CONTACT.email}
+                                    Prefer email - {CONTACT.email}
                                 </a>
                             </div>
                         </Fade>
@@ -289,9 +289,9 @@ export default function RequestQuote() {
                                                 ))}
                                                 <Choice label="Other" selected={data.category === 'other'} onClick={() => set('category', 'other')} testid="quote-category-other" />
                                             </div>
-                                            <input value={data.product} onChange={(e) => set('product', e.target.value)} placeholder="Product name — e.g. Basmati rice, 5% broken" className={inputCls} aria-label="Product" data-testid="quote-input-product" />
+                                            <input value={data.product} onChange={(e) => set('product', e.target.value)} placeholder="Product name - e.g. Basmati rice, 5% broken" className={inputCls} aria-label="Product" data-testid="quote-input-product" />
                                             <textarea value={data.specification} onChange={(e) => set('specification', e.target.value)} placeholder="Specification (optional)" rows={2} className={`${inputCls} text-base lg:text-lg resize-y`} aria-label="Specification" data-testid="quote-input-spec" />
-                                            <input value={data.quantity} onChange={(e) => set('quantity', e.target.value)} placeholder="Quantity — e.g. 500" className={inputCls} aria-label="Quantity" data-testid="quote-input-quantity" />
+                                            <input value={data.quantity} onChange={(e) => set('quantity', e.target.value)} placeholder="Quantity - e.g. 500" className={inputCls} aria-label="Quantity" data-testid="quote-input-quantity" />
                                             <div className="flex flex-wrap gap-3">
                                                 {UNITS.map((u) => (
                                                     <Choice key={u} label={u} selected={data.unit === u} onClick={() => set('unit', u)} testid={`quote-unit-${u.toLowerCase()}`} />
@@ -434,22 +434,22 @@ export default function RequestQuote() {
                                 {refCode}
                             </p>
                             <div className="mt-6 space-y-2 font-mono text-[11px] tracking-[0.12em] text-ivory/65">
-                                <p>TYPE — {data.requirementType.toUpperCase()}</p>
-                                <p>PRODUCT — {data.product}</p>
+                                <p>TYPE - {data.requirementType.toUpperCase()}</p>
+                                <p>PRODUCT - {data.product}</p>
                                 <p>
-                                    QUANTITY — {data.quantity} {data.unit.toUpperCase()}
+                                    QUANTITY - {data.quantity} {data.unit.toUpperCase()}
                                 </p>
-                                <p>DESTINATION — {data.destination}</p>
-                                {data.origin && <p>ORIGIN — {data.origin}</p>}
-                                <p>TIMELINE — {data.timeline.toUpperCase()}</p>
-                                <p>MODE — {data.mode.toUpperCase()}</p>
-                                {data.incoterm && <p>INCOTERM — {data.incoterm.toUpperCase()}</p>}
+                                <p>DESTINATION - {data.destination}</p>
+                                {data.origin && <p>ORIGIN - {data.origin}</p>}
+                                <p>TIMELINE - {data.timeline.toUpperCase()}</p>
+                                <p>MODE - {data.mode.toUpperCase()}</p>
+                                {data.incoterm && <p>INCOTERM - {data.incoterm.toUpperCase()}</p>}
                             </div>
                         </div>
                         <p className="text-ivory/45 text-xs mt-6 max-w-md">
                             {submitMode === 'api'
                                 ? 'Your requirement has been submitted. Our team will review it and follow up with next steps.'
-                                : 'Your email client may have opened with a prepared copy of this request. That is a fallback — it is not the same as a confirmed server submission. If the client did not open, please email the brief to us directly.'}
+                                : 'Your email client may have opened with a prepared copy of this request. That is a fallback - it is not the same as a confirmed server submission. If the client did not open, please email the brief to us directly.'}
                         </p>
                         <div className="flex flex-wrap gap-4 mt-12">
                             <Link

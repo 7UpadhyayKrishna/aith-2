@@ -3,7 +3,7 @@ import { useOutletContext } from 'react-router-dom';
 import { systemStatus } from '@/services/adminApi';
 
 function fmt(iso) {
-    if (!iso) return '—';
+    if (!iso) return '-';
     try {
         return new Date(iso).toLocaleString('en-GB');
     } catch {
@@ -14,7 +14,7 @@ function fmt(iso) {
 function flag(v) {
     if (v === true) return 'YES';
     if (v === false) return 'NO';
-    return v ?? '—';
+    return v ?? '-';
 }
 
 export default function AdminSystem() {
@@ -70,7 +70,7 @@ export default function AdminSystem() {
                 {rows.map(([k, v]) => (
                     <div key={k} className="px-4 py-3 flex justify-between gap-4 text-sm">
                         <span className="font-mono text-[10px] tracking-[0.16em] uppercase text-mute">{k}</span>
-                        <span className="font-medium text-right break-all">{v ?? '—'}</span>
+                        <span className="font-medium text-right break-all">{v ?? '-'}</span>
                     </div>
                 ))}
             </div>
@@ -83,7 +83,7 @@ export default function AdminSystem() {
                     {readinessRows.map(([k, v]) => (
                         <div key={k} className="px-4 py-3 flex justify-between gap-4 text-sm">
                             <span className="font-mono text-[10px] tracking-[0.16em] uppercase text-mute">{k}</span>
-                            <span className="font-medium text-right break-all">{v ?? '—'}</span>
+                            <span className="font-medium text-right break-all">{v ?? '-'}</span>
                         </div>
                     ))}
                 </div>

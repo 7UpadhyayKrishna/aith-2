@@ -48,7 +48,7 @@ export default function AdminSeo() {
                     ].map(([label, value, href]) => (
                         <Link key={label} to={href} className={`${panel} px-3 py-3 hover:border-copper/40`}>
                             <p className={sectionTitle}>{label}</p>
-                            <p className="mt-1 text-xl font-extrabold tabular-nums">{value ?? '—'}</p>
+                            <p className="mt-1 text-xl font-extrabold tabular-nums">{value ?? '-'}</p>
                         </Link>
                     ))}
                 </div>
@@ -65,7 +65,7 @@ export default function AdminSeo() {
                     ].map(([label, value, href]) => (
                         <Link key={label} to={href} className={`${panel} px-3 py-3 hover:border-copper/40`}>
                             <p className={sectionTitle}>{label}</p>
-                            <p className="mt-1 text-xl font-extrabold tabular-nums">{value ?? '—'}</p>
+                            <p className="mt-1 text-xl font-extrabold tabular-nums">{value ?? '-'}</p>
                         </Link>
                     ))}
                 </div>
@@ -81,7 +81,7 @@ export default function AdminSeo() {
                     ].map(([label, value]) => (
                         <div key={label} className={`${panel} px-3 py-3`}>
                             <p className={sectionTitle}>{label}</p>
-                            <p className="mt-1 text-xl font-extrabold tabular-nums">{value ?? '—'}</p>
+                            <p className="mt-1 text-xl font-extrabold tabular-nums">{value ?? '-'}</p>
                         </div>
                     ))}
                 </div>
@@ -92,7 +92,7 @@ export default function AdminSeo() {
                     <div className="px-3 py-2.5 border-b border-graphite/10">
                         <h3 className={sectionTitle}>Possible orphan posts</h3>
                         <p className="mt-1 text-xs text-mute">
-                            Published without featured flag or related articles — ensure discovery via /blogs, related, or pillars.
+                            Published without featured flag or related articles - ensure discovery via /blogs, related, or pillars.
                         </p>
                     </div>
                     <ul className="divide-y divide-graphite/10">

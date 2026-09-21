@@ -61,8 +61,8 @@ export async function submitContact(payload) {
     } catch {
         const subject = encodeURIComponent(
             payload.subject
-                ? `AITH — ${payload.subject}`
-                : `AITH Contact — ${payload.intent || 'Enquiry'} — ${payload.name || ''}`
+                ? `AITH - ${payload.subject}`
+                : `AITH Contact - ${payload.intent || 'Enquiry'} - ${payload.name || ''}`
         );
         const text = [
             `Name: ${payload.name || ''}`,
@@ -92,7 +92,7 @@ export async function submitCareerApplication(payload) {
         intent: 'careers',
         kind: 'careers',
         company: payload.company || 'Career applicant',
-        subject: payload.subject || `Careers — ${payload.roleInterest || 'General interest'}`,
+        subject: payload.subject || `Careers - ${payload.roleInterest || 'General interest'}`,
     });
 }
 
@@ -115,7 +115,7 @@ export async function submitQuote(payload) {
         const data = await postJson('/api/quote', body);
         return { ok: true, mode: 'api', reference: data?.id || data?.reference || payload.refCode };
     } catch {
-        const subject = encodeURIComponent(`AITH Quote ${payload.refCode || ''} — ${payload.product || 'Requirement'}`);
+        const subject = encodeURIComponent(`AITH Quote ${payload.refCode || ''} - ${payload.product || 'Requirement'}`);
         const text = [
             `Reference: ${payload.refCode || ''}`,
             `Requirement type: ${payload.requirementType || ''}`,

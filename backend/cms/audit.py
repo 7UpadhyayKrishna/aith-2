@@ -1,4 +1,4 @@
-"""Admin audit logging — never log secrets."""
+"""Admin audit logging - never log secrets."""
 from __future__ import annotations
 
 import logging

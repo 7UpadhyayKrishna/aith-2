@@ -7,7 +7,7 @@ function Metric({ label, value, to }) {
     const inner = (
         <>
             <p className={sectionTitle}>{label}</p>
-            <p className="mt-1 text-xl font-extrabold tracking-tight text-forest tabular-nums">{value ?? '—'}</p>
+            <p className="mt-1 text-xl font-extrabold tracking-tight text-forest tabular-nums">{value ?? '-'}</p>
         </>
     );
     const cls = `${panel} px-3 py-3 hover:border-copper/40 transition-colors`;
@@ -49,11 +49,11 @@ function MiniTable({ title, rows, columns, empty, linkBase }) {
                                                 : linkBase && c.key === 'title'
                                                   ? (
                                                         <Link to={`${linkBase}/${row.id}`} className="text-forest hover:text-copper">
-                                                            {row[c.key] || '—'}
+                                                            {row[c.key] || '-'}
                                                         </Link>
                                                     )
                                                   : (
-                                                        row[c.key] ?? '—'
+                                                        row[c.key] ?? '-'
                                                     )}
                                         </td>
                                     ))}
@@ -149,7 +149,7 @@ export default function AdminDashboard() {
                                         </Link>
                                         <div className="mt-0.5 flex flex-wrap gap-2 font-mono text-[10px] text-mute">
                                             <span className={statusTone(r.status)}>{r.status}</span>
-                                            <span>{r.category || '—'}</span>
+                                            <span>{r.category || '-'}</span>
                                             <span>{fmtDateTime(r.updatedAt || r.publishedAt || r.scheduledAt)}</span>
                                         </div>
                                         <div className="mt-1.5 flex gap-2">
@@ -202,7 +202,7 @@ export default function AdminDashboard() {
                             label: 'Name',
                             render: (r) => (
                                 <Link to={`/admin/enquiries?id=${r.id}`} className="hover:text-copper">
-                                    {r.name || '—'}
+                                    {r.name || '-'}
                                 </Link>
                             ),
                         },
@@ -221,7 +221,7 @@ export default function AdminDashboard() {
                             label: 'Ref',
                             render: (r) => (
                                 <Link to={`/admin/quotes?id=${r.id}`} className="hover:text-copper">
-                                    {r.reference || r.name || '—'}
+                                    {r.reference || r.name || '-'}
                                 </Link>
                             ),
                         },

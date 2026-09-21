@@ -1,4 +1,4 @@
-"""CMS / admin configuration — no secrets logged."""
+"""CMS / admin configuration - no secrets logged."""
 from __future__ import annotations
 
 import logging
@@ -74,7 +74,7 @@ MAX_PASSWORD_LENGTH = int(os.environ.get('ADMIN_MAX_PASSWORD_LENGTH', '128'))
 # Bump when policy strengthens. Legacy accounts get mustChangePassword via migration script.
 PASSWORD_POLICY_VERSION = 2
 
-# MFA (TOTP) — optional until enabled. Do not invent crypto; use pyotp when enabled.
+# MFA (TOTP) - optional until enabled. Do not invent crypto; use pyotp when enabled.
 MFA_ENABLED = os.environ.get('ADMIN_MFA_ENABLED', '').lower() in ('1', 'true', 'yes')
 MFA_REQUIRED_FOR_ADMIN = os.environ.get('ADMIN_MFA_REQUIRED', '').lower() in ('1', 'true', 'yes')
 
@@ -103,7 +103,7 @@ def ensure_session_secret() -> str:
 
     Production: missing or short secret fails startup (no ephemeral fallback).
     Development: ephemeral secret allowed with a warning (sessions reset on restart).
-    Never generate a new secret on every boot in production — that invalidates all sessions.
+    Never generate a new secret on every boot in production - that invalidates all sessions.
     """
     secret = os.environ.get('ADMIN_SESSION_SECRET', '').strip()
     if secret and len(secret) >= 32:
@@ -120,7 +120,7 @@ def ensure_session_secret() -> str:
         )
 
     logger.warning(
-        'ADMIN_SESSION_SECRET missing or too short — using ephemeral secret (dev only). '
+        'ADMIN_SESSION_SECRET missing or too short - using ephemeral secret (dev only). '
         'Sessions reset on restart. Set a 32+ char secret for stable sessions.'
     )
     return secrets.token_hex(32)

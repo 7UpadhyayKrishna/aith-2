@@ -19,7 +19,7 @@ export default function Home() {
         <main id="main-content" className="overflow-x-clip">
             <Seo
                 title={null}
-                description="Asian International Trade House — global sourcing, international trading and supply solutions connecting products, suppliers and buyers across international markets."
+                description="Asian International Trade House - global sourcing, international trading and supply solutions connecting products, suppliers and buyers across international markets."
                 path="/"
                 jsonLd={{
                     '@context': 'https://schema.org',

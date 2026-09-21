@@ -217,7 +217,7 @@ export default function BlogPost() {
             <section className="bg-forest text-ivory px-5 sm:px-6 lg:px-12 py-16 lg:py-20">
                 <h2 className="text-2xl lg:text-3xl font-extrabold tracking-tight">Ready to source?</h2>
                 <p className="mt-3 text-ivory/65 text-sm max-w-md">
-                    Tell us what you need to move — product, volume, and destination.
+                    Tell us what you need to move - product, volume, and destination.
                 </p>
                 <Link
                     to="/request-quote"

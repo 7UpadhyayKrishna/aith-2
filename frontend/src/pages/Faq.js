@@ -25,7 +25,7 @@ export default function Faq() {
                 ]}
                 titleLines={['QUESTIONS.', 'ANSWERED.']}
                 italicLast
-                lead="Practical answers for buyers and suppliers — from first enquiry to documentation and delivery."
+                lead="Practical answers for buyers and suppliers - from first enquiry to documentation and delivery."
                 primaryCta={{ to: '/request-quote', label: 'Request a Quote', testId: 'faq-quote-cta' }}
                 secondaryCta={{ to: '/contact', label: 'Contact us', testId: 'faq-contact-cta' }}
                 testId="faq-hero"

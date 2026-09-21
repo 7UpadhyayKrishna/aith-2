@@ -3,7 +3,7 @@ import { useOutletContext } from 'react-router-dom';
 import { listCareers } from '@/services/adminApi';
 
 function fmt(iso) {
-    if (!iso) return '—';
+    if (!iso) return '-';
     try {
         return new Date(iso).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' });
     } catch {
@@ -71,7 +71,7 @@ export default function AdminCareers() {
                                     <td className="px-3 py-2.5 text-mute whitespace-nowrap">{fmt(row.createdAt)}</td>
                                     <td className="px-3 py-2.5 font-medium">{row.name}</td>
                                     <td className="px-3 py-2.5 break-all">{row.email}</td>
-                                    <td className="px-3 py-2.5">{row.roleInterest || row.subject || '—'}</td>
+                                    <td className="px-3 py-2.5">{row.roleInterest || row.subject || '-'}</td>
                                     <td className="px-3 py-2.5">{row.internalStatus || 'new'}</td>
                                 </tr>
                             ))}
@@ -128,7 +128,7 @@ export default function AdminCareers() {
                             ].map(([k, v]) => (
                                 <div key={k}>
                                     <dt className="font-mono text-[9px] tracking-widest uppercase text-mute">{k}</dt>
-                                    <dd className="mt-0.5 break-all">{v || '—'}</dd>
+                                    <dd className="mt-0.5 break-all">{v || '-'}</dd>
                                 </div>
                             ))}
                         </dl>

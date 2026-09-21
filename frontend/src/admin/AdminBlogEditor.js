@@ -468,7 +468,7 @@ export default function AdminBlogEditor() {
                 if (errs) setValidateErrors(errs);
                 setSaveFailed(true);
                 if (err.status === 401) {
-                    setError('Your admin session expired. Sign in again — your content is still in the editor.');
+                    setError('Your admin session expired. Sign in again - your content is still in the editor.');
                 } else {
                     setError(err.message || 'Save failed');
                 }
@@ -630,7 +630,7 @@ export default function AdminBlogEditor() {
             setStatusMsg('JSON applied to editor');
             setTab('write');
         } catch {
-            setError('Invalid JSON — fix syntax before applying');
+            setError('Invalid JSON - fix syntax before applying');
         }
     }
 
@@ -640,7 +640,7 @@ export default function AdminBlogEditor() {
             setJsonText(JSON.stringify(parsed, null, 2));
             setStatusMsg('JSON formatted');
         } catch {
-            setError('Invalid JSON — cannot format');
+            setError('Invalid JSON - cannot format');
         }
     }
 
@@ -657,7 +657,7 @@ export default function AdminBlogEditor() {
         const text = await file.text();
         setJsonText(text);
         setTab('json');
-        setStatusMsg('JSON imported — review and Apply to editor');
+        setStatusMsg('JSON imported - review and Apply to editor');
     }
 
     function downloadJson() {
@@ -934,7 +934,7 @@ export default function AdminBlogEditor() {
                         <ul className={`${panel} p-3 space-y-1`}>
                             {validateErrors.map((e, i) => (
                                 <li key={i} className="text-xs text-copper font-mono">
-                                    <span className="text-mute">{e.path || '—'}</span>: {e.message}
+                                    <span className="text-mute">{e.path || '-'}</span>: {e.message}
                                 </li>
                             ))}
                         </ul>
@@ -1038,7 +1038,7 @@ export default function AdminBlogEditor() {
                                 spellCheck
                             />
                             <p className="mt-1 font-mono text-[9px] text-mute tracking-wide">
-                                Page template supplies the H1 — start body sections with ##
+                                Page template supplies the H1 - start body sections with ##
                             </p>
                         </div>
                     </div>
@@ -1464,7 +1464,7 @@ export default function AdminBlogEditor() {
                                 </button>
                             </div>
                             <p className="font-mono text-[9px] text-mute leading-relaxed">
-                                Prefer descriptive anchors — avoid “click here” / “learn more”.
+                                Prefer descriptive anchors - avoid “click here” / “learn more”.
                             </p>
                             {(blog.internalLinks || []).map((link, i) => {
                                 const weak = WEAK_ANCHORS.test((link.anchor || '').trim());
@@ -1634,7 +1634,7 @@ export default function AdminBlogEditor() {
                             <section className={`${panel} p-3 space-y-2`}>
                                 <p className={sectionTitle}>Possible Overlap</p>
                                 <p className="font-mono text-[9px] text-mute leading-relaxed">
-                                    Advisory only — does not block publish.
+                                    Advisory only - does not block publish.
                                 </p>
                                 <ul className="space-y-2">
                                     {overlaps.map((o) => (
@@ -1688,7 +1688,7 @@ export default function AdminBlogEditor() {
                                 <ul className="mt-3 pt-3 border-t border-graphite/10 space-y-1">
                                     {validateErrors.map((e, i) => (
                                         <li key={i} className="text-xs text-copper font-mono">
-                                            <span className="text-mute">{e.path || '—'}</span>: {e.message}
+                                            <span className="text-mute">{e.path || '-'}</span>: {e.message}
                                         </li>
                                     ))}
                                 </ul>
