@@ -1,16 +1,13 @@
 /**
  * Form submission boundary.
  *
- * Modes:
- * - api    → durable Mongo persistence confirmed by backend
- * - mailto → client email fallback only (NOT equivalent to server store)
- * - stub   → honeypot filtered
+ * Success only when FastAPI confirms durable Postgres persistence (HTTP 2xx + ok).
+ * Never auto-open mailto / Gmail / Outlook on failure.
+ * Passive SITE_EMAIL is shown as a passive contact option in page UI only.
  *
- * Wire REACT_APP_API_URL (or same-origin /api) for production.
+ * Wire REACT_APP_API_URL (or same-origin /api via Vercel rewrite) for production.
  * Never put secrets in the frontend.
  */
-
-import { SITE_EMAIL } from '../config/site';
 
 const API_BASE = (process.env.REACT_APP_API_URL || '').replace(/\/$/, '');
 
@@ -19,29 +16,72 @@ function endpoint(path) {
     return path;
 }
 
+function classifyError(err) {
+    const status = err?.status;
+    if (status === 429) return 'rate_limit';
+    if (status === 400 || status === 422) return 'validation';
+    if (status === 0 || status == null || err?.name === 'TypeError') return 'network';
+    return 'server';
+}
+
+function userMessage(code) {
+    switch (code) {
+        case 'validation':
+            return 'Please check the highlighted fields.';
+        case 'rate_limit':
+            return 'Too many requests. Please try again shortly.';
+        case 'network':
+            return "We couldn't reach the server. Please try again.";
+        default:
+            return "We couldn't submit your request right now. Please try again.";
+    }
+}
+
 async function postJson(path, body) {
-    const res = await fetch(endpoint(path), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify(body),
-    });
+    let res;
+    try {
+        res = await fetch(endpoint(path), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify(body),
+        });
+    } catch (networkErr) {
+        const err = new Error(userMessage('network'));
+        err.status = 0;
+        err.code = 'network';
+        err.cause = networkErr;
+        throw err;
+    }
+
     let data = null;
     try {
         data = await res.json();
     } catch {
         data = null;
     }
+
     if (!res.ok) {
-        const err = new Error((data && data.detail) || 'Submission failed');
+        const code = classifyError({ status: res.status });
+        const err = new Error(userMessage(code));
         err.status = res.status;
+        err.code = code;
         err.data = data;
         throw err;
     }
+
+    if (!data || data.ok !== true) {
+        const err = new Error(userMessage('server'));
+        err.status = res.status;
+        err.code = 'server';
+        err.data = data;
+        throw err;
+    }
+
     return data;
 }
 
 /**
- * @returns {{ ok: boolean, mode: 'api' | 'mailto' | 'stub', reference?: string, mailto?: string }}
+ * @returns {Promise<{ ok: true, mode: 'api' | 'stub', reference?: string } | { ok: false, mode: 'error', code: string, message: string }>}
  */
 export async function submitContact(payload) {
     const body = {
@@ -58,30 +98,9 @@ export async function submitContact(payload) {
     try {
         const data = await postJson('/api/contact', body);
         return { ok: true, mode: 'api', reference: data?.id || data?.reference };
-    } catch {
-        const subject = encodeURIComponent(
-            payload.subject
-                ? `AITH - ${payload.subject}`
-                : `AITH Contact - ${payload.intent || 'Enquiry'} - ${payload.name || ''}`
-        );
-        const text = [
-            `Name: ${payload.name || ''}`,
-            `Email: ${payload.email || ''}`,
-            `Company: ${payload.company || ''}`,
-            `Phone: ${payload.phone || ''}`,
-            `Country: ${payload.country || ''}`,
-            `Intent: ${payload.intent || 'general'}`,
-            `Subject: ${payload.subject || ''}`,
-            payload.roleInterest ? `Role interest: ${payload.roleInterest}` : '',
-            payload.locationPreference ? `Location: ${payload.locationPreference}` : '',
-            payload.linkedinOrCv ? `LinkedIn/CV: ${payload.linkedinOrCv}` : '',
-            '',
-            payload.message || '',
-        ]
-            .filter(Boolean)
-            .join('\n');
-        const mailto = `mailto:${SITE_EMAIL}?subject=${subject}&body=${encodeURIComponent(text)}`;
-        return { ok: true, mode: 'mailto', mailto };
+    } catch (err) {
+        const code = err.code || classifyError(err);
+        return { ok: false, mode: 'error', code, message: err.message || userMessage(code) };
     }
 }
 
@@ -92,12 +111,15 @@ export async function submitCareerApplication(payload) {
         intent: 'careers',
         kind: 'careers',
         company: payload.company || 'Career applicant',
-        subject: payload.subject || `Careers - ${payload.roleInterest || 'General interest'}`,
+        subject: payload.subject || `Careers - ${payload.roleInterest || payload.jobTitle || 'General interest'}`,
+        jobId: payload.jobId || undefined,
+        jobSlug: payload.jobSlug || undefined,
+        jobTitle: payload.jobTitle || payload.roleInterest || undefined,
     });
 }
 
 /**
- * @returns {{ ok: boolean, mode: 'api' | 'mailto' | 'stub', reference?: string, mailto?: string }}
+ * @returns {Promise<{ ok: true, mode: 'api' | 'stub', reference?: string } | { ok: false, mode: 'error', code: string, message: string }>}
  */
 export async function submitQuote(payload) {
     const body = {
@@ -114,37 +136,14 @@ export async function submitQuote(payload) {
     try {
         const data = await postJson('/api/quote', body);
         return { ok: true, mode: 'api', reference: data?.id || data?.reference || payload.refCode };
-    } catch {
-        const subject = encodeURIComponent(`AITH Quote ${payload.refCode || ''} - ${payload.product || 'Requirement'}`);
-        const text = [
-            `Reference: ${payload.refCode || ''}`,
-            `Requirement type: ${payload.requirementType || ''}`,
-            `Product: ${payload.product || ''}`,
-            `Category: ${payload.category || ''}`,
-            `Specification: ${payload.specification || ''}`,
-            `Quantity: ${payload.quantity || ''} ${payload.unit || ''}`,
-            `Destination: ${payload.destination || ''}`,
-            `Origin: ${payload.origin || ''}`,
-            `Supplier known: ${payload.supplierKnown || ''}`,
-            `Timeline: ${payload.timeline || ''}`,
-            `Mode: ${payload.mode || ''}`,
-            `Incoterm: ${payload.incoterm || ''}`,
-            `Budget: ${payload.budget || ''}`,
-            `Packaging: ${payload.packaging || ''}`,
-            `OEM / private label: ${payload.oem || ''}`,
-            `Quality: ${payload.qualityRequirements || ''}`,
-            `Certifications: ${payload.certifications || ''}`,
-            `Inspection: ${payload.inspection || ''}`,
-            `Documentation: ${payload.documentation || ''}`,
-            `Company: ${payload.company || ''}`,
-            `Country: ${payload.country || ''}`,
-            `Role: ${payload.role || ''}`,
-            `Name: ${payload.name || ''}`,
-            `Email: ${payload.email || ''}`,
-            `Phone: ${payload.phone || ''}`,
-            `Notes: ${payload.notes || ''}`,
-        ].join('\n');
-        const mailto = `mailto:${SITE_EMAIL}?subject=${subject}&body=${encodeURIComponent(text)}`;
-        return { ok: true, mode: 'mailto', mailto, reference: payload.refCode };
+    } catch (err) {
+        const code = err.code || classifyError(err);
+        return {
+            ok: false,
+            mode: 'error',
+            code,
+            message: err.message || userMessage(code),
+            reference: payload.refCode,
+        };
     }
 }

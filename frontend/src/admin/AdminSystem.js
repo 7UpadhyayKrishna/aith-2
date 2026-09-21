@@ -1,20 +1,25 @@
 import { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { systemStatus } from '@/services/adminApi';
-
-function fmt(iso) {
-    if (!iso) return '-';
-    try {
-        return new Date(iso).toLocaleString('en-GB');
-    } catch {
-        return iso;
-    }
-}
+import { ErrorBanner, LoadingBlock, fmtDateTime, panel, sectionTitle } from './adminUi';
 
 function flag(v) {
     if (v === true) return 'YES';
     if (v === false) return 'NO';
     return v ?? '-';
+}
+
+function StatusPill({ ok, label }) {
+    return (
+        <span
+            className={`inline-flex items-center gap-1.5 font-mono text-[10px] tracking-[0.14em] uppercase ${
+                ok ? 'text-emerald-800' : 'text-copper'
+            }`}
+        >
+            <span className={`w-1.5 h-1.5 rounded-full ${ok ? 'bg-emerald-700' : 'bg-copper'}`} aria-hidden />
+            {label}
+        </span>
+    );
 }
 
 export default function AdminSystem() {
@@ -35,8 +40,8 @@ export default function AdminSystem() {
             .finally(() => setLoading(false));
     }, []);
 
-    if (loading) return <p className="font-mono text-[11px] uppercase tracking-widest text-mute">Loading…</p>;
-    if (error) return <p className="text-copper text-sm">{error}</p>;
+    if (loading) return <LoadingBlock label="Checking system…" />;
+    if (error) return <ErrorBanner>{error}</ErrorBanner>;
 
     const rows = [
         ['Environment', data.environment],
@@ -45,14 +50,14 @@ export default function AdminSystem() {
         ['API', data.api],
         ['Database', data.database],
         ['SMTP', data.smtp],
-        ['Last admin login', fmt(data.lastSuccessfulAdminLogin)],
+        ['Last admin login', fmtDateTime(data.lastSuccessfulAdminLogin)],
         ['Health path', data.healthPath],
         ['MFA', data.mfa],
     ];
 
     const readiness = data.productionReadiness || {};
     const readinessRows = [
-        ['Mongo configured', flag(readiness.mongoConfigured)],
+        ['Database configured', flag(readiness.databaseConfigured ?? readiness.mongoConfigured)],
         ['SMTP configured', flag(readiness.smtpConfigured)],
         ['Secure cookies', flag(readiness.secureCookiesEnabled)],
         ['Session secret set', flag(readiness.sessionSecretConfigured)],
@@ -66,7 +71,13 @@ export default function AdminSystem() {
 
     return (
         <div className="max-w-2xl space-y-8" data-testid="admin-system">
-            <div className="border border-graphite/15 bg-white divide-y divide-graphite/10">
+            <div className="flex flex-wrap gap-4">
+                <StatusPill ok={data.api === 'ONLINE'} label={`API ${data.api}`} />
+                <StatusPill ok={data.database === 'CONNECTED'} label={`DB ${data.database}`} />
+                <StatusPill ok={data.smtp === 'enabled'} label={`SMTP ${data.smtp}`} />
+            </div>
+
+            <div className={`${panel} divide-y divide-graphite/10`}>
                 {rows.map(([k, v]) => (
                     <div key={k} className="px-4 py-3 flex justify-between gap-4 text-sm">
                         <span className="font-mono text-[10px] tracking-[0.16em] uppercase text-mute">{k}</span>
@@ -76,10 +87,8 @@ export default function AdminSystem() {
             </div>
 
             <section>
-                <h2 className="font-mono text-[11px] tracking-[0.22em] uppercase text-mute mb-3">
-                    Production readiness (safe flags only)
-                </h2>
-                <div className="border border-graphite/15 bg-white divide-y divide-graphite/10">
+                <h2 className={`${sectionTitle} mb-3`}>Production readiness (safe flags only)</h2>
+                <div className={`${panel} divide-y divide-graphite/10`}>
                     {readinessRows.map(([k, v]) => (
                         <div key={k} className="px-4 py-3 flex justify-between gap-4 text-sm">
                             <span className="font-mono text-[10px] tracking-[0.16em] uppercase text-mute">{k}</span>
@@ -88,8 +97,8 @@ export default function AdminSystem() {
                     ))}
                 </div>
                 <p className="mt-3 text-xs text-mute">
-                    Secret values are never shown. Proxy <code className="font-mono">/blog-sitemap.xml</code> to the
-                    API in production.
+                    Secret values are never shown. Proxy <code className="font-mono">/blog-sitemap.xml</code> to the API
+                    in production.
                 </p>
             </section>
 

@@ -82,11 +82,26 @@ module.exports = {
                 'accordion-up': {
                     from: { height: 'var(--radix-accordion-content-height)' },
                     to: { height: '0' }
+                },
+                'admin-enter': {
+                    from: { opacity: '0', transform: 'translateY(6px)' },
+                    to: { opacity: '1', transform: 'translateY(0)' }
+                },
+                'admin-fade': {
+                    from: { opacity: '0' },
+                    to: { opacity: '1' }
+                },
+                'admin-pulse-dot': {
+                    '0%, 100%': { opacity: '1' },
+                    '50%': { opacity: '0.45' }
                 }
             },
             animation: {
                 'accordion-down': 'accordion-down 0.2s ease-out',
-                'accordion-up': 'accordion-up 0.2s ease-out'
+                'accordion-up': 'accordion-up 0.2s ease-out',
+                'admin-enter': 'admin-enter 360ms ease-out',
+                'admin-fade': 'admin-fade 220ms ease-out',
+                'admin-pulse-dot': 'admin-pulse-dot 2.4s ease-in-out infinite'
             }
         }
     },

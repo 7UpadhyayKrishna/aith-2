@@ -49,6 +49,55 @@ async def dashboard(user: dict = EditorRead, db=Depends(get_db)):
     new_quotes = await db.quote_submissions.count_documents({
         '$or': [{'internalStatus': {'$exists': False}}, {'internalStatus': 'new'}],
     })
+    open_jobs = await db.job_postings.count_documents({'status': 'published'})
+    draft_jobs = await db.job_postings.count_documents({'status': 'draft'})
+
+    new_applications = 0
+    apps_in_review = 0
+    unassigned_enquiries = 0
+    unassigned_quotes = 0
+    unassigned_applications = 0
+    needs_attention_count = 0
+
+    is_admin = user.get('role') == config.ROLE_ADMIN
+    if is_admin:
+        from cms.ops_workflow import compute_attention, normalize_status
+
+        new_applications = await db.career_submissions.count_documents({
+            '$or': [{'internalStatus': {'$exists': False}}, {'internalStatus': 'new'}],
+        })
+        apps_in_review = await db.career_submissions.count_documents({
+            'internalStatus': {'$in': ['reviewing', 'shortlisted', 'interview']},
+        })
+
+        async def _count_unassigned(coll, terminal: tuple[str, ...]):
+            n = 0
+            async for d in coll.find({}, {'_id': 0, 'assignedTo': 1, 'internalStatus': 1}).limit(2000):
+                status = normalize_status(d.get('internalStatus'))
+                if status in terminal:
+                    continue
+                if not d.get('assignedTo'):
+                    n += 1
+            return n
+
+        unassigned_enquiries = await _count_unassigned(db.contact_submissions, ('archived', 'resolved'))
+        unassigned_quotes = await _count_unassigned(db.quote_submissions, ('archived', 'closed'))
+        unassigned_applications = await _count_unassigned(
+            db.career_submissions, ('archived', 'rejected', 'hired')
+        )
+
+        # Compact attention sample (non-contractual)
+        for coll_name, rtype, terminal in (
+            ('contact_submissions', 'enquiry', ('archived', 'resolved')),
+            ('quote_submissions', 'quote', ('archived', 'closed')),
+            ('career_submissions', 'career_application', ('archived', 'rejected', 'hired')),
+        ):
+            coll = getattr(db, coll_name)
+            async for d in coll.find({}, {'_id': 0}).sort('createdAt', -1).limit(80):
+                if normalize_status(d.get('internalStatus')) in terminal:
+                    continue
+                if compute_attention(rtype, d).get('needsAttention'):
+                    needs_attention_count += 1
 
     recent_drafts = [
         serialize_lite(d)
@@ -87,6 +136,7 @@ async def dashboard(user: dict = EditorRead, db=Depends(get_db)):
                 'name': d.get('name'),
                 'company': d.get('company'),
                 'reference': d.get('reference'),
+                'product': d.get('product'),
                 'status': d.get('internalStatus') or 'new',
                 'notificationStatus': d.get('notificationStatus'),
                 'createdAt': d.get('createdAt'),
@@ -183,7 +233,7 @@ async def dashboard(user: dict = EditorRead, db=Depends(get_db)):
         {'$group': {'_id': '$slug', 'count': {'$sum': 1}}},
         {'$match': {'count': {'$gt': 1}}},
     ]
-    dupes = [x async for x in db.blogs.aggregate(pipeline_agg)]
+    dupes = await db.blogs.aggregate(pipeline_agg)
 
     db_ok = False
     try:
@@ -201,8 +251,16 @@ async def dashboard(user: dict = EditorRead, db=Depends(get_db)):
             'reviewBlogs': review,
             'scheduledBlogs': scheduled,
             'refreshDue': refresh_due_count,
-            'newEnquiries': new_enquiries,
-            'newQuoteRequests': new_quotes,
+            'newEnquiries': new_enquiries if is_admin else 0,
+            'newQuoteRequests': new_quotes if is_admin else 0,
+            'openJobs': open_jobs,
+            'draftJobs': draft_jobs,
+            'newApplications': new_applications,
+            'applicationsInReview': apps_in_review,
+            'unassignedApplications': unassigned_applications,
+            'unassignedEnquiries': unassigned_enquiries,
+            'unassignedQuotes': unassigned_quotes,
+            'needsAttention': needs_attention_count,
         },
         'pipeline': {
             'drafts': recent_drafts,
@@ -214,6 +272,16 @@ async def dashboard(user: dict = EditorRead, db=Depends(get_db)):
             'enquiries': recent_enquiries,
             'quotes': recent_quotes,
         },
+        'opsLinks': {
+            'unassignedEnquiries': '/admin/enquiries?unassigned=true',
+            'unassignedQuotes': '/admin/quotes?unassigned=true',
+            'needsAttention': '/admin/enquiries?needsAttention=true',
+            'unassignedApplications': '/admin/careers?unassigned=true',
+            'newApplications': '/admin/careers?status=new',
+            'applicationsInReview': '/admin/careers?status=reviewing',
+            'openJobs': '/admin/careers/jobs?status=published',
+            'draftJobs': '/admin/careers/jobs?status=draft',
+        } if is_admin else {},
         'attentionNeeded': attention_items,
         'seoWarnings': seo_warnings,
         'duplicateSlugs': dupes,
@@ -252,203 +320,8 @@ def _smtp_state() -> str:
     return 'error'
 
 
-# ---- Enquiries ----
-
-class StatusBody(BaseModel):
-    internalStatus: str
-    internalNote: Optional[str] = Field(default=None, max_length=2000)
-
-
-ENQUIRY_STATUSES = {'new', 'read', 'in-progress', 'resolved', 'archived'}
-QUOTE_STATUSES = {'new', 'reviewing', 'responded', 'closed', 'archived'}
-
-
-@router.get('/enquiries')
-async def list_enquiries(
-    user: dict = OpsRead,
-    db=Depends(get_db),
-    page: int = Query(1, ge=1),
-    limit: int = Query(20, ge=1, le=config.MAX_PAGE_SIZE),
-    status: Optional[str] = None,
-    search: Optional[str] = None,
-):
-    q: dict[str, Any] = {}
-    if status:
-        if status == 'new':
-            q['$or'] = [{'internalStatus': 'new'}, {'internalStatus': {'$exists': False}}]
-        else:
-            q['internalStatus'] = status
-    if search:
-        from cms.request_utils import escape_regex
-
-        term = escape_regex(search, max_len=100)
-        q['$and'] = q.get('$and', []) + [{
-            '$or': [
-                {'name': {'$regex': term, '$options': 'i'}},
-                {'email': {'$regex': term, '$options': 'i'}},
-                {'company': {'$regex': term, '$options': 'i'}},
-            ]
-        }]
-    total = await db.contact_submissions.count_documents(q)
-    cursor = db.contact_submissions.find(q, {'_id': 0}).sort('createdAt', -1).skip((page - 1) * limit).limit(limit)
-    items = []
-    async for d in cursor:
-        items.append({
-            'id': d.get('id'),
-            'createdAt': d.get('createdAt'),
-            'name': d.get('name'),
-            'company': d.get('company'),
-            'email': d.get('email'),
-            'type': d.get('kind') or d.get('intent') or 'contact',
-            'notificationStatus': d.get('notificationStatus'),
-            'internalStatus': d.get('internalStatus') or 'new',
-            'subject': d.get('subject'),
-        })
-    return {'items': items, 'page': page, 'limit': limit, 'total': total}
-
-
-@router.get('/enquiries/export.csv')
-async def export_enquiries_csv(user: dict = OpsRead, db=Depends(get_db)):
-    cursor = db.contact_submissions.find({}, {'_id': 0}).sort('createdAt', -1).limit(2000)
-    buf = io.StringIO()
-    writer = csv.writer(buf)
-    writer.writerow(['id', 'createdAt', 'name', 'company', 'email', 'phone', 'type', 'status', 'notificationStatus', 'subject'])
-    async for d in cursor:
-        writer.writerow([
-            d.get('id'), d.get('createdAt'), d.get('name'), d.get('company'), d.get('email'),
-            d.get('phone'), d.get('kind') or d.get('intent'), d.get('internalStatus') or 'new',
-            d.get('notificationStatus'), d.get('subject'),
-        ])
-    return Response(content=buf.getvalue(), media_type='text/csv', headers={
-        'Content-Disposition': 'attachment; filename="enquiries.csv"',
-    })
-
-
-@router.get('/enquiries/{enquiry_id}')
-async def get_enquiry(enquiry_id: str, user: dict = OpsRead, db=Depends(get_db)):
-    d = await db.contact_submissions.find_one({'id': enquiry_id}, {'_id': 0})
-    if not d:
-        raise HTTPException(status_code=404, detail='Not found')
-    d['internalStatus'] = d.get('internalStatus') or 'new'
-    return d
-
-
-@router.patch('/enquiries/{enquiry_id}')
-async def patch_enquiry(enquiry_id: str, body: StatusBody, request: Request, user: dict = OpsWrite, db=Depends(get_db)):
-    if body.internalStatus not in ENQUIRY_STATUSES:
-        raise HTTPException(status_code=400, detail='Invalid status')
-    update = {'internalStatus': body.internalStatus, 'updatedAt': iso_now(), 'updatedBy': user['id']}
-    if body.internalNote is not None:
-        update['internalNote'] = body.internalNote
-    res = await db.contact_submissions.update_one({'id': enquiry_id}, {'$set': update})
-    if res.matched_count == 0:
-        raise HTTPException(status_code=404, detail='Not found')
-    await write_audit(
-        db,
-        action='ENQUIRY_STATUS_CHANGED',
-        admin_user_id=user['id'],
-        resource_type='enquiry',
-        resource_id=enquiry_id,
-        result='ok',
-        meta={'status': body.internalStatus},
-        ip=_client_ip(request),
-    )
-    return {'ok': True}
-
-
-# ---- Quotes ----
-
-@router.get('/quotes')
-async def list_quotes(
-    user: dict = OpsRead,
-    db=Depends(get_db),
-    page: int = Query(1, ge=1),
-    limit: int = Query(20, ge=1, le=config.MAX_PAGE_SIZE),
-    status: Optional[str] = None,
-    search: Optional[str] = None,
-):
-    q: dict[str, Any] = {}
-    if status:
-        if status == 'new':
-            q['$or'] = [{'internalStatus': 'new'}, {'internalStatus': {'$exists': False}}]
-        else:
-            q['internalStatus'] = status
-    if search:
-        from cms.request_utils import escape_regex
-
-        term = escape_regex(search, max_len=100)
-        q['$or'] = [
-            {'name': {'$regex': term, '$options': 'i'}},
-            {'company': {'$regex': term, '$options': 'i'}},
-            {'reference': {'$regex': term, '$options': 'i'}},
-            {'product': {'$regex': term, '$options': 'i'}},
-        ]
-    total = await db.quote_submissions.count_documents(q)
-    cursor = db.quote_submissions.find(q, {'_id': 0}).sort('createdAt', -1).skip((page - 1) * limit).limit(limit)
-    items = []
-    async for d in cursor:
-        items.append({
-            'id': d.get('id'),
-            'createdAt': d.get('createdAt'),
-            'name': d.get('name'),
-            'company': d.get('company'),
-            'email': d.get('email'),
-            'reference': d.get('reference'),
-            'product': d.get('product'),
-            'notificationStatus': d.get('notificationStatus'),
-            'internalStatus': d.get('internalStatus') or 'new',
-        })
-    return {'items': items, 'page': page, 'limit': limit, 'total': total}
-
-
-@router.get('/quotes/{quote_id}')
-async def get_quote(quote_id: str, user: dict = OpsRead, db=Depends(get_db)):
-    d = await db.quote_submissions.find_one({'id': quote_id}, {'_id': 0})
-    if not d:
-        raise HTTPException(status_code=404, detail='Not found')
-    d['internalStatus'] = d.get('internalStatus') or 'new'
-    return d
-
-
-@router.patch('/quotes/{quote_id}')
-async def patch_quote(quote_id: str, body: StatusBody, request: Request, user: dict = OpsWrite, db=Depends(get_db)):
-    if body.internalStatus not in QUOTE_STATUSES:
-        raise HTTPException(status_code=400, detail='Invalid status')
-    update = {'internalStatus': body.internalStatus, 'updatedAt': iso_now(), 'updatedBy': user['id']}
-    if body.internalNote is not None:
-        update['internalNote'] = body.internalNote
-    res = await db.quote_submissions.update_one({'id': quote_id}, {'$set': update})
-    if res.matched_count == 0:
-        raise HTTPException(status_code=404, detail='Not found')
-    await write_audit(
-        db,
-        action='QUOTE_STATUS_CHANGED',
-        admin_user_id=user['id'],
-        resource_type='quote',
-        resource_id=quote_id,
-        result='ok',
-        meta={'status': body.internalStatus},
-        ip=_client_ip(request),
-    )
-    return {'ok': True}
-
-
-# ---- Careers applications ----
-
-@router.get('/careers')
-async def list_careers(
-    user: dict = OpsRead,
-    db=Depends(get_db),
-    page: int = Query(1, ge=1),
-    limit: int = Query(20, ge=1, le=config.MAX_PAGE_SIZE),
-):
-    total = await db.career_submissions.count_documents({})
-    cursor = db.career_submissions.find({}, {'_id': 0}).sort('createdAt', -1).skip((page - 1) * limit).limit(limit)
-    items = [d async for d in cursor]
-    for d in items:
-        d['internalStatus'] = d.get('internalStatus') or 'new'
-    return {'items': items, 'page': page, 'limit': limit, 'total': total}
-
+# Enquiries / quotes / careers / jobs routes live in cms.ops_console
+# (ownership, notes, activity, reply, bulk, CSV, richer job fields).
 
 # ---- SEO ----
 
@@ -583,6 +456,7 @@ async def system_status(request: Request, user: dict = AdminRead, db=Depends(get
         'mfa': mfa_status,
         'productionReadiness': {
             'mongoConfigured': db_ok,
+            'databaseConfigured': db_ok,
             'smtpConfigured': _smtp_state() == 'enabled',
             'secureCookiesEnabled': config.COOKIE_SECURE,
             'sessionSecretConfigured': secret_set,

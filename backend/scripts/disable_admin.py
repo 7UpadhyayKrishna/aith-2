@@ -3,11 +3,13 @@
 Disable an AITH admin account and revoke sessions.
 
 Usage (from backend/):
-  python scripts/disable_admin.py
+  py -3 scripts/disable_admin.py
+
+Requires DATABASE_URL in environment or backend/.env.
 """
 from __future__ import annotations
 
-import os
+import asyncio
 import sys
 import uuid
 from datetime import datetime, timezone
@@ -20,16 +22,10 @@ from dotenv import load_dotenv
 
 load_dotenv(ROOT / '.env')
 
-from pymongo import MongoClient
+from cms.script_db import open_db
 
 
-def main() -> int:
-    mongo_url = os.environ.get('MONGO_URL')
-    db_name = os.environ.get('DB_NAME')
-    if not mongo_url or not db_name:
-        print('MONGO_URL and DB_NAME are required.', file=sys.stderr)
-        return 1
-
+async def _run() -> int:
     email = input('Admin email to disable: ').strip().lower()
     if '@' not in email:
         print('Invalid email.', file=sys.stderr)
@@ -40,31 +36,32 @@ def main() -> int:
         print('Aborted.', file=sys.stderr)
         return 1
 
-    client = MongoClient(mongo_url)
-    db = client[db_name]
-    user = db.admin_users.find_one({'email': email})
-    if not user:
-        print('User not found.', file=sys.stderr)
-        client.close()
-        return 1
+    async with open_db() as db:
+        user = await db.admin_users.find_one({'email': email})
+        if not user:
+            print('User not found.', file=sys.stderr)
+            return 1
 
-    now = datetime.now(timezone.utc).isoformat()
-    db.admin_users.update_one({'id': user['id']}, {'$set': {'active': False, 'updatedAt': now}})
-    deleted = db.admin_sessions.delete_many({'userId': user['id']})
-    db.admin_audit_logs.insert_one({
-        'id': str(uuid.uuid4()),
-        'timestamp': now,
-        'adminUserId': None,
-        'action': 'ADMIN_DISABLED_CLI',
-        'resourceType': 'admin_user',
-        'resourceId': user['id'],
-        'result': 'ok',
-        'meta': {'sessionsRevoked': deleted.deleted_count, 'via': 'disable_admin.py'},
-        'ip': None,
-    })
-    print(f'Disabled {email}; revoked {deleted.deleted_count} session(s).')
-    client.close()
+        now = datetime.now(timezone.utc).isoformat()
+        await db.admin_users.update_one({'id': user['id']}, {'$set': {'active': False, 'updatedAt': now}})
+        deleted = await db.admin_sessions.delete_many({'userId': user['id']})
+        await db.admin_audit_logs.insert_one({
+            'id': str(uuid.uuid4()),
+            'timestamp': now,
+            'adminUserId': None,
+            'action': 'ADMIN_DISABLED_CLI',
+            'resourceType': 'admin_user',
+            'resourceId': user['id'],
+            'result': 'ok',
+            'meta': {'sessionsRevoked': deleted.deleted_count, 'via': 'disable_admin.py'},
+            'ip': None,
+        })
+        print(f'Disabled {email}; revoked {deleted.deleted_count} session(s).')
     return 0
+
+
+def main() -> int:
+    return asyncio.run(_run())
 
 
 if __name__ == '__main__':

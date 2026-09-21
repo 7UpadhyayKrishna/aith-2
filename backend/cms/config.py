@@ -29,7 +29,7 @@ COOKIE_SAMESITE = os.environ.get('ADMIN_COOKIE_SAMESITE', 'lax')  # lax | strict
 COOKIE_PATH = '/'
 
 # Site origin for canonical / sitemap
-SITE_ORIGIN = os.environ.get('SITE_ORIGIN', 'https://aithinternational.com').rstrip('/')
+SITE_ORIGIN = os.environ.get('SITE_ORIGIN', 'https://www.aithworld.com').rstrip('/')
 
 # Revision retention
 BLOG_REVISION_CAP = int(os.environ.get('BLOG_REVISION_CAP', '30'))
@@ -78,6 +78,11 @@ PASSWORD_POLICY_VERSION = 2
 MFA_ENABLED = os.environ.get('ADMIN_MFA_ENABLED', '').lower() in ('1', 'true', 'yes')
 MFA_REQUIRED_FOR_ADMIN = os.environ.get('ADMIN_MFA_REQUIRED', '').lower() in ('1', 'true', 'yes')
 
+# Internal ops attention thresholds (NOT contractual customer SLA).
+OPS_ENQUIRY_NEW_HOURS = float(os.environ.get('OPS_ENQUIRY_NEW_HOURS', '24'))
+OPS_QUOTE_UNASSIGNED_HOURS = float(os.environ.get('OPS_QUOTE_UNASSIGNED_HOURS', '48'))
+OPS_CAREER_UNTOUCHED_DAYS = float(os.environ.get('OPS_CAREER_UNTOUCHED_DAYS', '3'))
+
 # Reserved slugs that collide with Insights / static routes
 RESERVED_BLOG_SLUGS = {
     'commodity-markets',
@@ -102,8 +107,8 @@ def ensure_session_secret() -> str:
     Return ADMIN_SESSION_SECRET.
 
     Production: missing or short secret fails startup (no ephemeral fallback).
-    Development: ephemeral secret allowed with a warning (sessions reset on restart).
-    Never generate a new secret on every boot in production - that invalidates all sessions.
+    Development: prefer ADMIN_SESSION_SECRET in .env; otherwise persist a local
+    `.admin_session_secret` file so uvicorn --reload does not invalidate sessions.
     """
     secret = os.environ.get('ADMIN_SESSION_SECRET', '').strip()
     if secret and len(secret) >= 32:
@@ -119,11 +124,32 @@ def ensure_session_secret() -> str:
             'of at least 32 characters before starting in production.'
         )
 
-    logger.warning(
-        'ADMIN_SESSION_SECRET missing or too short - using ephemeral secret (dev only). '
-        'Sessions reset on restart. Set a 32+ char secret for stable sessions.'
-    )
-    return secrets.token_hex(32)
+    secret_path = ROOT_DIR / '.admin_session_secret'
+    try:
+        if secret_path.is_file():
+            stored = secret_path.read_text(encoding='utf-8').strip()
+            if len(stored) >= 32:
+                logger.warning(
+                    'ADMIN_SESSION_SECRET unset - using persisted %s for stable local sessions. '
+                    'Set ADMIN_SESSION_SECRET in .env for production-like setup.',
+                    secret_path.name,
+                )
+                return stored
+        generated = secrets.token_hex(32)
+        secret_path.write_text(generated + '\n', encoding='utf-8')
+        logger.warning(
+            'ADMIN_SESSION_SECRET unset - wrote %s for stable local sessions. '
+            'Prefer setting ADMIN_SESSION_SECRET (≥32 chars) in backend/.env.',
+            secret_path.name,
+        )
+        return generated
+    except OSError as exc:
+        logger.warning(
+            'ADMIN_SESSION_SECRET unset and could not persist local secret (%s) - '
+            'using ephemeral secret; sessions reset on restart.',
+            exc,
+        )
+        return secrets.token_hex(32)
 
 
 def validate_production_security() -> list[str]:
@@ -146,11 +172,8 @@ def validate_production_security() -> list[str]:
     if not cors or cors == '*' or '*' in [o.strip() for o in cors.split(',')]:
         errors.append('CORS_ORIGINS must be an explicit allowlist in production (no *)')
 
-    if not os.environ.get('MONGO_URL', '').strip():
-        errors.append('MONGO_URL is required')
-
-    if not os.environ.get('DB_NAME', '').strip():
-        errors.append('DB_NAME is required')
+    if not os.environ.get('DATABASE_URL', '').strip():
+        errors.append('DATABASE_URL is required (Supabase Postgres connection URI)')
 
     return errors
 

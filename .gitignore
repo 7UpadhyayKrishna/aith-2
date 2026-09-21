@@ -41,6 +41,8 @@ dist
 credentials.json
 *.key
 .credentials
+.admin_session_secret
+**/.admin_session_secret
 
 # Accidental Windows device-name artifacts
 **/nul

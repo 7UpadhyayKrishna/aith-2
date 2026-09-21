@@ -1,131 +1,190 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useOutletContext, useSearchParams } from 'react-router-dom';
-import { listQuotes, getQuote, patchQuote } from '@/services/adminApi';
+import { Link, useNavigate, useOutletContext, useSearchParams } from 'react-router-dom';
+import { toast } from 'sonner';
+import { bulkQuotes, exportQuotesCsv, listQuotes } from '@/services/adminApi';
 import { QUOTE_STATUSES } from '@/data/blogCategories';
-
-const btn =
-    'px-2 py-1 font-mono text-[9px] tracking-[0.14em] uppercase border border-graphite/20 hover:border-copper disabled:opacity-40';
-
-function fmt(iso) {
-    if (!iso) return '-';
-    try {
-        return new Date(iso).toLocaleString('en-GB', { dateStyle: 'short', timeStyle: 'short' });
-    } catch {
-        return iso;
-    }
-}
-
-function Section({ title, children }) {
-    return (
-        <section className="border border-graphite/15 bg-white p-3">
-            <h3 className="font-mono text-[9px] tracking-[0.2em] uppercase text-mute mb-3">{title}</h3>
-            {children}
-        </section>
-    );
-}
-
-function Field({ label, value }) {
-    return (
-        <div className="mb-2">
-            <dt className="font-mono text-[9px] tracking-widest uppercase text-mute">{label}</dt>
-            <dd className="text-sm mt-0.5 break-words">{value || '-'}</dd>
-        </div>
-    );
-}
+import {
+    EmptyState,
+    ErrorBanner,
+    LoadingBlock,
+    field,
+    fmtDateTime,
+    panel,
+    statusTone,
+} from './adminUi';
+import {
+    AttentionBadges,
+    BoolFilter,
+    OpsBulkBar,
+    OpsFilterBar,
+    downloadBlob,
+    runBulkWithToast,
+    useAssignees,
+} from './AdminOpsShared';
 
 export default function AdminQuotes() {
     const { setPageTitle, setHeaderActions } = useOutletContext();
+    const navigate = useNavigate();
     const [params, setParams] = useSearchParams();
     const [data, setData] = useState({ items: [], total: 0 });
-    const [detail, setDetail] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [note, setNote] = useState('');
-    const [status, setStatus] = useState('new');
+    const [error, setError] = useState('');
+    const [selected, setSelected] = useState(() => new Set());
+    const [busy, setBusy] = useState(false);
+    const assignees = useAssignees();
 
     const page = Number(params.get('page') || 1);
     const filterStatus = params.get('status') || '';
     const search = params.get('search') || '';
-    const openId = params.get('id') || '';
+    const assignee = params.get('assignee') || '';
+    const unassigned = params.get('unassigned') === 'true';
+    const needsAttention = params.get('needsAttention') === 'true';
+    const dateFrom = params.get('dateFrom') || '';
+    const dateTo = params.get('dateTo') || '';
+    const requirementType = params.get('requirementType') || '';
+    const destination = params.get('destination') || '';
+    const legacyId = params.get('id') || '';
 
     useEffect(() => {
         setPageTitle('Quote requests');
         setHeaderActions(null);
     }, [setPageTitle, setHeaderActions]);
 
+    useEffect(() => {
+        if (legacyId) {
+            navigate(`/admin/quotes/${encodeURIComponent(legacyId)}`, { replace: true });
+        }
+    }, [legacyId, navigate]);
+
     const load = useCallback(async () => {
         setLoading(true);
+        setError('');
         try {
-            setData(await listQuotes({ page, limit: 20, status: filterStatus, search }));
+            setData(
+                await listQuotes({
+                    page,
+                    limit: 20,
+                    status: filterStatus,
+                    search,
+                    assignee,
+                    unassigned: unassigned || undefined,
+                    needsAttention: needsAttention || undefined,
+                    dateFrom,
+                    dateTo,
+                    requirementType,
+                    destination,
+                })
+            );
+            setSelected(new Set());
         } catch (err) {
-            alert(err.message);
+            setError(err.message || 'Failed to load quotes');
         } finally {
             setLoading(false);
         }
-    }, [page, filterStatus, search]);
+    }, [
+        page,
+        filterStatus,
+        search,
+        assignee,
+        unassigned,
+        needsAttention,
+        dateFrom,
+        dateTo,
+        requirementType,
+        destination,
+    ]);
 
     useEffect(() => {
         load();
     }, [load]);
 
-    useEffect(() => {
-        if (!openId) {
-            setDetail(null);
-            return;
-        }
-        getQuote(openId)
-            .then((d) => {
-                setDetail(d);
-                setStatus(d.internalStatus || 'new');
-                setNote(d.internalNote || '');
-            })
-            .catch((err) => alert(err.message));
-    }, [openId]);
-
-    function open(id) {
+    function setFilter(key, value) {
         const next = new URLSearchParams(params);
-        next.set('id', id);
+        if (value === true) next.set(key, 'true');
+        else if (value === false || value === '' || value == null) next.delete(key);
+        else next.set(key, value);
+        next.delete('page');
         setParams(next);
     }
 
-    function close() {
-        const next = new URLSearchParams(params);
-        next.delete('id');
-        setParams(next);
+    function toggleRow(id) {
+        setSelected((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
     }
 
-    async function saveStatus() {
-        await patchQuote(detail.id, { internalStatus: status, internalNote: note });
+    function toggleAll() {
+        if (selected.size === data.items.length) setSelected(new Set());
+        else setSelected(new Set(data.items.map((r) => r.id)));
+    }
+
+    async function handleBulkAssign(assignedTo) {
+        setBusy(true);
+        await runBulkWithToast(
+            () => bulkQuotes({ ids: [...selected], action: 'assign', assignedTo }),
+            'Assigned'
+        );
         await load();
-        setDetail(await getQuote(detail.id));
+        setBusy(false);
+    }
+
+    async function handleBulkStatus(status) {
+        setBusy(true);
+        await runBulkWithToast(
+            () => bulkQuotes({ ids: [...selected], action: 'status', status }),
+            'Status updated'
+        );
+        await load();
+        setBusy(false);
+    }
+
+    async function handleBulkArchive() {
+        if (!window.confirm(`Archive ${selected.size} quote request${selected.size === 1 ? '' : 's'}?`)) return;
+        setBusy(true);
+        await runBulkWithToast(
+            () => bulkQuotes({ ids: [...selected], action: 'archive', confirm: true }),
+            'Archived'
+        );
+        await load();
+        setBusy(false);
+    }
+
+    async function handleExport() {
+        setBusy(true);
+        try {
+            const blob = await exportQuotesCsv({
+                status: filterStatus,
+                assignee,
+                unassigned: unassigned || undefined,
+            });
+            downloadBlob(blob, 'quotes.csv');
+            toast.success('Exported');
+        } catch (err) {
+            toast.error(err.message || 'Export failed');
+        } finally {
+            setBusy(false);
+        }
     }
 
     return (
-        <div data-testid="admin-quotes">
-            <div className="flex flex-wrap gap-2 mb-4">
+        <div className="space-y-4" data-testid="admin-quotes">
+            <OpsFilterBar>
                 <input
                     defaultValue={search}
                     placeholder="Search name, company, ref…"
-                    className="border border-graphite/20 bg-white px-2.5 py-2 text-sm"
+                    className={`${field} max-w-xs`}
                     onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                            const next = new URLSearchParams(params);
-                            if (e.target.value.trim()) next.set('search', e.target.value.trim());
-                            else next.delete('search');
-                            next.delete('page');
-                            setParams(next);
-                        }
+                        if (e.key === 'Enter') setFilter('search', e.target.value.trim());
                     }}
                 />
                 <select
                     value={filterStatus}
-                    onChange={(e) => {
-                        const next = new URLSearchParams(params);
-                        if (e.target.value) next.set('status', e.target.value);
-                        else next.delete('status');
-                        next.delete('page');
-                        setParams(next);
-                    }}
-                    className="border border-graphite/20 bg-white px-2.5 py-2 text-sm"
+                    onChange={(e) => setFilter('status', e.target.value)}
+                    className={field}
+                    style={{ width: 'auto' }}
                 >
                     <option value="">All statuses</option>
                     {QUOTE_STATUSES.map((s) => (
@@ -134,19 +193,103 @@ export default function AdminQuotes() {
                         </option>
                     ))}
                 </select>
-            </div>
+                <select
+                    value={assignee}
+                    onChange={(e) => setFilter('assignee', e.target.value)}
+                    className={field}
+                    style={{ width: 'auto' }}
+                    disabled={unassigned}
+                >
+                    <option value="">All assignees</option>
+                    {assignees.map((a) => (
+                        <option key={a.id} value={a.id}>
+                            {a.name || a.email}
+                        </option>
+                    ))}
+                </select>
+                <BoolFilter
+                    label="Unassigned"
+                    checked={unassigned}
+                    onChange={(v) => {
+                        setFilter('unassigned', v);
+                        if (v) setFilter('assignee', '');
+                    }}
+                />
+                <BoolFilter
+                    label="Needs attention"
+                    checked={needsAttention}
+                    onChange={(v) => setFilter('needsAttention', v)}
+                />
+                <input
+                    type="date"
+                    value={dateFrom}
+                    onChange={(e) => setFilter('dateFrom', e.target.value)}
+                    className={field}
+                    style={{ width: 'auto' }}
+                />
+                <input
+                    type="date"
+                    value={dateTo}
+                    onChange={(e) => setFilter('dateTo', e.target.value)}
+                    className={field}
+                    style={{ width: 'auto' }}
+                />
+                <input
+                    defaultValue={requirementType}
+                    placeholder="Requirement type"
+                    className={`${field} max-w-[10rem]`}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') setFilter('requirementType', e.target.value.trim());
+                    }}
+                />
+                <input
+                    defaultValue={destination}
+                    placeholder="Destination"
+                    className={`${field} max-w-[10rem]`}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') setFilter('destination', e.target.value.trim());
+                    }}
+                />
+            </OpsFilterBar>
+
+            <OpsBulkBar
+                selectedCount={selected.size}
+                assignees={assignees}
+                statuses={QUOTE_STATUSES}
+                onAssign={handleBulkAssign}
+                onStatus={handleBulkStatus}
+                onArchive={handleBulkArchive}
+                onExport={handleExport}
+                busy={busy}
+            />
+
+            {error ? <ErrorBanner>{error}</ErrorBanner> : null}
 
             {loading ? (
-                <p className="font-mono text-[11px] uppercase tracking-widest text-mute">Loading…</p>
+                <LoadingBlock label="Loading quote requests…" />
+            ) : data.items.length === 0 ? (
+                <EmptyState
+                    title="No quote requests yet"
+                    body="/request-quote submissions appear here. Open a row for the full commercial brief."
+                />
             ) : (
-                <div className="border border-graphite/15 bg-white overflow-x-auto">
-                    <table className="w-full text-sm min-w-[700px]">
+                <div className={`${panel} overflow-x-auto`}>
+                    <table className="w-full text-sm min-w-[760px]">
                         <thead>
                             <tr className="border-b border-graphite/10 text-left font-mono text-[9px] tracking-[0.14em] uppercase text-mute">
+                                <th className="px-3 py-2 font-normal w-8">
+                                    <input
+                                        type="checkbox"
+                                        checked={selected.size === data.items.length && data.items.length > 0}
+                                        onChange={toggleAll}
+                                        aria-label="Select all"
+                                    />
+                                </th>
                                 <th className="px-3 py-2 font-normal">When</th>
                                 <th className="px-3 py-2 font-normal">Reference</th>
                                 <th className="px-3 py-2 font-normal">Name</th>
                                 <th className="px-3 py-2 font-normal">Product</th>
+                                <th className="px-3 py-2 font-normal">Assignee</th>
                                 <th className="px-3 py-2 font-normal">Status</th>
                             </tr>
                         </thead>
@@ -154,14 +297,40 @@ export default function AdminQuotes() {
                             {data.items.map((row) => (
                                 <tr
                                     key={row.id}
-                                    className="border-b border-graphite/8 hover:bg-bone/40 cursor-pointer"
-                                    onClick={() => open(row.id)}
+                                    className="border-b border-graphite/8 hover:bg-bone/40 cursor-pointer transition-colors"
+                                    onClick={() => navigate(`/admin/quotes/${row.id}`)}
                                 >
-                                    <td className="px-3 py-2.5 text-mute whitespace-nowrap">{fmt(row.createdAt)}</td>
-                                    <td className="px-3 py-2.5 font-mono text-xs">{row.reference || '-'}</td>
+                                    <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
+                                        <input
+                                            type="checkbox"
+                                            checked={selected.has(row.id)}
+                                            onChange={() => toggleRow(row.id)}
+                                            aria-label={`Select ${row.reference || row.name}`}
+                                        />
+                                    </td>
+                                    <td className="px-3 py-2.5 text-mute whitespace-nowrap">
+                                        {fmtDateTime(row.createdAt)}
+                                    </td>
+                                    <td className="px-3 py-2.5 font-mono text-xs">
+                                        <Link
+                                            to={`/admin/quotes/${row.id}`}
+                                            className="hover:text-copper"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            {row.reference || '-'}
+                                        </Link>
+                                        <div className="mt-1">
+                                            <AttentionBadges attention={row.attention} />
+                                        </div>
+                                    </td>
                                     <td className="px-3 py-2.5">{row.name}</td>
                                     <td className="px-3 py-2.5">{row.product || '-'}</td>
-                                    <td className="px-3 py-2.5">{row.internalStatus}</td>
+                                    <td className="px-3 py-2.5 text-mute text-xs">
+                                        {row.assignedToName || '—'}
+                                    </td>
+                                    <td className={`px-3 py-2.5 ${statusTone(row.internalStatus)}`}>
+                                        {row.internalStatus}
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -169,116 +338,35 @@ export default function AdminQuotes() {
                 </div>
             )}
 
-            {detail && (
-                <div className="fixed inset-0 z-40 flex justify-end bg-forest/40" role="dialog" aria-modal="true">
-                    <button type="button" className="flex-1" aria-label="Close" onClick={close} />
-                    <div className="w-full max-w-lg bg-ivory border-l border-graphite/20 h-full overflow-y-auto p-5">
-                        <div className="flex justify-between items-start mb-4 gap-3">
-                            <div>
-                                <h2 className="text-lg font-extrabold tracking-tight">
-                                    {detail.reference || 'Quote'}
-                                </h2>
-                                <p className="text-sm text-mute mt-1">{detail.product}</p>
-                            </div>
-                            <button type="button" className={btn} onClick={close}>
-                                Close
-                            </button>
-                        </div>
-
-                        <div className="space-y-3">
-                            <Section title="Contact">
-                                <Field label="Name" value={detail.name} />
-                                <Field label="Email" value={detail.email} />
-                                <Field label="Phone" value={detail.phone} />
-                                <Field label="Company" value={detail.company} />
-                                <Field label="Country" value={detail.country} />
-                                <Field label="Role" value={detail.role} />
-                            </Section>
-                            <Section title="Requirement">
-                                <Field label="Type" value={detail.requirementType} />
-                                <Field label="Timeline" value={detail.timeline} />
-                                <Field label="Quantity" value={[detail.quantity, detail.unit].filter(Boolean).join(' ')} />
-                            </Section>
-                            <Section title="Product">
-                                <Field label="Product" value={detail.product} />
-                                <Field label="Category" value={detail.category} />
-                                <Field label="Specification" value={detail.specification} />
-                                <Field label="Quality" value={detail.qualityRequirements} />
-                                <Field label="Certifications" value={detail.certifications} />
-                            </Section>
-                            <Section title="Shipment">
-                                <Field label="Origin" value={detail.origin} />
-                                <Field label="Destination" value={detail.destination} />
-                                <Field label="Mode" value={detail.mode} />
-                                <Field label="Incoterm" value={detail.incoterm} />
-                                <Field label="Packaging" value={detail.packaging} />
-                            </Section>
-                            <Section title="Commercial">
-                                <Field label="Budget" value={detail.budget} />
-                                <Field label="OEM / private label" value={detail.oem} />
-                                <Field label="Supplier known" value={detail.supplierKnown} />
-                                <Field label="Inspection" value={detail.inspection} />
-                                <Field label="Documentation" value={detail.documentation} />
-                            </Section>
-                            <Section title="Notes">
-                                <p className="text-sm whitespace-pre-wrap">{detail.notes || '-'}</p>
-                            </Section>
-                            <Section title="Metadata">
-                                <Field label="ID" value={detail.id} />
-                                <Field label="Created" value={fmt(detail.createdAt)} />
-                                <Field label="Notification" value={detail.notificationStatus} />
-                                <Field label="Reference" value={detail.reference || detail.refCode} />
-                            </Section>
-                        </div>
-
-                        <div className="mt-5 space-y-3 border-t border-graphite/15 pt-4">
-                            <div>
-                                <label className="block font-mono text-[9px] tracking-widest uppercase text-mute mb-1" htmlFor="q-status">
-                                    Status
-                                </label>
-                                <select
-                                    id="q-status"
-                                    value={status}
-                                    onChange={(e) => setStatus(e.target.value)}
-                                    className="w-full border border-graphite/20 bg-white px-2 py-2 text-sm"
-                                >
-                                    {QUOTE_STATUSES.map((s) => (
-                                        <option key={s} value={s}>
-                                            {s}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block font-mono text-[9px] tracking-widest uppercase text-mute mb-1" htmlFor="q-note">
-                                    Internal note
-                                </label>
-                                <textarea
-                                    id="q-note"
-                                    rows={3}
-                                    value={note}
-                                    onChange={(e) => setNote(e.target.value)}
-                                    className="w-full border border-graphite/20 bg-white px-2 py-2 text-sm"
-                                />
-                            </div>
-                            <div className="flex gap-2">
-                                <button type="button" className={`${btn} bg-forest text-ivory border-forest`} onClick={saveStatus}>
-                                    Save
-                                </button>
-                                {detail.email && (
-                                    <button
-                                        type="button"
-                                        className={btn}
-                                        onClick={() => navigator.clipboard.writeText(detail.email)}
-                                    >
-                                        Copy email
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    </div>
+            <div className="flex justify-between font-mono text-[10px] tracking-widest uppercase text-mute">
+                <span>{data.total || 0} total</span>
+                <div className="flex gap-2">
+                    <button
+                        type="button"
+                        disabled={page <= 1}
+                        className="border border-graphite/20 px-2 py-1 disabled:opacity-40"
+                        onClick={() => {
+                            const next = new URLSearchParams(params);
+                            next.set('page', String(page - 1));
+                            setParams(next);
+                        }}
+                    >
+                        Prev
+                    </button>
+                    <button
+                        type="button"
+                        disabled={page * 20 >= (data.total || 0)}
+                        className="border border-graphite/20 px-2 py-1 disabled:opacity-40"
+                        onClick={() => {
+                            const next = new URLSearchParams(params);
+                            next.set('page', String(page + 1));
+                            setParams(next);
+                        }}
+                    >
+                        Next
+                    </button>
                 </div>
-            )}
+            </div>
         </div>
     );
 }

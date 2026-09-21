@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useOutletContext, useSearchParams } from 'react-router-dom';
+import { toast } from 'sonner';
 import {
     listBlogs,
     publishBlog,
@@ -111,7 +112,7 @@ export default function AdminBlogs() {
             await fn();
             await load();
         } catch (err) {
-            alert(err.message || 'Action failed');
+            toast.error(err.message || 'Action failed');
         } finally {
             setBusyId('');
             setMenuId('');
@@ -123,8 +124,9 @@ export default function AdminBlogs() {
         try {
             await bulkBlogs({ ids: [...selected], action, ...extra });
             await load();
+            toast.success('Bulk action done');
         } catch (err) {
-            alert(err.message || 'Bulk action failed');
+            toast.error(err.message || 'Bulk action failed');
         }
     }
 
@@ -137,8 +139,9 @@ export default function AdminBlogs() {
             a.download = 'aith-blogs-export.json';
             a.click();
             URL.revokeObjectURL(a.href);
+            toast.success('Exported');
         } catch (err) {
-            alert(err.message || 'Export failed');
+            toast.error(err.message || 'Export failed');
         }
     }
 
@@ -147,8 +150,7 @@ export default function AdminBlogs() {
     return (
         <div className="space-y-4" data-testid="admin-blogs">
             <div>
-                <h2 className="font-serif text-2xl text-forest tracking-tight">Blogs</h2>
-                <p className="mt-1 text-sm text-mute max-w-2xl">
+                <p className="text-sm text-mute max-w-2xl">
                     Manage editorial content, publishing and organic search visibility.
                 </p>
             </div>

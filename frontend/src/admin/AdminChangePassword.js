@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Link, useOutletContext } from 'react-router-dom';
 import Seo from '@/components/Seo';
 import { changePassword } from '@/services/adminApi';
 import { useAdminAuth } from './AdminAuthContext';
-import { btnCopper } from './adminUi';
+import { btn, btnCopper, field, label } from './adminUi';
 
 export default function AdminChangePassword() {
     const { user, logout } = useAdminAuth();
+    const outlet = useOutletContext();
     const [currentPassword, setCurrent] = useState('');
     const [newPassword, setNew] = useState('');
     const [confirm, setConfirm] = useState('');
@@ -13,6 +15,14 @@ export default function AdminChangePassword() {
     const [ok, setOk] = useState('');
     const [busy, setBusy] = useState(false);
     const forced = Boolean(user?.mustChangePassword);
+    const embedded = Boolean(outlet?.setPageTitle) && !forced;
+
+    useEffect(() => {
+        if (embedded) {
+            outlet.setPageTitle('Change password');
+            outlet.setHeaderActions?.(null);
+        }
+    }, [embedded, outlet]);
 
     async function onSubmit(e) {
         e.preventDefault();
@@ -38,73 +48,101 @@ export default function AdminChangePassword() {
         }
     }
 
-    return (
-        <div className="min-h-screen bg-ivory flex items-center justify-center px-4" data-testid="admin-change-password">
-            <Seo title="Change password" path="/admin/change-password" noIndex />
-            <form onSubmit={onSubmit} className="w-full max-w-md border border-graphite/15 bg-white p-6 space-y-4">
-                <p className="font-mono text-[11px] tracking-[0.28em] uppercase text-copper">AITH Admin</p>
-                <h1 className="text-2xl font-extrabold tracking-tight">
-                    {forced ? 'Password update required' : 'Change password'}
-                </h1>
-                {forced && (
-                    <p className="text-sm text-mute">
-                        Your account was flagged for a stronger password policy. Update it before using the CMS.
-                    </p>
-                )}
-                {error && <p className="text-sm text-copper">{error}</p>}
-                {ok && <p className="text-sm text-forest">{ok}</p>}
-                <label className="block text-sm">
-                    <span className="font-mono text-[10px] uppercase tracking-widest text-mute">Current password</span>
-                    <input
-                        type="password"
-                        autoComplete="current-password"
-                        className="mt-1 w-full border border-graphite/20 px-3 py-2"
-                        value={currentPassword}
-                        onChange={(e) => setCurrent(e.target.value)}
-                        required
-                    />
+    const form = (
+        <form
+            onSubmit={onSubmit}
+            className={`${
+                embedded ? 'max-w-md border border-graphite/15 bg-white p-6' : 'w-full max-w-md border border-graphite/15 bg-white p-6'
+            } space-y-4`}
+        >
+            {!embedded && <p className="font-mono text-[11px] tracking-[0.28em] uppercase text-copper">AITH Admin</p>}
+            <h1 className={embedded ? 'font-serif text-2xl text-forest tracking-tight' : 'text-2xl font-extrabold tracking-tight'}>
+                {forced ? 'Password update required' : 'Change password'}
+            </h1>
+            {forced && (
+                <p className="text-sm text-mute">
+                    Your account was flagged for a stronger password policy. Update it before using the CMS.
+                </p>
+            )}
+            {error && (
+                <p className="text-sm text-copper border border-copper/25 bg-copper/5 px-3 py-2" role="alert">
+                    {error}
+                </p>
+            )}
+            {ok && <p className="text-sm text-forest border border-forest/20 bg-forest/5 px-3 py-2">{ok}</p>}
+            <div>
+                <label className={label} htmlFor="cp-current">
+                    Current password
                 </label>
-                <label className="block text-sm">
-                    <span className="font-mono text-[10px] uppercase tracking-widest text-mute">New password (min 15)</span>
-                    <input
-                        type="password"
-                        autoComplete="new-password"
-                        className="mt-1 w-full border border-graphite/20 px-3 py-2"
-                        value={newPassword}
-                        onChange={(e) => setNew(e.target.value)}
-                        required
-                        minLength={15}
-                        maxLength={128}
-                    />
+                <input
+                    id="cp-current"
+                    type="password"
+                    autoComplete="current-password"
+                    className={field}
+                    value={currentPassword}
+                    onChange={(e) => setCurrent(e.target.value)}
+                    required
+                />
+            </div>
+            <div>
+                <label className={label} htmlFor="cp-new">
+                    New password (min 15)
                 </label>
-                <label className="block text-sm">
-                    <span className="font-mono text-[10px] uppercase tracking-widest text-mute">Confirm new password</span>
-                    <input
-                        type="password"
-                        autoComplete="new-password"
-                        className="mt-1 w-full border border-graphite/20 px-3 py-2"
-                        value={confirm}
-                        onChange={(e) => setConfirm(e.target.value)}
-                        required
-                        minLength={15}
-                        maxLength={128}
-                    />
+                <input
+                    id="cp-new"
+                    type="password"
+                    autoComplete="new-password"
+                    className={field}
+                    value={newPassword}
+                    onChange={(e) => setNew(e.target.value)}
+                    required
+                    minLength={15}
+                    maxLength={128}
+                />
+            </div>
+            <div>
+                <label className={label} htmlFor="cp-confirm">
+                    Confirm new password
                 </label>
-                <div className="flex gap-2 pt-2">
-                    <button type="submit" className={btnCopper} disabled={busy}>
-                        {busy ? 'Saving…' : 'Update password'}
-                    </button>
-                    {!forced && (
-                        <button
-                            type="button"
-                            className="px-3 py-2 font-mono text-[10px] tracking-[0.14em] uppercase border border-graphite/25"
-                            onClick={() => logout()}
-                        >
+                <input
+                    id="cp-confirm"
+                    type="password"
+                    autoComplete="new-password"
+                    className={field}
+                    value={confirm}
+                    onChange={(e) => setConfirm(e.target.value)}
+                    required
+                    minLength={15}
+                    maxLength={128}
+                />
+            </div>
+            <div className="flex flex-wrap gap-2 pt-2">
+                <button type="submit" className={btnCopper} disabled={busy}>
+                    {busy ? 'Saving…' : 'Update password'}
+                </button>
+                {embedded ? (
+                    <Link to="/admin" className={btn}>
+                        Cancel
+                    </Link>
+                ) : (
+                    !forced && (
+                        <button type="button" className={btn} onClick={() => logout()}>
                             Cancel / sign out
                         </button>
-                    )}
-                </div>
-            </form>
+                    )
+                )}
+            </div>
+        </form>
+    );
+
+    if (embedded) {
+        return <div data-testid="admin-change-password">{form}</div>;
+    }
+
+    return (
+        <div className="min-h-screen bg-ivory flex items-center justify-center px-4 animate-admin-fade" data-testid="admin-change-password">
+            <Seo title="Change password" path="/admin/change-password" noIndex />
+            {form}
         </div>
     );
 }

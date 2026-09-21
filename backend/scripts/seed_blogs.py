@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
 """
-Seed evergreen trade blog articles into MongoDB.
+Seed evergreen trade blog articles into Postgres (Supabase).
 
 Usage (from backend/):
-  python scripts/seed_blogs.py
-  python scripts/seed_blogs.py --update   # refresh content for existing slugs
+  py -3 scripts/seed_blogs.py
+  py -3 scripts/seed_blogs.py --update   # refresh content for existing slugs
 
 Idempotent: matches by slug. Default skips existing; --update overwrites content fields.
-Requires MONGO_URL and DB_NAME in environment or backend/.env.
+Requires DATABASE_URL in environment or backend/.env.
 """
 from __future__ import annotations
 
 import argparse
+import asyncio
 import json
-import os
 import sys
 import uuid
 from datetime import datetime, timezone
@@ -26,7 +26,7 @@ from dotenv import load_dotenv
 
 load_dotenv(ROOT / '.env')
 
-from pymongo import ASCENDING, DESCENDING, MongoClient
+from cms.script_db import open_db
 
 SEED_DIR = Path(__file__).resolve().parent / 'seed_data'
 
@@ -52,14 +52,6 @@ def load_articles() -> list[dict]:
         else:
             articles.append(data)
     return articles
-
-
-def ensure_indexes(db) -> None:
-    db.blogs.create_index('slug', unique=True)
-    db.blogs.create_index('id', unique=True)
-    db.blogs.create_index([('status', ASCENDING), ('publishedAt', DESCENDING)])
-    db.blogs.create_index('updatedAt')
-    print('Indexes ensured on blogs (slug, id, status+publishedAt, updatedAt).')
 
 
 def build_doc(article: dict, now: str, existing: dict | None = None) -> dict:
@@ -122,30 +114,12 @@ def build_doc(article: dict, now: str, existing: dict | None = None) -> dict:
     }
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description='Seed AITH blog articles')
-    parser.add_argument(
-        '--update',
-        action='store_true',
-        help='Update existing articles matched by slug (default: skip)',
-    )
-    args = parser.parse_args()
-
-    mongo_url = os.environ.get('MONGO_URL')
-    db_name = os.environ.get('DB_NAME')
-    if not mongo_url or not db_name:
-        print('MONGO_URL and DB_NAME are required.', file=sys.stderr)
-        return 1
-
+async def _run(update: bool) -> int:
     try:
         articles = load_articles()
     except FileNotFoundError as exc:
         print(str(exc), file=sys.stderr)
         return 1
-
-    client = MongoClient(mongo_url)
-    db = client[db_name]
-    ensure_indexes(db)
 
     now = iso_now()
     inserted = 0
@@ -154,44 +128,55 @@ def main() -> int:
     errors = 0
 
     print(f'Loaded {len(articles)} article(s) from {SEED_DIR}')
-    print(f'Mode: {"update existing" if args.update else "skip existing"}')
+    print(f'Mode: {"update existing" if update else "skip existing"}')
     print('-' * 60)
 
-    for article in articles:
-        slug = (article.get('slug') or '').strip().lower()
-        title = article.get('title') or '(untitled)'
-        if not slug:
-            print(f'ERROR  missing slug for: {title}')
-            errors += 1
-            continue
-        if not article.get('contentMarkdown', '').strip():
-            print(f'ERROR  empty contentMarkdown for: {slug}')
-            errors += 1
-            continue
+    async with open_db(apply_schema=True) as db:
+        for article in articles:
+            slug = (article.get('slug') or '').strip().lower()
+            title = article.get('title') or '(untitled)'
+            if not slug:
+                print(f'ERROR  missing slug for: {title}')
+                errors += 1
+                continue
+            if not article.get('contentMarkdown', '').strip():
+                print(f'ERROR  empty contentMarkdown for: {slug}')
+                errors += 1
+                continue
 
-        existing = db.blogs.find_one({'slug': slug}, {'_id': 0})
-        if existing and not args.update:
-            print(f'SKIP   {slug}')
-            skipped += 1
-            continue
+            existing = await db.blogs.find_one({'slug': slug})
+            if existing and not update:
+                print(f'SKIP   {slug}')
+                skipped += 1
+                continue
 
-        doc = build_doc(article, now, existing if args.update else None)
-        if existing and args.update:
-            db.blogs.replace_one({'slug': slug}, doc)
-            print(f'UPDATE {slug}')
-            updated += 1
-        else:
-            db.blogs.insert_one(doc)
-            print(f'INSERT {slug}')
-            inserted += 1
+            doc = build_doc(article, now, existing if update else None)
+            if existing and update:
+                await db.blogs.replace_one({'slug': slug}, doc)
+                print(f'UPDATE {slug}')
+                updated += 1
+            else:
+                await db.blogs.insert_one(doc)
+                print(f'INSERT {slug}')
+                inserted += 1
 
     print('-' * 60)
     print(
         f'Summary: inserted={inserted} updated={updated} '
         f'skipped={skipped} errors={errors} total={len(articles)}'
     )
-    client.close()
     return 1 if errors else 0
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description='Seed AITH blog articles')
+    parser.add_argument(
+        '--update',
+        action='store_true',
+        help='Update existing articles matched by slug (default: skip)',
+    )
+    args = parser.parse_args()
+    return asyncio.run(_run(args.update))
 
 
 if __name__ == '__main__':

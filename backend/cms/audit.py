@@ -17,6 +17,7 @@ SENSITIVE_KEYS = {
     'csrfToken',
     'SMTP_PASSWORD',
     'MONGO_URL',
+    'DATABASE_URL',
     'ADMIN_SESSION_SECRET',
 }
 

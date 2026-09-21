@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useOutletContext } from 'react-router-dom';
 import { seoOverview } from '@/services/adminApi';
 import { panel, sectionTitle } from './adminUi';
+import { RecordHeader } from './AdminRecordPage';
 
 export default function AdminSeo() {
     const { setPageTitle, setHeaderActions } = useOutletContext();
@@ -29,12 +30,11 @@ export default function AdminSeo() {
 
     return (
         <div className="space-y-6" data-testid="admin-seo">
-            <div>
-                <h2 className="font-serif text-2xl text-forest tracking-tight">SEO health</h2>
-                <p className="mt-1 text-sm text-mute max-w-2xl">
-                    Content readiness without vanity scores. Pillar pages are services and industries; blogs build topical depth.
-                </p>
-            </div>
+            <RecordHeader
+                eyebrow="SEO"
+                title="SEO health"
+                subtitle="Content readiness without vanity scores. Pillar pages are services and industries; blogs build topical depth."
+            />
 
             <section>
                 <h3 className={`${sectionTitle} mb-2`}>Content health</h3>

@@ -4,9 +4,9 @@ from __future__ import annotations
 from typing import Any
 
 from fastapi import Depends, HTTPException, Request
-from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from cms import config
+from cms.pg_store import Database
 from cms.security import (
     check_origin,
     hash_session_token,
@@ -26,7 +26,7 @@ _AUTH_ALLOW_SUFFIXES = (
 )
 
 
-def get_db(request: Request) -> AsyncIOMotorDatabase:
+def get_db(request: Request) -> Database:
     db = getattr(request.app.state, 'db', None)
     if db is None:
         raise HTTPException(status_code=503, detail='Database unavailable')
@@ -69,7 +69,7 @@ def _deny_if_auth_gates(request: Request, user: dict) -> None:
 
 async def get_current_admin(
     request: Request,
-    db: AsyncIOMotorDatabase = Depends(get_db),
+    db: Database = Depends(get_db),
 ) -> dict[str, Any]:
     token = request.cookies.get(config.SESSION_COOKIE)
     if not token:

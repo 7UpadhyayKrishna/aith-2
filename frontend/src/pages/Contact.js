@@ -61,7 +61,7 @@ export default function Contact() {
     const [form, setForm] = useState(() => emptyForm(initialIntent));
     const [errors, setErrors] = useState({});
     const [submitting, setSubmitting] = useState(false);
-    const [status, setStatus] = useState(null); // null | success-api | success-mailto | failed
+    const [status, setStatus] = useState(null); // null | success-api | failed
     const [submitError, setSubmitError] = useState('');
 
     const set = (k, v) => {
@@ -99,23 +99,16 @@ export default function Contact() {
         setSubmitting(true);
         try {
             const result = await submitContact(form);
-            if (result.mode === 'mailto' && result.mailto) {
-                // Mailto is a client fallback - not equivalent to server persistence
-                setStatus('success-mailto');
-                window.location.href = result.mailto;
-            } else if (result.ok && result.mode === 'api') {
-                setStatus('success-api');
-                setForm(emptyForm(form.intent));
-            } else if (result.ok) {
+            if (result.ok && (result.mode === 'api' || result.mode === 'stub')) {
                 setStatus('success-api');
                 setForm(emptyForm(form.intent));
             } else {
                 setStatus('failed');
-                setSubmitError('Submission did not complete. Please try again or email us directly.');
+                setSubmitError(result.message || "We couldn't submit your request right now. Please try again.");
             }
         } catch {
             setStatus('failed');
-            setSubmitError('Something went wrong. Please try again or email us directly.');
+            setSubmitError("We couldn't submit your request right now. Please try again.");
         } finally {
             setSubmitting(false);
         }
@@ -215,15 +208,29 @@ export default function Contact() {
 
                         {status === 'success-api' && (
                             <div className="mt-8 border border-copper/40 bg-bone px-5 py-4" role="status" data-testid="contact-success">
-                                <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-copper">Message received</p>
-                                <p className="text-sm mt-2 text-graphite/80">Your enquiry has been received. We will follow up through the email you provided.</p>
+                                <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-copper">Enquiry received</p>
+                                <p className="text-sm mt-2 text-graphite/80">
+                                    Your enquiry has been submitted successfully. We will follow up through the email you provided.
+                                </p>
+                                <button
+                                    type="button"
+                                    className="mt-4 font-mono text-[10px] tracking-[0.18em] uppercase text-copper hover:underline"
+                                    onClick={() => setStatus(null)}
+                                >
+                                    Submit another enquiry
+                                </button>
                             </div>
                         )}
-                        {status === 'success-mailto' && (
-                            <div className="mt-8 border border-graphite/20 bg-bone px-5 py-4" role="status" data-testid="contact-mailto-note">
-                                <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-copper">Email client opened</p>
-                                <p className="text-sm mt-2 text-graphite/80">
-                                    Complete and send the message in your mail app to reach us at {CONTACT.email}. If nothing opened, email us directly.
+                        {status === 'failed' && (
+                            <div className="mt-8 border border-copper/40 bg-bone px-5 py-4" role="alert" data-testid="contact-error">
+                                <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-copper">Submission failed</p>
+                                <p className="text-sm mt-2 text-graphite/80">{submitError}</p>
+                                <p className="text-sm mt-3 text-mute">
+                                    You can retry, or email us manually at{' '}
+                                    <a href={`mailto:${CONTACT.email}`} className="text-copper hover:underline">
+                                        {CONTACT.email}
+                                    </a>
+                                    .
                                 </p>
                             </div>
                         )}

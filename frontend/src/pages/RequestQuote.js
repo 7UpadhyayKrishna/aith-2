@@ -57,7 +57,7 @@ export default function RequestQuote() {
     const [done, setDone] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [failed, setFailed] = useState(false);
-    const [submitMode, setSubmitMode] = useState(null);
+    const [submitError, setSubmitError] = useState(null);
     const [refCode] = useState(() => 'AITH-' + Math.random().toString(36).slice(2, 8).toUpperCase());
     const [knowIncoterm, setKnowIncoterm] = useState(false);
     const [data, setData] = useState({
@@ -108,17 +108,18 @@ export default function RequestQuote() {
         if (submitting) return;
         setSubmitting(true);
         setFailed(false);
+        setSubmitError(null);
         try {
             const result = await submitQuote({ ...data, refCode });
-            setSubmitMode(result.mode);
-            if (result.mode === 'mailto' && result.mailto) {
-                // Mailto opened ≠ Mongo persistence - UI distinguishes via submitMode
-                window.open(result.mailto, '_blank');
+            if (result.ok && (result.mode === 'api' || result.mode === 'stub')) {
+                setDone(true);
+            } else {
+                setFailed(true);
+                setSubmitError(result.message || "We couldn't submit your request right now. Please try again.");
             }
-            if (result.ok) setDone(true);
-            else setFailed(true);
         } catch {
             setFailed(true);
+            setSubmitError("We couldn't submit your request right now. Please try again.");
         } finally {
             setSubmitting(false);
         }
@@ -235,7 +236,12 @@ export default function RequestQuote() {
                         {failed && (
                             <div className="mb-8 border border-terra/50 px-5 py-4" role="alert" data-testid="quote-submit-error">
                                 <p className="font-mono text-[11px] tracking-[0.2em] uppercase text-copper">Submission failed</p>
-                                <p className="text-sm text-ivory/70 mt-2">Please retry, or email {CONTACT.email} with your brief.</p>
+                                <p className="text-sm text-ivory/70 mt-2">
+                                    {submitError || "We couldn't submit your request right now. Please try again."}
+                                </p>
+                                <p className="text-sm text-ivory/50 mt-2">
+                                    You can retry, or email {CONTACT.email} with your brief.
+                                </p>
                                 <button
                                     type="button"
                                     onClick={submit}
@@ -421,7 +427,7 @@ export default function RequestQuote() {
                         data-testid="quote-confirmation"
                     >
                         <p className="font-mono text-[11px] tracking-[0.35em] uppercase text-copper">
-                            {submitMode === 'api' ? 'Request Received' : 'Request Prepared'}
+                            Request Received
                         </p>
                         <h1 className="text-[clamp(2.4rem,8vw,8rem)] leading-[0.92] tracking-[-0.03em] font-extrabold mt-8">
                             WE&apos;LL BE
@@ -447,9 +453,7 @@ export default function RequestQuote() {
                             </div>
                         </div>
                         <p className="text-ivory/45 text-xs mt-6 max-w-md">
-                            {submitMode === 'api'
-                                ? 'Your requirement has been submitted. Our team will review it and follow up with next steps.'
-                                : 'Your email client may have opened with a prepared copy of this request. That is a fallback - it is not the same as a confirmed server submission. If the client did not open, please email the brief to us directly.'}
+                            Your requirement has been submitted. Our team will review it and follow up with next steps.
                         </p>
                         <div className="flex flex-wrap gap-4 mt-12">
                             <Link

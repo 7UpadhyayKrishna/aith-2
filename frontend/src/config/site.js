@@ -3,7 +3,7 @@
  */
 export const SITE_NAME = 'Asian International Trade House';
 export const SITE_SHORT = 'AITH';
-export const SITE_ORIGIN = 'https://aithinternational.com';
+export const SITE_ORIGIN = 'https://www.aithworld.com';
 export const SITE_EMAIL = 'connect@aithworld.com';
 
 export const DEFAULT_DESCRIPTION =
